@@ -66,11 +66,11 @@ var sidebar = {
 }
 
 function Setup() {
-	// Println("GetLocalIpAddress() = " + JSON.stringify(GetLocalIpAddress()));
-	// Println("GetNetworkMask()    = " + JSON.stringify(GetNetworkMask()));
-	// Println("GetDomainname()     = " + JSON.stringify(GetDomainname()));
-	// Println("GetHostname()       = " + JSON.stringify(GetHostname()));
-	// Println("Resolve()           = " + JSON.stringify(Resolve("mastotest.local")));
+	Println("GetLocalIpAddress() = " + JSON.stringify(GetLocalIpAddress()));
+	Println("GetNetworkMask()    = " + JSON.stringify(GetNetworkMask()));
+	Println("GetDomainname()     = " + JSON.stringify(GetDomainname()));
+	Println("GetHostname()       = " + JSON.stringify(GetHostname()));
+	Println("Resolve(google.com) = " + JSON.stringify(Resolve("google.com")));
 
 	MouseShowCursor(false);
 
@@ -115,19 +115,23 @@ function Setup() {
 }
 
 function Loop() {
-	ClearScreen(EGA.BLACK);
-	switch (sidebar.current_screen) {
-		case SCREEN_HOME:
-			DisplayHome();
-			break;
-		case SCREEN_NOTIFICATION:
-			DisplayNotifications();
-			break;
-		case SCREEN_TOOT:
-			DisplayMultilineText(0, 0, EGA.GREEN, toot.txt, true, 75);
-			break;
+	try {
+		ClearScreen(EGA.BLACK);
+		switch (sidebar.current_screen) {
+			case SCREEN_HOME:
+				DisplayHome();
+				break;
+			case SCREEN_NOTIFICATION:
+				DisplayNotifications();
+				break;
+			case SCREEN_TOOT:
+				DisplayMultilineText(0, 0, EGA.GREEN, toot.txt, true, TXT_LINE_LENGTH);
+				break;
+		}
+		DisplaySidebar();
+	} catch (e) {
+		Println(e);
 	}
-	DisplaySidebar();
 }
 
 function Input(e) {
@@ -247,7 +251,7 @@ function DisplayHome() {
 		var toots = m.TimelineHome(20, home.newest_id);
 
 		Println("\nPolled: " + home.newest_id);
-		Println(JSON.stringify(toots));
+		// Println(JSON.stringify(toots));
 
 		// for (var i = 0; i < toots.length; i++) {
 		// 	Println("\nFrom @" + toots[i]['account']['username']);
@@ -269,23 +273,39 @@ function DisplayHome() {
 	var current = home.current_top;
 	while (yPos < Height) {
 		// check if there are toots left
+		// Println("Current=" + current);
 		if (current >= home.current_list.length) {
+			// Println("current entry to large");
 			break;
 		}
 
 		var minY = yPos + IMG_SIZE;
 		// get toot and display it
 		var t = home.current_list[current];
+		// Println("From @" + t['account']['username']);
 		getImage(t['account']['avatar_static']).Draw(0, yPos);
-		var from = "From @" + t['account']['username'] + " / " + t['account']['display_name'];
+		var from;
+		var content;
+		if (t['reblog']) {
+			from = "@" + t['account']['username'] + " BOOSTED " + t['reblog']['account']['username'];
+			content = t['reblog']['content'];
+		} else {
+			if (t['account']['display_name']) {
+				from = "From " + t['account']['display_name'] + " (@" + t['account']['username'] + ")";
+			} else {
+				from = "From @" + t['account']['username'];
+			}
+			content = t['content'];
+		}
 		yPos = DisplayMultilineText(40, yPos, EGA.CYAN, from, false, 70);
-		yPos = DisplayMultilineText(40, yPos, EGA.WHITE, removeHTML(t['content']), false, 70);
+		yPos = DisplayMultilineText(40, yPos, EGA.WHITE, removeHTML(content), false, 70);
 		if (yPos < minY) {
 			yPos = minY;
 		}
 		Line(0, yPos, 600, yPos, EGA.YELLOW);
 		yPos += 4;
 		current++;
+		// Println(yPos + "<" + Height);
 	}
 }
 
@@ -298,7 +318,7 @@ function DisplayNotifications() {
 		var toots = m.Notifications(20, nots.newest_id);
 
 		Println("\nPolled: " + nots.newest_id);
-		Println(JSON.stringify(toots));
+		// Println(JSON.stringify(toots));
 
 		// prepend the polled data to the existing data, then truncate to 50 max
 		if (toots.length > 0) {
@@ -374,12 +394,12 @@ function DisplayMultilineText(x, y, col, txt, cursor, maxChars) {
 
 	// split lines at 75 characters and append result to display array
 	for (l = 0; l < tmp_lines.length; l++) {
-		if (tmp_lines[l].length >= maxChars) {
-			var parts = tmp_lines[l].match('/.{1,' + maxChars + '}/g');
-			txt_lines.push.apply(txt_lines, parts);
-		} else {
-			txt_lines.push(tmp_lines[l]);
+		var cl = tmp_lines[l];
+		while (cl.length > 75) {
+			txt_lines.push(cl.substring(0, maxChars));
+			cl = cl.substring(maxChars);
 		}
+		txt_lines.push(cl);
 	}
 
 	// draw the text
@@ -459,7 +479,15 @@ function DisplaySidebar() {
  * @returns plain text
  */
 function removeHTML(html) {
-	return unescapeHTML(StripTags(html)).replace(/[^\x20-\x7E]/g, " ");;
+	// Println("html  =" + html);
+	var noTags = StripTags(html);
+	// Println("notags=" + noTags);
+	var unEsc = unescapeHTML(noTags);
+	// Println("unesc =" + unEsc);
+	var uniFree = unEsc.replace(/[^\x20-\xFF]/g, " ");
+	// var uniFree = unEsc.replace(/[^\x20-\x7E]/g, " ");
+	// Println("unfree=" + uniFree);
+	return uniFree;
 }
 
 //////

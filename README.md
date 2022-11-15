@@ -20,3 +20,31 @@ The access tokens are stored in `CREDS.JSN` if the login is successful.
 
 ## subsequent starts
 Just run `DOStodon`.
+
+# DOSBox-X config
+I used "dosbox-x-mingw-win64-20220901233004.zip" of [DOSBox-X](https://github.com/joncampbell123/dosbox-x/releases) to test this version of DOStodon.
+My `dosbox.conf` looks like this:
+```
+[sdl]
+windowresolution = 1024x768
+output = opengl
+
+[dosbox]
+machine  = svga_s3
+captures = capture
+memsize  = 64
+
+[cpu]
+cycles = max
+
+[ne2000]
+ne2000=true
+nicirq=10
+backend=slirp
+
+
+[autoexec]
+mount c C:\Users\ilu\Documents\_DEVEL\DOStodon
+c:
+ne2000 0x60 10 0x300
+```
