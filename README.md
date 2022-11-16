@@ -14,8 +14,9 @@ The source is split into two files right now:
 # Usage
 ## First start
 Please run `DOStodon <server> <username> <password>`
-Example:
-`DOStodon mastodon.social jon@somwhere.sw 1234567890`
+
+Example: `DOStodon mastodon.social jon@somwhere.sw 1234567890`
+
 The access tokens are stored in `CREDS.JSN` if the login is successful.
 
 ## subsequent starts
