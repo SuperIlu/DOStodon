@@ -3,7 +3,8 @@ This is the first source drop of DOStodon, a Mastodon client for MS-DOS.
 
 DOStodon is implemented in Javascript and relies on a yet unreleased version of [DOjS](https://github.com/SuperIlu/DOjS) to run.
 
-You need a VM, real HW or DOSBox-X with a network card an a matching packet driver to use it.
+**You need a VM, real HW or DOSBox-X with a network card an a matching packet driver to use it.
+A Pentium 133 or faster with at least 32MiB of RAM is recommended.**
 
 Help on this project is very much apprechiated, contact me on [Twitter](https://twitter.com/dec_hl), [Mastodon](https://mastodon.social/@dec_hl) or in the [DOjS Discord](https://discord.gg/J7MUTap9fM) if you want to help...
 
