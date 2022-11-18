@@ -93,7 +93,7 @@ ne2000 0x60 10 0x300
 - added boosting
 - added "busy" indicator
 
-## 18. Nov 2022
+## 16. Nov 2022
 - added some help in README.md
 - first working version
 
