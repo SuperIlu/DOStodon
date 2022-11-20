@@ -28,6 +28,8 @@ Example: `DOStodon mastodon.social jon@somwhere.sw 1234567890`
 
 The access tokens are stored in `CREDS.JSN` if the login is successful.
 
+2FA is not supported right now!
+
 ## subsequent starts
 Just run `DOStodon`.
 
