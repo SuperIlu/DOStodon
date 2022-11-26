@@ -38,7 +38,7 @@ Just run `DOStodon`.
 - `F1`: Switch to home timeline
 - `F2`: Switch to notifications
 - `F3`: Switch to Toot composer
-- `F4`: Unused
+- `F4`: Info screen
 - `F5`: Poll/Refresh home/notifications
 - `UP/DOWN`: scroll entries in home/notifications
 - `p`: Show profile of currently selected entry (for boost the boosters profile)
@@ -88,6 +88,7 @@ ne2000 0x60 10 0x300
 - added info screen
 - reworked Mastodon-API, prepared it to re-use cURL objects (doesn't work yet)
 - now shows a busy indicator when fetchingt iages during scrolling
+- disabled alpha channel to speed up rendering
 
 ## 18. Nov 2022
 - code cleanup
