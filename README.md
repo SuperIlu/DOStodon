@@ -82,6 +82,13 @@ ne2000 0x60 10 0x300
 ```
 
 # Changelog
+## 26. Nov 2022
+- DOjS now uses mbedTLS instead of OpenSSL
+- changed display of user handles
+- added info screen
+- reworked Mastodon-API, prepared it to re-use cURL objects (doesn't work yet)
+- now shows a busy indicator when fetchingt iages during scrolling
+
 ## 18. Nov 2022
 - code cleanup
 - several fixes all over the place

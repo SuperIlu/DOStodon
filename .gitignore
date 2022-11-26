@@ -10,3 +10,4 @@ real_CREDS.JSN
 SPLASH.BMP
 local_cacert.pem
 local_CREDS.JSN
+*.DJS

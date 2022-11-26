@@ -8,6 +8,21 @@ function Notifications() {
 	this.doPoll = false;		// poll for new entries next call
 }
 
+Notifications.prototype.lazyDrawImage = function (url, x, y) {
+	var img = GetCachedImage(url);
+	if (img) {
+		img.Draw(x, y);
+	} else {
+		if (!this.netop) {
+			var url_copy = url;
+			this.netop = new NetworkOperation(function () {
+				FetchImage(url_copy);
+			});
+		}
+		Box(x, y, x + LIST_IMG_SIZE, y + LIST_IMG_SIZE, EGA.LIGHT_GREY);
+	}
+}
+
 Notifications.prototype.drawEntries = function () {
 	var yPos = 0;
 	var current = this.current_top;
@@ -21,32 +36,36 @@ Notifications.prototype.drawEntries = function () {
 		// get toot and display it
 		var n = this.current_list[current];
 
-		GetListImage(n['account']['avatar_static']).Draw(0, yPos);
-
-		// Println(JSON.stringify(this.current_list));
+		this.lazyDrawImage(n['account']['avatar_static'], 0, yPos);
 
 		if (!n.dostodon) {
 			var header = "";
 			var content = "";
+			if (n['account']['display_name']) {
+				header = RemoveHTML(n['account']['display_name'] + " (@" + n['account']['username'] + ")");
+			} else {
+				header = RemoveHTML("@" + n['account']['username']);
+			}
+
 			switch (n['type']) {
 				case 'follow':
-					header = RemoveHTML("@" + n['account']['username'] + " followed you");
+					header += " followed you";
 					content = RemoveHTML(n['account']['note']);
 					break;
 				case 'mention':
-					header = RemoveHTML("@" + n['account']['username'] + " metioned you");
+					header += " metioned you";
 					content = RemoveHTML(n['status']['content']);
 					break;
 				case 'reblog':
-					header = RemoveHTML("@" + n['account']['username'] + " boosted");
+					header += " boosted";
 					content = RemoveHTML(n['status']['content']);
 					break;
 				case 'favourite':
-					header = RemoveHTML("@" + n['account']['username'] + " favourited");
+					header += " favourited";
 					content = RemoveHTML(n['status']['content']);
 					break;
 				default:
-					header = RemoveHTML("@" + n['account']['username'] + " " + n['type']);
+					header += " " + n['type'];
 					if (n['status']) {
 						content = RemoveHTML(n['status']['content']);
 					} else {
@@ -73,7 +92,7 @@ Notifications.prototype.drawEntries = function () {
 		if (yPos < minY) {
 			yPos = minY;
 		}
-		Line(0, yPos, 600, yPos, EGA.YELLOW);
+		Line(0, yPos, CONTENT_WIDTH, yPos, EGA.YELLOW);
 		yPos += 4;
 		this.current_bottom = current;
 		current++;
@@ -112,6 +131,10 @@ Notifications.prototype.Draw = function () {
 	}
 
 	this.drawEntries();
+
+	if (this.netop && this.netop.Process()) {
+		this.netop = null;
+	}
 
 	if (!this.last_poll || (new Date() - this.last_poll > POLL_DELAY)) {
 		DrawLogo();

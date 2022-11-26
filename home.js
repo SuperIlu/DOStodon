@@ -8,6 +8,21 @@ function Home() {
 	this.doPoll = false;		// poll for new entries next call
 }
 
+Home.prototype.lazyDrawImage = function (url, x, y) {
+	var img = GetCachedImage(url);
+	if (img) {
+		img.Draw(x, y);
+	} else {
+		if (!this.netop) {
+			var url_copy = url;
+			this.netop = new NetworkOperation(function () {
+				FetchImage(url_copy);
+			});
+		}
+		Box(x, y, x + LIST_IMG_SIZE, y + LIST_IMG_SIZE, EGA.LIGHT_GREY);
+	}
+}
+
 Home.prototype.drawEntries = function () {
 	var yPos = 0;
 	var current = this.current_top;
@@ -21,7 +36,7 @@ Home.prototype.drawEntries = function () {
 		// get toot and display it
 		var t = this.current_list[current];
 
-		GetListImage(t['account']['avatar_static']).Draw(0, yPos);
+		this.lazyDrawImage(t['account']['avatar_static'], 0, yPos);
 
 		if (!t.dostodon) {
 			var header = "";
@@ -61,7 +76,7 @@ Home.prototype.drawEntries = function () {
 			for (var i = 0; i < media.length; i++) {
 				var m = media[i];
 				if (m['type'] === "image") {
-					GetListImage(m['preview_url']).Draw(xPos, yPos);
+					this.lazyDrawImage(m['preview_url'], xPos, yPos);
 					xPos += LIST_IMG_SIZE * 2;
 					media_rendered = true;
 				}
@@ -75,7 +90,7 @@ Home.prototype.drawEntries = function () {
 		if (yPos < minY) {
 			yPos = minY;
 		}
-		Line(0, yPos, 600, yPos, EGA.YELLOW);
+		Line(0, yPos, CONTENT_WIDTH, yPos, EGA.YELLOW);
 		yPos += 4;
 		this.current_bottom = current;
 		current++;

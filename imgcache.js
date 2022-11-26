@@ -1,7 +1,15 @@
 // TODO: cache groesse!
 var cache = {};
 
-function GetListImage(url) {
+function GetCachedImage(url) {
+	if (cache[url]) {
+		return cache[url];
+	} else {
+		return null;
+	}
+}
+
+function FetchImage(url) {
 	if (cache[url]) {
 		return cache[url];
 	} else {
@@ -30,8 +38,7 @@ function GetScaledImage(url, size) {
 
 function GetImage(url) {
 	Println('GetImage fetching ' + url);
-	var get = new Curl();
-	var resp = get.DoRequest(url);
+	var resp = m.DoGet([], url);
 
 	if (resp[2] === 200) {
 		try {
@@ -52,8 +59,14 @@ function GetImage(url) {
 	}
 }
 
+function NumCacheEntries() {
+	return Object.keys(cache).length;
+}
+
 // export functions and version
 exports.__VERSION__ = 1;
 exports.GetImage = GetImage;
 exports.GetScaledImage = GetScaledImage;
-exports.GetListImage = GetListImage;
+exports.FetchImage = FetchImage;
+exports.GetCachedImage = GetCachedImage;
+exports.NumCacheEntries = NumCacheEntries;

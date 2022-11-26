@@ -30,6 +30,83 @@ function Mastodon(url) {
 	this.client_id = null;
 	this.client_secret = null;
 	this.token = null;
+	this.num_requests = 0;
+	this.req_time = 0;
+	this.failed_requests = 0;
+
+	this.get = new Curl();
+
+	this.post = new Curl();
+}
+
+/**
+ * do post request with header and post-data.
+ * 
+ * @param {string[][]} header array of key-value-pairs as 2 element arrays
+ * @param {string[][]} postdata array of key-value-pairs as 2 element arrays
+ * @param {string} url the server url
+ * 
+ * @returns the https-response like Curl.DoRequest()
+ */
+Mastodon.prototype.DoPost = function (header, postdata, url) {
+	this.post = new Curl();
+	this.post.ClearHeaders();
+	for (var i = 0; i < header.length; i++) {
+		this.post.AddHeader(header[i][0], header[i][1]);
+	}
+
+	this.post.ClearPostData();
+	for (var i = 0; i < postdata.length; i++) {
+		this.post.AddPostData(postdata[i][0], postdata[i][1]);
+	}
+
+	// do request and track numbers/time
+	var start = new Date();
+	this.post.SetPost();
+	var resp = this.post.DoRequest(url);
+	var end = new Date();
+	this.num_requests++;
+	this.req_time += (end - start);
+	if (resp[2] !== 200) {
+		this.failed_requests++;
+	}
+	// Println("POST:" + url);
+	// Println("POST:" + resp[0].ToString());
+	// Println("POST:" + resp[1].ToString());
+	// Println("POST:" + resp[2]);
+	return resp;
+}
+
+/**
+ * do get request with header.
+ * 
+ * @param {string[][]} header array of key-value-pairs as 2 element arrays
+ * @param {string} url the server url
+ * 
+ * @returns the https-response like Curl.DoRequest()
+ */
+Mastodon.prototype.DoGet = function (header, url) {
+	this.get = new Curl();
+	this.get.ClearHeaders();
+	for (var i = 0; i < header.length; i++) {
+		this.get.AddHeader(header[i][0], header[i][1]);
+	}
+
+	// do request and track numbers/time
+	var start = new Date();
+	this.get.SetGet();
+	var resp = this.get.DoRequest(url);
+	var end = new Date();
+	this.num_requests++;
+	this.req_time += (end - start);
+	if (resp[2] !== 200) {
+		this.failed_requests++;
+	}
+	// Println("GET:" + url);
+	// Println("GET:" + resp[0].ToString());
+	// Println("GET:" + resp[1].ToString());
+	// Println("GET:" + resp[2]);
+	return resp;
 }
 
 /**
@@ -54,12 +131,14 @@ Mastodon.prototype.SetSecrets = function (cId, cSecret, tkn) {
  * @returns client id and secret.
  */
 Mastodon.prototype.CreateApp = function (appName) {
-	var post = new Curl();
-	post.AddPostData('client_name', appName);
-	post.AddPostData('redirect_uris', 'urn:ietf:wg:oauth:2.0:oob');
-	post.AddPostData('scopes', 'read write follow push');
-	post.SetPost();
-	var resp = post.DoRequest(this.base_url + "/api/v1/apps");
+	var headers = [];
+	var postdata = [
+		['client_name', appName],
+		['redirect_uris', 'urn:ietf:wg:oauth:2.0:oob'],
+		['scopes', 'read write follow push']
+	];
+
+	var resp = this.DoPost(headers, postdata, this.base_url + "/api/v1/apps");
 
 	if (resp[2] === 200) {
 		var response = JSON.parse(resp[0].ToString());
@@ -81,16 +160,18 @@ Mastodon.prototype.CreateApp = function (appName) {
  * @returns an access token.
  */
 Mastodon.prototype.Login = function (user, pw) {
-	var post = new Curl();
-	post.AddPostData('username', user);
-	post.AddPostData('password', pw);
-	post.AddPostData('redirect_uri', 'urn:ietf:wg:oauth:2.0:oob');
-	post.AddPostData('grant_type', 'password');
-	post.AddPostData('client_id', this.client_id);
-	post.AddPostData('client_secret', this.client_secret);
-	post.AddPostData('scope', 'read write follow push');
-	post.SetPost();
-	var resp = post.DoRequest(this.base_url + "/oauth/token");
+	var headers = [];
+	var postdata = [
+		['username', user],
+		['password', pw],
+		['redirect_uri', 'urn:ietf:wg:oauth:2.0:oob'],
+		['grant_type', 'password'],
+		['client_id', this.client_id],
+		['client_secret', this.client_secret],
+		['scope', 'read write follow push']
+	];
+
+	var resp = this.DoPost(headers, postdata, this.base_url + "/oauth/token");
 
 	if (resp[2] === 200) {
 		var response = JSON.parse(resp[0].ToString());
@@ -114,11 +195,14 @@ Mastodon.prototype.Toot = function (txt) {
 		throw new Error("No credential set");
 	}
 
-	var post = new Curl();
-	post.AddPostData('status', txt);
-	post.SetPost();
-	post.AddHeader('Authorization: Bearer ' + this.token);
-	var resp = post.DoRequest(this.base_url + "/api/v1/statuses");
+	var headers = [
+		['Authorization: Bearer ' + this.token]
+	];
+	var postdata = [
+		['status', txt]
+	];
+
+	var resp = this.DoPost(headers, postdata, this.base_url + "/api/v1/statuses");
 
 	if (resp[2] === 200) {
 		return JSON.parse(resp[0].ToString());
@@ -140,11 +224,15 @@ Mastodon.prototype.Favorite = function (id) {
 		throw new Error("No credential set");
 	}
 
-	var post = new Curl();
-	post.AddPostData('dummy', "data");
-	post.SetPost();
-	post.AddHeader('Authorization: Bearer ' + this.token);
-	var resp = post.DoRequest(this.base_url + "/api/v1/statuses/" + id + "/favourite");
+	var headers = [
+		['Authorization: Bearer ' + this.token]
+	];
+	var postdata = [
+		['dummy', "data"]
+	];
+
+	var resp = this.DoPost(headers, postdata, this.base_url + "/api/v1/statuses/" + id + "/favourite");
+
 
 	if (resp[2] === 200) {
 		return JSON.parse(resp[0].ToString());
@@ -166,11 +254,14 @@ Mastodon.prototype.Reblog = function (id) {
 		throw new Error("No credential set");
 	}
 
-	var post = new Curl();
-	post.AddPostData('dummy', "data");
-	post.SetPost();
-	post.AddHeader('Authorization: Bearer ' + this.token);
-	var resp = post.DoRequest(this.base_url + "/api/v1/statuses/" + id + "/reblog");
+	var headers = [
+		['Authorization: Bearer ' + this.token]
+	];
+	var postdata = [
+		['dummy', "data"]
+	];
+
+	var resp = this.DoPost(headers, postdata, this.base_url + "/api/v1/statuses/" + id + "/reblog");
 
 	if (resp[2] === 200) {
 		return JSON.parse(resp[0].ToString());
@@ -195,20 +286,20 @@ Mastodon.prototype.TimelineHome = function (limit, last) {
 
 	limit = limit || 10;
 
-	var post = new Curl();
-	post.SetGet();
-	post.AddHeader('Authorization: Bearer ' + this.token);
+	var headers = [
+		['Authorization: Bearer ' + this.token]
+	];
+
+	// build URL
 	var url = this.base_url + "/api/v1/timelines/home?limit=" + limit;
 	if (last) {
 		url += "&since_id=" + last;
 	}
-	// Println(new Date() + "poll home start request " + limit + " " + last);
-	var resp = post.DoRequest(url);
-	// Println(new Date() + "poll home end request ");
+
+	var resp = this.DoGet(headers, url);
 
 	if (resp[2] === 200) {
 		var res = JSON.parse(resp[0].ToString());
-		// Println(new Date() + "poll home parse done");
 		return res
 	} else {
 		throw new Error("Home timeline failed: " + resp[2] + ": " + resp[0].ToString());
@@ -231,14 +322,17 @@ Mastodon.prototype.Notifications = function (limit, last) {
 
 	limit = limit || 10;
 
-	var post = new Curl();
-	post.SetGet();
-	post.AddHeader('Authorization: Bearer ' + this.token);
+	var headers = [
+		['Authorization: Bearer ' + this.token]
+	];
+
+	// build URL
 	var url = this.base_url + "/api/v1/notifications?limit=" + limit;
 	if (last) {
 		url += "&since_id=" + last;
 	}
-	var resp = post.DoRequest(url);
+
+	var resp = this.DoGet(headers, url);
 
 	if (resp[2] === 200) {
 		return JSON.parse(resp[0].ToString());

@@ -33,10 +33,11 @@ Profile.prototype.Draw = function () {
 
 	var yPos = TEXT_START_OFFSET;
 	var header;
+
 	if (this.profile['display_name']) {
-		header = this.profile['display_name'] + " (@" + this.profile['username'] + ")";
+		header = this.profile['display_name'] + " (@" + this.profile['acct'] + ")";
 	} else {
-		header = this.profile['username'];
+		header = this.profile['acct'];
 	}
 	lfont.DrawStringLeft(txtStartX, yPos, header, EGA.YELLOW, NO_COLOR);
 	yPos += lfont.height;
@@ -89,9 +90,3 @@ Profile.prototype.Input = function (key, keyCode, char) {
 // export functions and version
 exports.__VERSION__ = 1;
 exports.Profile = Profile;
-
-/*
-Lorem ipsum blafasel hurtz nana
-na ich will hier einnen langen text egal ob da fe
-hler drinne sind!
-*/

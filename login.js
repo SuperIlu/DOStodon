@@ -9,9 +9,7 @@ function Login() {
 		m = new Mastodon(creds.url);
 		m.SetSecrets(creds.client_id, creds.client_secret, creds.token);
 		Println("Using CREDS.JSN");
-		CurlRandom();
 		Sleep(1000);
-		CurlRandom();
 		return m;
 	} else if (ARGS.length >= 4) {
 		// try to login with command line parameters

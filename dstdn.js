@@ -19,6 +19,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+
 //DEBUG = true;
 LoadLibrary("curl");
 LoadLibrary("jpeg");
@@ -32,6 +33,7 @@ Include("notific.js");
 Include("profile.js");
 Include("imgcache.js");
 Include("util.js");
+Include("info.js");
 
 var CREDS_FILE = "CREDS.JSN";
 var TMP_FILE = "TMPIMG";
@@ -45,6 +47,7 @@ var TXT_LINE_LENGTH = 75; // max length of a line on screen
 var POLL_DELAY = (5 * 60 * 1000)
 var LIST_IMG_SIZE = 32;
 var PROFILE_IMG_SIZE = 200;
+var CONTENT_WIDTH = 600;
 
 var m = null;
 var creds = null;
@@ -58,7 +61,7 @@ var home = null;
 var profile = null;
 var toot = null;
 var notifications = null;
-var tbd = null;
+var info = null;
 var current_screen = null;
 
 function Setup() {
@@ -79,7 +82,7 @@ function Setup() {
 	toot = new Toot();
 	notifications = new Notifications();
 	profile = new Profile();
-	tbd = {};
+	info = new Info();
 
 	current_screen = home;
 
@@ -88,8 +91,6 @@ function Setup() {
 }
 
 function Loop() {
-	CurlRandom();
-
 	// startup+splash
 	if (splash) {
 		ClearScreen(EGA.BLACK);
@@ -109,6 +110,7 @@ function Loop() {
 		} catch (e) {
 			Println(e);
 		}
+		info.Update();
 	}
 }
 
@@ -131,11 +133,7 @@ function Input(e) {
 				current_screen = toot;
 				break;
 			case KEY.Code.KEY_F4:
-				current_screen = tbd;
-				break;
-			case KEY.Code.KEY_F12:
-				var info = MemoryInfo();
-				Println("Total:" + info.total + ", Remaining:" + info.remaining)
+				current_screen = info;
 				break;
 			default:
 				profile.Input(key, keyCode, String.fromCharCode(key));
@@ -148,7 +146,7 @@ function Input(e) {
 function DisplaySidebar() {
 	var col;
 
-	var xStart = 600;
+	var xStart = CONTENT_WIDTH;
 	var xStartTxt = xStart + 4;
 
 	// 120 pixel height per box
@@ -184,11 +182,11 @@ function DisplaySidebar() {
 
 	Line(xStart, 360, Width, 360, EGA.BLUE);
 
-	if (current_screen === tbd) {
+	if (current_screen === info) {
 		col = EGA.LIGHT_RED;
 	} else {
 		col = EGA.LIGHT_BLUE;
 	}
 	sfont.DrawStringLeft(xStartTxt, 420, "F4:", col, NO_COLOR);
-	sfont.DrawStringLeft(xStartTxt, 428, "TBD", col, NO_COLOR);
+	sfont.DrawStringLeft(xStartTxt, 428, "Info", col, NO_COLOR);
 }
