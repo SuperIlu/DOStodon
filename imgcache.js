@@ -37,7 +37,7 @@ function GetScaledImage(url, size) {
 }
 
 function GetImage(url) {
-	Println('GetImage fetching ' + url);
+	//Println('GetImage fetching ' + url);
 	var resp = m.DoGet([], url);
 
 	if (resp[2] === 200) {

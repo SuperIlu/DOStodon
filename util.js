@@ -93,7 +93,7 @@ function DrawLogo() {
 	var logoX = Width / 2 - logo.width / 2;
 	var logoY = Height / 2 - logo.height / 2;
 	logo.DrawTrans(logoX, logoY);
-	sfont.DrawStringCenter(Width / 2, logoY + logo.height + 2, "BUSY", EGA.RED, NO_COLOR);
+	sfont.DrawStringCenter(Width / 2, logoY + logo.height + 2, "BUSY", EGA.LIGHT_RED, NO_COLOR);
 }
 
 /**

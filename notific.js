@@ -107,6 +107,8 @@ Notifications.prototype.pollData = function () {
 
 	// prepend the polled data to the existing data, then truncate to 50 max
 	if (toots.length > 0) {
+		noti_snd.Play(255, 128, false);
+
 		// fix up indices
 		if (this.selected > 0) {
 			this.selected += toots.length;
@@ -162,6 +164,7 @@ Notifications.prototype.buttonUp = function () {
 }
 
 Notifications.prototype.Input = function (key, keyCode, char) {
+	var e = this.current_list[this.selected];
 	switch (keyCode) {
 		case KEY.Code.KEY_DOWN:
 			this.buttonDown();
@@ -176,11 +179,37 @@ Notifications.prototype.Input = function (key, keyCode, char) {
 			switch (char) {
 				case "P":
 				case "p":
-					profile.SetProfile(this.current_list[this.current_top + this.selected]['account']);
+					profile.SetProfile(e['account']);
+					break;
+				case "r":
+				case "R":
+					if (e['status']) {
+						toot.Reply(e['status']);
+					}
+					return true;
+					break;
+				case "B":
+				case "b":
+					if (e['status']) {
+						this.netop = new NetworkOperation(function () {
+							m.Reblog(e['status']['id']);
+							boost_snd.Play(255, 128, false);
+						});
+					}
+					break;
+				case "F":
+				case "f":
+					if (e['status']) {
+						this.netop = new NetworkOperation(function () {
+							m.Favorite(e['status']['id']);
+							fav_snd.Play(255, 128, false);
+						});
+					}
 					break;
 			}
 			break;
 	}
+	return false;
 }
 
 // export functions and version

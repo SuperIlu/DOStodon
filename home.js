@@ -12,6 +12,7 @@ Home.prototype.lazyDrawImage = function (url, x, y) {
 	var img = GetCachedImage(url);
 	if (img) {
 		img.Draw(x, y);
+		Box(x, y, x + LIST_IMG_SIZE, y + LIST_IMG_SIZE, EGA.BLACK);
 	} else {
 		if (!this.netop) {
 			var url_copy = url;
@@ -37,6 +38,9 @@ Home.prototype.drawEntries = function () {
 		var t = this.current_list[current];
 
 		this.lazyDrawImage(t['account']['avatar_static'], 0, yPos);
+		if (t['reblog']) {
+			this.lazyDrawImage(t['reblog']['account']['avatar_static'], LIST_IMG_SIZE / 2, yPos);
+		}
 
 		if (!t.dostodon) {
 			var header = "";
@@ -60,8 +64,8 @@ Home.prototype.drawEntries = function () {
 		} else {
 			col = EGA.CYAN;
 		}
-		yPos = DisplayMultilineText(40, yPos, col, t.dostodon.header, false, 70);
-		yPos = DisplayMultilineText(40, yPos, EGA.WHITE, t.dostodon.content, false, 70);
+		yPos = DisplayMultilineText(LIST_IMG_SIZE + LIST_IMG_SIZE / 2 + 8, yPos, col, t.dostodon.header, false, 68);
+		yPos = DisplayMultilineText(LIST_IMG_SIZE + LIST_IMG_SIZE / 2 + 8, yPos, EGA.WHITE, t.dostodon.content, false, 68);
 
 		// render media images
 		var media;
@@ -105,6 +109,8 @@ Home.prototype.pollData = function () {
 
 	// prepend the polled data to the existing data, then truncate to 50 max
 	if (toots.length > 0) {
+		home_snd.Play(255, 128, false);
+
 		// fix up indices
 		if (this.selected > 0) {
 			this.selected += toots.length;
@@ -167,7 +173,7 @@ Home.prototype.Input = function (key, keyCode, char) {
 	if (this.image_preview) {
 		this.image_preview = null;
 	} else {
-		var e = home.current_list[home.current_top + home.selected];
+		var e = this.current_list[this.selected];
 		switch (keyCode) {
 			case KEY.Code.KEY_DOWN:
 				this.buttonDown();
@@ -202,18 +208,30 @@ Home.prototype.Input = function (key, keyCode, char) {
 					case "p":
 						profile.SetProfile(e['account']);
 						break;
+					case "r":
+					case "R":
+						toot.Reply(e);
+						return true;
+						break;
 					case "B":
 					case "b":
-						this.netop = new NetworkOperation(function () { m.Reblog(e['id']); });
+						this.netop = new NetworkOperation(function () {
+							m.Reblog(e['id']);
+							boost_snd.Play(255, 128, false);
+						});
 						break;
 					case "F":
 					case "f":
-						this.netop = new NetworkOperation(function () { m.Favorite(e['id']); });
+						this.netop = new NetworkOperation(function () {
+							m.Favorite(e['id']);
+							fav_snd.Play(255, 128, false);
+						});
 						break;
 				}
 				break;
 		}
 	}
+	return false;
 }
 
 Home.prototype.setPreview = function (e, idx) {

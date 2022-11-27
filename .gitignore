@@ -11,3 +11,6 @@ SPLASH.BMP
 local_cacert.pem
 local_CREDS.JSN
 *.DJS
+crash.js
+symify.exe
+TMPIMG

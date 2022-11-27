@@ -43,7 +43,7 @@ var MASTODON_LOGO = "MLOGO.PNG";
 var MAX_TOOTS_IN_LIST = 50;
 var TXT_SIZE = 9;		// text height
 var TXT_MAX = 500;		// max length of function
-var TXT_LINE_LENGTH = 75; // max length of a line on screen
+var TXT_LINE_LENGTH = 73; // max length of a line on screen
 var POLL_DELAY = (5 * 60 * 1000)
 var LIST_IMG_SIZE = 32;
 var PROFILE_IMG_SIZE = 200;
@@ -76,6 +76,13 @@ function Setup() {
 	// load fonts
 	sfont = new Font(JSBOOTPATH + "fonts/pc8x8.fnt");
 	lfont = new Font(JSBOOTPATH + "fonts/pc8x16.fnt");
+
+	// load sounds
+	home_snd = new Sample("invplop.wav");
+	noti_snd = new Sample("plop.wav");
+	toot_snd = new Sample("toot.wav");
+	boost_snd = new Sample("boost.wav");
+	fav_snd = new Sample("fav.wav");
 
 	// create screens
 	home = new Home();
@@ -137,7 +144,10 @@ function Input(e) {
 				break;
 			default:
 				profile.Input(key, keyCode, String.fromCharCode(key));
-				current_screen.Input(key, keyCode, String.fromCharCode(key));
+				var res = current_screen.Input(key, keyCode, String.fromCharCode(key));
+				if (res) {
+					current_screen = toot;
+				}
 				break;
 		}
 	}

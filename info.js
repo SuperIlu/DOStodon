@@ -63,6 +63,7 @@ Info.prototype.Update = function () {
 }
 
 Info.prototype.Input = function (key, keyCode, char) {
+	return false;
 }
 
 // export functions and version

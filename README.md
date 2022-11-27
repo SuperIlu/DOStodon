@@ -45,6 +45,8 @@ Just run `DOStodon`.
 - `P`: Show profile of currently selected entry (for boost the original profile)
 - `B`: Boost/reblog currently selected toot in home screen
 - `F`: Favorite/like currently selected toot in home screen
+- `R`: reply to selected toot in home screen
+- `DEL`: delete toot composer text and reply-to toot
 - `CTRL-ENTER`: Send toot in Toot editor
 - `1..4`: show media attachment 1 to 4. Any key to close.
 
@@ -82,6 +84,13 @@ ne2000 0x60 10 0x300
 ```
 
 # Changelog
+## 27. Nov 2022
+- implemented connection reuse
+- you can now reply to toots by pressing R
+- you can now clear the toot-composer by pressing DEL
+- improved display of boosted toots
+- added sounds
+
 ## 26. Nov 2022
 - DOjS now uses mbedTLS instead of OpenSSL
 - changed display of user handles

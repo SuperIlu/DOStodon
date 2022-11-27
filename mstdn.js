@@ -49,10 +49,10 @@ function Mastodon(url) {
  * @returns the https-response like Curl.DoRequest()
  */
 Mastodon.prototype.DoPost = function (header, postdata, url) {
-	this.post = new Curl();
+	// this.post = new Curl();
 	this.post.ClearHeaders();
 	for (var i = 0; i < header.length; i++) {
-		this.post.AddHeader(header[i][0], header[i][1]);
+		this.post.AddHeader(header[i][0]);
 	}
 
 	this.post.ClearPostData();
@@ -86,10 +86,10 @@ Mastodon.prototype.DoPost = function (header, postdata, url) {
  * @returns the https-response like Curl.DoRequest()
  */
 Mastodon.prototype.DoGet = function (header, url) {
-	this.get = new Curl();
+	// this.get = new Curl();
 	this.get.ClearHeaders();
 	for (var i = 0; i < header.length; i++) {
-		this.get.AddHeader(header[i][0], header[i][1]);
+		this.get.AddHeader(header[i][0]);
 	}
 
 	// do request and track numbers/time
@@ -187,10 +187,11 @@ Mastodon.prototype.Login = function (user, pw) {
  * @see https://docs.joinmastodon.org/methods/statuses/
  * 
  * @param {string} txt the text to toot.
+ * @param {string} [reply_id] id of a toot to reply to.
  * 
  * @returns a https://docs.joinmastodon.org/entities/status/, an exception is thrown for an error
  */
-Mastodon.prototype.Toot = function (txt) {
+Mastodon.prototype.Toot = function (txt, reply_id) {
 	if (!this.token) {
 		throw new Error("No credential set");
 	}
@@ -201,6 +202,11 @@ Mastodon.prototype.Toot = function (txt) {
 	var postdata = [
 		['status', txt]
 	];
+
+	// append reply id (if any)
+	if (reply_id) {
+		postdata.push(['in_reply_to_id', reply_id]);
+	}
 
 	var resp = this.DoPost(headers, postdata, this.base_url + "/api/v1/statuses");
 
