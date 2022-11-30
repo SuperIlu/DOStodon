@@ -1,5 +1,5 @@
 # DOStodon
-This is the first source drop of DOStodon, a Mastodon client for MS-DOS.
+This is the source of DOStodon, a Mastodon client for MS-DOS.
 
 DOStodon is implemented in Javascript and relies on a yet unreleased version of [DOjS](https://github.com/SuperIlu/DOjS) to run.
 
