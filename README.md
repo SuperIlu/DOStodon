@@ -86,6 +86,9 @@ ne2000 0x60 10 0x300
 ```
 
 # Changelog
+## 30. Nov 2022
+- added JS based blurhash
+
 ## 27. Nov 2022
 - implemented connection reuse
 - you can now reply to toots by pressing R
