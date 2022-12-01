@@ -49,6 +49,7 @@ var POLL_DELAY = (5 * 60 * 1000)
 var LIST_IMG_SIZE = 32;
 var PROFILE_IMG_SIZE = 200;
 var CONTENT_WIDTH = 600;
+var MAX_POLL = 30;
 
 var m = null;
 var creds = null;

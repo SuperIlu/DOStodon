@@ -72,6 +72,8 @@ Home.prototype.drawEntries = function () {
 			if (t['reblog']) {
 				header = RemoveHTML("@" + t['account']['username'] + " BOOSTED " + t['reblog']['account']['username']);
 				content = RemoveHTML(t['reblog']['content']);
+				sens_indi = t['reblog']['sensitive'];
+				sens_txt = RemoveHTML(t['reblog']['spoiler_text']);
 			} else {
 				if (t['account']['display_name']) {
 					header = RemoveHTML("From " + t['account']['display_name'] + " (@" + t['account']['username'] + ")");
@@ -79,8 +81,15 @@ Home.prototype.drawEntries = function () {
 					header = RemoveHTML("From @" + t['account']['username']);
 				}
 				content = RemoveHTML(t['content']);
+				sens_indi = t['sensitive'];
+				sens_txt = RemoveHTML(t['spoiler_text']);
 			}
-			t.dostodon = { "header": header, "content": content };
+			t.dostodon = {
+				"header": header,
+				"content": content,
+				"sensitive_txt": sens_txt,
+				"sensitive_indicator": sens_indi
+			};
 		}
 		var col;
 		if (current === this.selected) {
@@ -89,7 +98,11 @@ Home.prototype.drawEntries = function () {
 			col = EGA.CYAN;
 		}
 		yPos = DisplayMultilineText(LIST_IMG_SIZE + LIST_IMG_SIZE / 2 + 8, yPos, col, t.dostodon.header, false, 68);
-		yPos = DisplayMultilineText(LIST_IMG_SIZE + LIST_IMG_SIZE / 2 + 8, yPos, EGA.WHITE, t.dostodon.content, false, 68);
+		if (t.dostodon.sensitive_indicator) {
+			yPos = DisplayMultilineText(LIST_IMG_SIZE + LIST_IMG_SIZE / 2 + 8, yPos, EGA.LIGHT_BLUE, "<CW> " + t.dostodon.sensitive_txt, false, 68);
+		} else {
+			yPos = DisplayMultilineText(LIST_IMG_SIZE + LIST_IMG_SIZE / 2 + 8, yPos, EGA.WHITE, t.dostodon.content, false, 68);
+		}
 
 		// render media images
 		var media;
@@ -98,19 +111,28 @@ Home.prototype.drawEntries = function () {
 		} else {
 			media = t['media_attachments'];
 		}
-		if (media && media.length > 0) {
-			var media_rendered = false;
-			var xPos = LIST_IMG_SIZE * 2;
-			for (var i = 0; i < media.length; i++) {
-				var m = media[i];
-				if (m['type'] === "image") {
-					this.lazyDrawImage(m['preview_url'], m['blurhash'], xPos, yPos);
-					xPos += LIST_IMG_SIZE * 2;
-					media_rendered = true;
+		if (!t.dostodon.sensitive_indicator) {
+			if (media && media.length > 0) {
+				var media_rendered = false;
+				var xPos = LIST_IMG_SIZE * 2;
+				var media_str = "";
+				for (var i = 0; i < media.length; i++) {
+					var m = media[i];
+					if (m['type'] === "image") {
+						this.lazyDrawImage(m['preview_url'], m['blurhash'], xPos, yPos);
+						xPos += LIST_IMG_SIZE * 2;
+						media_rendered = true;
+					} else {
+						media_str += "<" + m['type'] + "> "
+					}
 				}
-			}
-			if (media_rendered) {
-				yPos += LIST_IMG_SIZE;
+				if (media_rendered) {
+					yPos += LIST_IMG_SIZE;
+				}
+				if (media_str.length > 0) {
+					// render media indicator for non-pictures
+					yPos = DisplayMultilineText(LIST_IMG_SIZE + LIST_IMG_SIZE / 2 + 8, yPos, EGA.LIGHT_GREY, media_str, false, 68);
+				}
 			}
 		}
 
@@ -127,7 +149,7 @@ Home.prototype.drawEntries = function () {
 
 Home.prototype.pollData = function () {
 	// get toots never that this ID
-	var toots = m.TimelineHome(20, this.newest_id);
+	var toots = m.TimelineHome(MAX_POLL, this.newest_id);
 
 	Println("HOME Polled: " + this.newest_id);
 
@@ -233,6 +255,12 @@ Home.prototype.Input = function (key, keyCode, char) {
 							profile.SetProfile(e['account']);
 						}
 						break;
+					case 'c':
+					case 'C':
+						if (e['dostodon']['sensitive_txt'].length > 0) {
+							e['dostodon']['sensitive_indicator'] = !e['dostodon']['sensitive_indicator'];
+						}
+						break
 					case "p":
 						profile.SetProfile(e['account']);
 						break;

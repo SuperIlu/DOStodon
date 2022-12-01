@@ -121,7 +121,7 @@ Notifications.prototype.drawEntries = function () {
 
 Notifications.prototype.pollData = function () {
 	// get toots never that this ID
-	var toots = m.Notifications(20, this.newest_id);
+	var toots = m.Notifications(MAX_POLL, this.newest_id);
 
 	Println("NOTI Polled: " + this.newest_id);
 
