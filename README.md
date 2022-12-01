@@ -46,6 +46,7 @@ Just run `DOStodon`.
 - `B`: Boost/reblog currently selected toot in home screen
 - `F`: Favorite/like currently selected toot in home screen
 - `R`: reply to selected toot in home screen
+- `D`: Print JSON of selected toot in home screen to logfile
 - `DEL`: delete toot composer text and reply-to toot
 - `CTRL-ENTER`: Send toot in Toot editor
 - `1..4`: show media attachment 1 to 4. Any key to close.

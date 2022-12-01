@@ -213,6 +213,10 @@ Home.prototype.Input = function (key, keyCode, char) {
 						toot.Reply(e);
 						return true;
 						break;
+					case "d":
+					case "D":
+						Println(JSON.stringify(e));
+						break;
 					case "B":
 					case "b":
 						this.netop = new NetworkOperation(function () {
