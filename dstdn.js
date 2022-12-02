@@ -34,7 +34,6 @@ Include("profile.js");
 Include("imgcache.js");
 Include("util.js");
 Include("info.js");
-Include("blurhash");
 
 var CREDS_FILE = "CREDS.JSN";
 var TMP_FILE = "TMPIMG";

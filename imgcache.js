@@ -26,7 +26,7 @@ function GetHashedImage(hash) {
 	if (blurhashes[hash]) {
 		return blurhashes[hash];
 	} else {
-		var bm = BluhashDecode(hash, LIST_IMG_SIZE, LIST_IMG_SIZE)
+		var bm = new Bitmap(hash, LIST_IMG_SIZE, LIST_IMG_SIZE);
 		blurhashes[hash] = bm;
 		return bm;
 	}

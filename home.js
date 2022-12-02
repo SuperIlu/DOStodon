@@ -301,7 +301,7 @@ Home.prototype.setPreview = function (e, idx) {
 	if (e['media_attachments'] && e['media_attachments'][idx] && e['media_attachments'][idx]['type'] === "image") {
 		var media = e['media_attachments'][idx];
 		var outer = this;
-		outer.image_preview = GetHashedImage(media['blurhash']);
+		outer.image_preview = new Bitmap(media['blurhash'], media['meta']['small']['width'], media['meta']['small']['height']);
 		this.netop = new NetworkOperation(function () {
 			outer.image_preview = GetImage(media['preview_url']);
 		});

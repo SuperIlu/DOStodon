@@ -76,7 +76,6 @@ The source is split into several files right now:
 - `profile.js` profile viewer
 - `toot.js` toot creation
 - `util.js` support code
-- `bluhash.js` image preview generation
 
 DOStodon is implemented using DOjS native API (no p5js emulation). Network operations block the input processing/rendering.
 
@@ -109,6 +108,9 @@ ne2000 0x60 10 0x300
 ```
 
 # Changelog
+## 2. Dec 2022
+- Blurhash is now implemented in C
+
 ## 1. Dec 2022
 - added `<CW>` for content warnings, you can toggle the toot with `C`
 - added media indicator for non-images (e.g. `<video>`)
