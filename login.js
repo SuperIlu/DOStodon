@@ -39,7 +39,7 @@ function Login() {
 		creds = {};
 		creds.url = FormatURL(instance);
 		m = new Mastodon(creds.url);
-		var resp = m.CreateApp("DOStodon");
+		var resp = m.CreateApp("DOStodon", "https://github.com/SuperIlu/DOStodon");
 		creds.client_id = resp.client_id;
 		creds.client_secret = resp.client_secret;
 

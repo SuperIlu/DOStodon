@@ -127,16 +127,21 @@ Mastodon.prototype.SetSecrets = function (cId, cSecret, tkn) {
  * @see https://docs.joinmastodon.org/methods/apps/
  * 
  * @param {string} appName name of the app.
+ * @param {string} [website] the website of the application
  * 
  * @returns client id and secret.
  */
-Mastodon.prototype.CreateApp = function (appName) {
+Mastodon.prototype.CreateApp = function (appName, website) {
 	var headers = [];
 	var postdata = [
 		['client_name', appName],
 		['redirect_uris', 'urn:ietf:wg:oauth:2.0:oob'],
 		['scopes', 'read write follow push']
 	];
+
+	if (website) {
+		postdata.push(['website', website]);
+	}
 
 	var resp = this.DoPost(headers, postdata, this.base_url + "/api/v1/apps");
 
