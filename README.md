@@ -51,6 +51,7 @@ Just run `DOStodon`.
 ## Limitations
 - Can only display the home timeline and notifications. No support for hashtags, local or global timelines.
 - 2FA is not supported right now!
+- logging in with passwords that contain characters outside 7bit ASCII might not be possible
 - HTTPS requests can take quite a lot of time, be patient!
 - Can't play videos/audio
 - Image attachements are just drawn at the upper left corner
