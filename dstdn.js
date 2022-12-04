@@ -31,9 +31,10 @@ Include("home.js");
 Include("toot.js");
 Include("notific.js");
 Include("profile.js");
-Include("imgcache.js");
 Include("util.js");
 Include("info.js");
+Include("lrucache.js");
+Include("imgcache.js");
 
 var CREDS_FILE = "CREDS.JSN";
 var TMP_FILE = "TMPIMG";

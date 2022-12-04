@@ -131,9 +131,8 @@ LRUCache.prototype.Size = function () {
 LRUCache.prototype.Get = function (key) {
 	if (this.objects[key]) {
 		var entry = this.objects[key];
-		this.lruList.Remove(entry.list);	// remove from LRU
-		delete this.objects[key];			// and from cache
-		this.lruList.InsertFirst(le);		// queue as first LRU entry
+		this.lruList.Remove(entry.list);		// remove from LRU
+		this.lruList.InsertFirst(entry.list);	// queue as first LRU entry
 		return entry.data;
 	} else {
 		return null;
@@ -148,7 +147,7 @@ LRUCache.prototype.Remove = function (key) {
 	}
 }
 
-LRUCache.prototype.Add = function (key, val) {
+LRUCache.prototype.Put = function (key, val) {
 	var entry;
 	var le;
 	if (this.objects[key]) {
@@ -162,9 +161,10 @@ LRUCache.prototype.Add = function (key, val) {
 			"data": val,
 			"list": new ListEntry(key)
 		};
+		le = entry.list;
 	}
 
-	while (this.Size() > this.maxSize) {
+	while (this.Size() > this.maxSize - 1) {
 		this.Remove(this.lruList.GetLast().GetData());
 	}
 
@@ -172,12 +172,33 @@ LRUCache.prototype.Add = function (key, val) {
 	this.lruList.InsertFirst(le);	// queue as first LRU entry
 }
 
-// // export functions and version
-// exports.__VERSION__ = 1;
-// exports.ListEntry = ListEntry;
-// exports.LinkedList = LinkedList;
+// export functions and version
+exports.__VERSION__ = 1;
+exports.ListEntry = ListEntry;
+exports.LinkedList = LinkedList;
+exports.LRUCache = LRUCache;
 
+/*
 function Setup() {
+	var c = new LRUCache(5);
+
+	for (var i = 0; i < 10; i++) {
+		c.Put("" + i, "" + i);
+	}
+
+	Println(c.Size());
+	printList(c.lruList);
+
+	Println(c.Get("5"));
+	Println(c.Get("6"));
+	Println(c.Get("3"));
+	Println(c.Get("2"));
+	printList(c.lruList);
+
+	Stop();
+}
+
+function SetupLL() {
 	var ll = new LinkedList();
 
 	for (var i = 0; i < 5; i++) {
@@ -217,7 +238,7 @@ function Loop() { }
 function Input() { }
 
 function printList(ll) {
-	Println("Iterating: " + ll.NumEntries());
+	Println("Iterating: " + ll.Size());
 	var it = ll.GetFirst();
 	while (it) {
 		Println("  " + it.GetData());
@@ -226,10 +247,11 @@ function printList(ll) {
 }
 
 function printList_rev(ll) {
-	Println("Reverse Iterating: " + ll.NumEntries());
+	Println("Reverse Iterating: " + ll.Size());
 	var it = ll.GetLast();
 	while (it) {
 		Println("  " + it.GetData());
 		it = it.Prev();
 	}
 }
+*/

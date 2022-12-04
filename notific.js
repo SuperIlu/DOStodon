@@ -36,7 +36,7 @@ Notifications.prototype.lazyDrawImage = function (url, x, y) {
 		if (!this.netop) {
 			var url_copy = url;
 			this.netop = new NetworkOperation(function () {
-				FetchImage(url_copy);
+				FetchListImage(url_copy);
 			});
 		}
 		Box(x, y, x + LIST_IMG_SIZE, y + LIST_IMG_SIZE, EGA.LIGHT_GREY);

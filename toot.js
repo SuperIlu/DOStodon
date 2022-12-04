@@ -35,7 +35,7 @@ Toot.prototype.lazyDrawImage = function (url, bhash, x, y) {
 		if (!this.netop) {
 			var url_copy = url;
 			this.netop = new NetworkOperation(function () {
-				FetchImage(url_copy);
+				FetchListImage(url_copy);
 			});
 		}
 		if (bhash) {

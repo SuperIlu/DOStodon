@@ -37,7 +37,7 @@ Home.prototype.lazyDrawImage = function (url, bhash, x, y) {
 		if (!this.netop) {
 			var url_copy = url;
 			this.netop = new NetworkOperation(function () {
-				FetchImage(url_copy);
+				FetchListImage(url_copy);
 			});
 		}
 		if (bhash) {
@@ -303,7 +303,7 @@ Home.prototype.setPreview = function (e, idx) {
 		var outer = this;
 		outer.image_preview = new Bitmap(media['blurhash'], media['meta']['small']['width'], media['meta']['small']['height']);
 		this.netop = new NetworkOperation(function () {
-			outer.image_preview = GetImage(media['preview_url']);
+			outer.image_preview = FetchLargeImage(media['preview_url']);
 		});
 	}
 }

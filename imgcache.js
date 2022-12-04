@@ -19,33 +19,54 @@ SOFTWARE.
 */
 
 // TODO: cache groesse!
-var cache = {};
-var blurhashes = {};
+var cache = new LRUCache(100);
+var profile = new LRUCache(20);
+var large = new LRUCache(20);
 
 function GetHashedImage(hash) {
-	if (blurhashes[hash]) {
-		return blurhashes[hash];
+	if (cache.Get(hash)) {
+		return cache.Get(hash);
 	} else {
 		var bm = new Bitmap(hash, LIST_IMG_SIZE, LIST_IMG_SIZE);
-		blurhashes[hash] = bm;
+		cache.Put(hash, bm);
 		return bm;
 	}
 }
 
 function GetCachedImage(url) {
-	if (cache[url]) {
-		return cache[url];
+	if (cache.Get(url)) {
+		return cache.Get(url);
 	} else {
 		return null;
 	}
 }
 
-function FetchImage(url) {
-	if (cache[url]) {
-		return cache[url];
+function FetchListImage(url) {
+	if (cache.Get(url)) {
+		return cache.Get(url);
 	} else {
 		var ret = GetScaledImage(url, LIST_IMG_SIZE);
-		cache[url] = ret;
+		cache.Put(url, ret);
+		return ret;
+	}
+}
+
+function FetchProfileImage(url) {
+	if (profile.Get(url)) {
+		return profile.Get(url);
+	} else {
+		var ret = GetScaledImage(url, PROFILE_IMG_SIZE);
+		profile.Put(url, ret);
+		return ret;
+	}
+}
+
+function FetchLargeImage(url) {
+	if (large.Get(url)) {
+		return large.Get(url);
+	} else {
+		var ret = GetImage(url);
+		large.Put(url, ret);
 		return ret;
 	}
 }
@@ -91,7 +112,13 @@ function GetImage(url) {
 }
 
 function NumCacheEntries() {
-	return Object.keys(cache).length;
+	return cache.Size();
+}
+function NumProfileEntries() {
+	return profile.Size();
+}
+function NumLargeEntries() {
+	return large.Size();
 }
 
 // export functions and version
@@ -99,6 +126,12 @@ exports.__VERSION__ = 1;
 exports.GetImage = GetImage;
 exports.GetHashedImage = GetHashedImage;
 exports.GetScaledImage = GetScaledImage;
-exports.FetchImage = FetchImage;
 exports.GetCachedImage = GetCachedImage;
+
+exports.FetchLargeImage = FetchLargeImage;
+exports.FetchListImage = FetchListImage;
+exports.FetchProfileImage = FetchProfileImage;
+
 exports.NumCacheEntries = NumCacheEntries;
+exports.NumProfileEntries = NumProfileEntries;
+exports.NumLargeEntries = NumLargeEntries;
