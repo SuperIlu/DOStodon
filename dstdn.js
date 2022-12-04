@@ -128,29 +128,27 @@ function Input(e) {
 		var key = e.key & 0xFF;
 		var keyCode = e.key >> 8;
 
-		// Println(key);
-		// Println(keyCode + "\n");
-
-		switch (keyCode) {
-			case KEY.Code.KEY_F1:
-				current_screen = home;
-				break;
-			case KEY.Code.KEY_F2:
-				current_screen = notifications;
-				break;
-			case KEY.Code.KEY_F3:
-				current_screen = toot;
-				break;
-			case KEY.Code.KEY_F4:
-				current_screen = info;
-				break;
-			default:
-				profile.Input(key, keyCode, String.fromCharCode(key));
-				var res = current_screen.Input(key, keyCode, String.fromCharCode(key));
-				if (res) {
+		if (!profile.Input(key, keyCode, String.fromCharCode(key))) {
+			switch (keyCode) {
+				case KEY.Code.KEY_F1:
+					current_screen = home;
+					break;
+				case KEY.Code.KEY_F2:
+					current_screen = notifications;
+					break;
+				case KEY.Code.KEY_F3:
 					current_screen = toot;
-				}
-				break;
+					break;
+				case KEY.Code.KEY_F4:
+					current_screen = info;
+					break;
+				default:
+					var res = current_screen.Input(key, keyCode, String.fromCharCode(key));
+					if (res) {
+						current_screen = toot;
+					}
+					break;
+			}
 		}
 	}
 }

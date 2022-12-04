@@ -21,7 +21,7 @@ SOFTWARE.
 // TODO: cache groesse!
 var cache = new LRUCache(100);
 var profile = new LRUCache(20);
-var large = new LRUCache(20);
+var large = new LRUCache(15);
 
 function GetHashedImage(hash) {
 	if (cache.Get(hash)) {

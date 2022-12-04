@@ -108,6 +108,10 @@ ne2000 0x60 10 0x300
 ```
 
 # Changelog
+## 4. Dec 2022
+- implemented LRU cache for images
+- fixed some quirks with key handlings
+
 ## 2. Dec 2022
 - Blurhash is now implemented in C
 

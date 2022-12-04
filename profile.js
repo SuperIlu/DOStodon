@@ -104,7 +104,12 @@ Profile.prototype.Draw = function () {
 }
 
 Profile.prototype.Input = function (key, keyCode, char) {
-	this.SetProfile(null);
+	if (this.profile) {
+		this.SetProfile(null);
+		return true;
+	} else {
+		return false;
+	}
 }
 
 // export functions and version

@@ -93,7 +93,7 @@ LinkedList.prototype.Remove = function (e) {
 		throw new Error("Object is no list entry!");
 	}
 
-	if (!e.__ll__.prev && !e.__ll__.next) {
+	if (!e.__ll__.prev && !e.__ll__.next && (this.first !== e)) {
 		throw new Error("Element is not in list!");
 	}
 
