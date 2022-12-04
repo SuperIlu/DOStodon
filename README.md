@@ -111,6 +111,7 @@ ne2000 0x60 10 0x300
 ## 4. Dec 2022
 - implemented LRU cache for images
 - fixed some quirks with key handlings
+- DOjS now uses cURL 7.86.0
 
 ## 2. Dec 2022
 - Blurhash is now implemented in C
