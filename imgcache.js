@@ -94,16 +94,7 @@ function GetImage(url) {
 
 	if (resp[2] === 200) {
 		try {
-			var fname = TMP_FILE;
-			if (url.toLowerCase().endsWith('.png')) {
-				fname += ".PNG";
-			} else if (url.toLowerCase().endsWith('.jpg') || url.toLowerCase().endsWith('.jpeg')) {
-				fname += ".JPG";
-			}
-			var f = new File(fname, FILE.WRITE);
-			f.WriteInts(resp[0]);
-			f.Close();
-			return new Bitmap(fname);
+			return new Bitmap(resp[0]);
 		} catch (e) {
 			Println(e);
 			return null;

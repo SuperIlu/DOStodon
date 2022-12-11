@@ -108,6 +108,11 @@ ne2000 0x60 10 0x300
 ```
 
 # Changelog
+## 11. Dec 2022
+- Fixed a memory corruption in DOjS
+- Images are no longer saved into TMP files
+- Images are now scaled to fit the screen when displayed
+
 ## 4. Dec 2022
 - implemented LRU cache for images
 - fixed some quirks with key handlings

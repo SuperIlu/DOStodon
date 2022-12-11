@@ -183,11 +183,11 @@ Home.prototype.Draw = function () {
 	this.drawEntries();
 
 	if (this.image_preview) {
-		if (this.image_preview.width == LIST_IMG_SIZE) {
-			this.image_preview.DrawAdvanced(0, 0, LIST_IMG_SIZE, LIST_IMG_SIZE, 0, 0, LIST_IMG_SIZE * 8, LIST_IMG_SIZE * 8);
-		} else {
-			this.image_preview.Draw(0, 0);
-		}
+		this.image_preview.img.DrawAdvanced(
+			0, 0,
+			this.image_preview.img.width, this.image_preview.img.height,
+			0, 0,
+			this.image_preview.width, this.image_preview.height);
 	}
 
 	if (this.netop && this.netop.Process()) {
@@ -301,9 +301,32 @@ Home.prototype.setPreview = function (e, idx) {
 	if (e['media_attachments'] && e['media_attachments'][idx] && e['media_attachments'][idx]['type'] === "image") {
 		var media = e['media_attachments'][idx];
 		var outer = this;
-		outer.image_preview = new Bitmap(media['blurhash'], media['meta']['small']['width'], media['meta']['small']['height']);
+
+		var w = media['meta']['small']['width'];
+		var h = media['meta']['small']['height'];
+
+		if (w > Width) {
+			var factor = w / Width;
+			w = Width;
+			h = h / factor;
+		}
+		if (h > Height) {
+			var factor = h / Height;
+			h = Height;
+			w = w / factor;
+		}
+
+		outer.image_preview = {
+			"img": new Bitmap(media['blurhash'], w, h),
+			"width": w,
+			"height": h
+		};
 		this.netop = new NetworkOperation(function () {
-			outer.image_preview = FetchLargeImage(media['preview_url']);
+			outer.image_preview = {
+				"img": FetchLargeImage(media['preview_url']),
+				"width": w,
+				"height": h
+			};
 		});
 	}
 }
