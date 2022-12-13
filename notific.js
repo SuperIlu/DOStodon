@@ -19,7 +19,6 @@ SOFTWARE.
 */
 
 function Notifications() {
-	this.newest_id = null;		// id of the newest notification
 	this.last_poll = null;		// last time of poll
 	this.current_list = [];		// current list of notification to render
 	this.current_top = 0;		// currently displayed entry on top of screen
@@ -119,35 +118,44 @@ Notifications.prototype.drawEntries = function () {
 	}
 }
 
-Notifications.prototype.pollData = function () {
-	// get toots never that this ID
-	var toots = m.Notifications(MAX_POLL, this.newest_id);
+Notifications.prototype.pollData = function (older) {
+	var poll_id;
+	if (older) {
+		poll_id = this.current_list[this.current_list.length - 1]['id'];
+	} else {
+		if (this.current_list.length > 0) {
+			poll_id = this.current_list[0]['id'];
+		} else {
+			poll_id = null;
+		}
+	}
+	var toots = m.Notifications(MAX_POLL, poll_id, older);
+	Println("NOTI Polled: " + poll_id);
 
-	Println("NOTI Polled: " + this.newest_id);
-
-	// prepend the polled data to the existing data, then truncate to 50 max
 	if (toots.length > 0) {
 		noti_snd.Play(255, 128, false);
 
-		// fix up indices
-		if (this.selected > 0) {
-			this.selected += toots.length;
-		}
-		if (this.current_top > 0) {
-			this.current_top += toots.length;
-		}
+		if (older) {
+			this.current_list.push.apply(this.current_list, toots);
+		} else {
+			// fix up indices
+			if (this.selected > 0) {
+				this.selected += toots.length;
+			}
+			if (this.current_top > 0) {
+				this.current_top += toots.length;
+			}
 
-		// merge lists
-		toots.push.apply(toots, this.current_list);
-		this.current_list = toots;
-		//		this.current_list = toots.slice(0, MAX_TOOTS_IN_LIST);
-		this.newest_id = toots[0]['id'];
+			// merge lists
+			toots.push.apply(toots, this.current_list);
+			this.current_list = toots;
+		}
 	}
 }
 
 Notifications.prototype.Draw = function () {
 	if (this.doPoll) {
-		this.pollData();
+		this.pollData(false);
 		this.last_poll = new Date();
 		this.doPoll = false;
 	}
@@ -170,6 +178,11 @@ Notifications.prototype.buttonDown = function () {
 	} else {
 		if (this.current_list.length - 1 > this.selected) {
 			this.current_top++;
+		} else {
+			var self = this;
+			this.netop = new NetworkOperation(function () {
+				self.pollData(true);
+			});
 		}
 	}
 }
@@ -183,6 +196,47 @@ Notifications.prototype.buttonUp = function () {
 	}
 }
 
+Notifications.prototype.home = function () {
+	this.selected = 0;
+	this.current_top = 0;
+}
+
+Notifications.prototype.end = function () {
+	this.selected = this.current_list.length - 1;
+	this.current_top = this.selected - 3;
+}
+
+Notifications.prototype.pageDown = function () {
+	var visible_delta = this.current_bottom - this.current_top; // calc number of entries between first and last displayed entry
+	var new_selected = Math.min(this.selected + visible_delta, this.current_list.length - 1); // new selected entry is either the old+delta or the max list length
+	var selected_delta = new_selected - this.selected; // calculate size of jump
+
+	this.selected = new_selected;		// change selected entry
+	this.current_top += selected_delta; // and first displayed entry
+}
+
+Notifications.prototype.pageUp = function () {
+	// page up is hardest as we don't really know the rendering size of the entries.
+	// we try to approximate it by going up 2/3rds of the currently visible entries, but 3 entries minimum
+
+	var visible_delta = this.current_bottom - this.current_top; // calc number of entries between first and last displayed entry
+	visible_delta = Math.max(3, Math.floor(visible_delta * 2 / 3));
+
+	var new_selected = Math.max(this.selected - visible_delta, 0); // new selected entry is either the old-delta or list top
+	var selected_delta = new_selected - this.selected; // calculate size of jump
+
+	this.selected = new_selected;		// change selected entry
+	this.current_top += selected_delta; // and first displayed entry
+
+	// safety guard
+	if (this.selected < 0) {
+		this.selected = 0;
+	}
+	if (this.current_top < 0) {
+		this.current_top = 0;
+	}
+}
+
 Notifications.prototype.Input = function (key, keyCode, char) {
 	var e = this.current_list[this.selected];
 	switch (keyCode) {
@@ -191,6 +245,18 @@ Notifications.prototype.Input = function (key, keyCode, char) {
 			break;
 		case KEY.Code.KEY_UP:
 			this.buttonUp();
+			break;
+		case KEY.Code.KEY_PGDN:
+			this.pageDown();
+			break;
+		case KEY.Code.KEY_PGUP:
+			this.pageUp();
+			break;
+		case KEY.Code.KEY_HOME:
+			this.home();
+			break;
+		case KEY.Code.KEY_END:
+			this.end();
 			break;
 		case KEY.Code.KEY_F5:
 			this.last_poll = 0;

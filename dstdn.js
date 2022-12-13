@@ -105,6 +105,7 @@ function Loop() {
 		ClearScreen(EGA.BLACK);
 		splash.Draw(0, 0);
 		sfont.DrawStringCenter(Width / 2, Height / 4, "Loggin in...", EGA.BLACK, NO_COLOR);
+		sfont.DrawStringCenter(Width / 2, Height / 4 * 3, "(c) 2022 by <superilu@yahoo.com>", EGA.BLACK, NO_COLOR);
 		splash = null;
 	} else if (!m) {
 		// login
@@ -127,8 +128,14 @@ function Input(e) {
 	if (e.key != -1) {
 		var key = e.key & 0xFF;
 		var keyCode = e.key >> 8;
+		var char = String.fromCharCode(key);
 
-		if (!profile.Input(key, keyCode, String.fromCharCode(key))) {
+		// Println("\nEventKey:" + e.key);
+		// Println("Key:" + key);
+		// Println("KeyCode:" + keyCode);
+		// Println("Char:" + String.fromCharCode(key));
+
+		if (!profile.Input(key, keyCode, char)) {
 			switch (keyCode) {
 				case KEY.Code.KEY_F1:
 					current_screen = home;
@@ -143,7 +150,7 @@ function Input(e) {
 					current_screen = info;
 					break;
 				default:
-					var res = current_screen.Input(key, keyCode, String.fromCharCode(key));
+					var res = current_screen.Input(key, keyCode, char);
 					if (res) {
 						current_screen = toot;
 					}

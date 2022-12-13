@@ -119,14 +119,7 @@ Toot.prototype.Input = function (key, keyCode, char) {
 			this.txt += '\n';
 		} else if (key === 10) {
 			//Println("CTRL ENTER");
-			var replyId = null;
-			if (this.reply) {
-				replyId = this.reply['id'];
-			}
-			m.Toot(this.txt, replyId);
-			toot_snd.Play(255, 128, false);
-			this.txt = "";
-			this.reply = null;
+			this.toot();
 		}
 	} else {
 		if (key >= CharCode(" ") && (this.txt.length < TXT_MAX)) {
@@ -137,13 +130,39 @@ Toot.prototype.Input = function (key, keyCode, char) {
 	return false;
 }
 
+Toot.prototype.toot = function () {
+	var replyId = null;
+	if (this.reply) {
+		replyId = this.reply['id'];
+	}
+
+	var spoiler = null;
+	var txt = this.txt;
+	if (txt.startsWith("cw:")) {
+		var nl = this.txt.indexOf("\n");
+		spoiler = this.txt.substring("cw:".length, nl).trim();
+		txt = this.txt.substring(nl).trim();
+	}
+
+	if (txt.length > 0) {
+		m.Toot(txt, replyId, spoiler);
+		toot_snd.Play(255, 128, false);
+		this.txt = "";
+		this.reply = null;
+	}
+}
+
 Toot.prototype.Reply = function (e) {
 	if (e['reblog']) {
 		e = e['reblog'];
 	}
 
 	this.reply = e;
-	this.txt = "@" + this.reply['account']['acct'] + " ";
+	this.txt = "";
+	if (e['sensitive'] && e['spoiler_text']) {
+		this.txt += "cw: " + e['spoiler_text'] + "\n";
+	}
+	this.txt += "@" + this.reply['account']['acct'] + " ";
 }
 
 // export functions and version

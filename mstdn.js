@@ -35,8 +35,10 @@ function Mastodon(url) {
 	this.failed_requests = 0;
 
 	this.get = new Curl();
+	this.get.SetSslVerify(false);
 
 	this.post = new Curl();
+	this.post.SetSslVerify(false);
 }
 
 /**
@@ -193,10 +195,11 @@ Mastodon.prototype.Login = function (user, pw) {
  * 
  * @param {string} txt the text to toot.
  * @param {string} [reply_id] id of a toot to reply to.
+ * @param {string} [spoiler] a spoiler text. Sets this status to 'sensitive=true'.
  * 
  * @returns a https://docs.joinmastodon.org/entities/status/, an exception is thrown for an error
  */
-Mastodon.prototype.Toot = function (txt, reply_id) {
+Mastodon.prototype.Toot = function (txt, reply_id, spoiler) {
 	if (!this.token) {
 		throw new Error("No credential set");
 	}
@@ -211,6 +214,12 @@ Mastodon.prototype.Toot = function (txt, reply_id) {
 	// append reply id (if any)
 	if (reply_id) {
 		postdata.push(['in_reply_to_id', reply_id]);
+	}
+
+	// append spoiler/sensitive info
+	if (spoiler) {
+		postdata.push(['sensitive', true]);
+		postdata.push(['spoiler_text', spoiler]);
 	}
 
 	var resp = this.DoPost(headers, postdata, this.base_url + "/api/v1/statuses");
@@ -286,11 +295,12 @@ Mastodon.prototype.Reblog = function (id) {
  * @see https://docs.joinmastodon.org/methods/timelines/
  * 
  * @param {number} [limit] max number of entries to fetch, default: 10
- * @param {number} [last] last fetched id, if set only never entries will be fetched
+ * @param {number} [id] last fetched id, if set only never entries will be fetched
+ * @param {bool} [older] if true, entries older than id are fetched, if false entries newer than id.
  * 
  * @returns an array of https://docs.joinmastodon.org/entities/status/, an exception is thrown for an error
  */
-Mastodon.prototype.TimelineHome = function (limit, last) {
+Mastodon.prototype.TimelineHome = function (limit, id, older) {
 	if (!this.token) {
 		throw new Error("No credential set");
 	}
@@ -303,8 +313,12 @@ Mastodon.prototype.TimelineHome = function (limit, last) {
 
 	// build URL
 	var url = this.base_url + "/api/v1/timelines/home?limit=" + limit;
-	if (last) {
-		url += "&since_id=" + last;
+	if (id) {
+		if (older) {
+			url += "&max_id=" + id;
+		} else {
+			url += "&since_id=" + id;
+		}
 	}
 
 	var resp = this.DoGet(headers, url);
@@ -322,11 +336,12 @@ Mastodon.prototype.TimelineHome = function (limit, last) {
  * @see https://docs.joinmastodon.org/methods/notifications/
  * 
  * @param {number} [limit] max number of entries to fetch, default: 10
- * @param {number} [last] last fetched id, if set only never entries will be fetched
+ * @param {number} [id] last fetched id, if set only never entries will be fetched
+ * @param {bool} [older] if true, entries older than id are fetched, if false entries newer than id.
  * 
  * @returns an array of https://docs.joinmastodon.org/entities/notification/, an exception is thrown for an error
  */
-Mastodon.prototype.Notifications = function (limit, last) {
+Mastodon.prototype.Notifications = function (limit, id, older) {
 	if (!this.token) {
 		throw new Error("No credential set");
 	}
@@ -339,8 +354,12 @@ Mastodon.prototype.Notifications = function (limit, last) {
 
 	// build URL
 	var url = this.base_url + "/api/v1/notifications?limit=" + limit;
-	if (last) {
-		url += "&since_id=" + last;
+	if (id) {
+		if (older) {
+			url += "&max_id=" + id;
+		} else {
+			url += "&since_id=" + id;
+		}
 	}
 
 	var resp = this.DoGet(headers, url);

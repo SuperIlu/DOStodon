@@ -32,7 +32,7 @@ Just run `DOStodon`.
 - `F3`: Switch to Toot composer
 - `F4`: Info screen
 - `F5`: Poll/Refresh home/notifications
-- `UP/DOWN`: scroll entries in home/notifications
+- `UP/DOWN, Page UP/DOWN, HOME/END`: scroll entries in home/notifications
 - `p`: Show profile of currently selected entry (for boost the boosters profile)
 - `P`: Show profile of currently selected entry (for boost the original profile)
 - `B`: Boost/reblog currently selected toot in home screen
@@ -47,8 +47,11 @@ Just run `DOStodon`.
 ## General
 - DOStodon is busy while the Mastodon logo is displayed in middle of the screen. Don't hit keys like crazy, every keypress will be queued :)
 - DOStodon poll home/notifications every 5 minutes for new entries.
+- To add a content warning/spoiler to a toot start the toot with "cw:". The first line of the toot will be the content warning, all subsequent lines will be the body text of the toot.
+- If you press DOWN on the last entry in home/notifications older entries are fetched.
 
 ## Limitations
+- Disabled TLS/SSL certificate verification for now. DOStodon is not able to verify the certificate of https://mastodon.social anymore and I need to dive deeper into the reason for that.
 - Can only display the home timeline and notifications. No support for hashtags, local or global timelines.
 - 2FA is not supported right now!
 - logging in with passwords that contain characters outside 7bit ASCII might not be possible
@@ -59,7 +62,7 @@ Just run `DOStodon`.
 - No support for emojis (replaced by spaces)
 - No support for characters like umlauts, etc.
 - Hashtags or usernames are not highlighted.
-- The toot editor only supports BACKSPACE, it is not a real text editor.
+- The toot composer only supports BACKSPACE, it is not a real text editor.
 - No fetching of older entries when you scroll down (yet)
 - The image cache is never cleared during runtime, DOStodon will eventually run out of memory
 - **NO REAL TESTING/QUALITY ASSURANCE!** Folks, this is a **fun project**, if you need a production ready client contribute or use something real! If it works for you, it works, but don't blame me for broken commits or missing features...
@@ -107,7 +110,22 @@ c:
 ne2000 0x60 10 0x300
 ```
 
+# TODO
+- Investigate why the mastodon.social certificate can't be validated anymore
+- Check if there is a nanojpeg replacement that supports progresive JPEGs
+- Display image descriptions
+- Add image-upload
+- Add Local/Global/Hashtag-Timelines
+- Look into character-encoding again
+- Have fun
+
 # Changelog
+## 13. Dec 2022
+- Disabled TLS/SSL certificate verification for now. DOStodon is not able to verify the certificate of https://mastodon.social anymore and I need to dive deeper into the reason for that.
+- Added Page UP/DOWN and HOME/END to home and notifications
+- Added content warnings/spoilers to the toot composer
+- Added fetching of older entries when viewing home/notifications
+
 ## 11. Dec 2022
 - Fixed a memory corruption in DOjS
 - Images are no longer saved into TMP files
