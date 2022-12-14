@@ -65,6 +65,7 @@ Home.prototype.drawEntries = function () {
 			this.lazyDrawImage(t['reblog']['account']['avatar_static'], null, LIST_IMG_SIZE / 2, yPos);
 		}
 
+		// filter all displayed strings only once and store them in 'dostodon' key
 		if (!t.dostodon) {
 			var header = "";
 			var content = "";
@@ -93,6 +94,7 @@ Home.prototype.drawEntries = function () {
 				"stats": stats
 			};
 		}
+		// render toot header and text
 		var col;
 		if (current === this.selected) {
 			col = EGA.LIGHT_RED;
@@ -137,7 +139,9 @@ Home.prototype.drawEntries = function () {
 				}
 			}
 		}
-		yPos = DisplayMultilineText(LIST_IMG_SIZE + LIST_IMG_SIZE / 2 + 8, yPos, EGA.LIGHT_GREY, t.dostodon.stats, false, 68);
+
+		// display toot stats
+		yPos = DisplayMultilineText(300, yPos, EGA.LIGHT_GREY, t.dostodon.stats, false, 68);
 
 		// increase yPos to minimum height and draw line
 		if (yPos < minY) {

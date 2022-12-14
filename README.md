@@ -120,6 +120,10 @@ ne2000 0x60 10 0x300
 - Have fun
 
 # Changelog
+## 14. Dec 2022
+- Switched from nanojpeg to libjpeg to be able to load progressive JPEGs
+- Added toot stat display to home screen
+
 ## 13. Dec 2022
 - Disabled TLS/SSL certificate verification for now. DOStodon is not able to verify the certificate of https://mastodon.social anymore and I need to dive deeper into the reason for that.
 - Added Page UP/DOWN and HOME/END to home and notifications
