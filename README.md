@@ -111,7 +111,6 @@ ne2000 0x60 10 0x300
 ```
 
 # TODO
-- Investigate why the mastodon.social certificate can't be validated anymore
 - Check if there is a nanojpeg replacement that supports progresive JPEGs
 - Display image descriptions
 - Add image-upload
@@ -120,6 +119,9 @@ ne2000 0x60 10 0x300
 - Have fun
 
 # Changelog
+## 15. Dec 2022
+- Fixed a time() bug in DOjS and re-enabled certificate validation.
+
 ## 14. Dec 2022
 - Switched from nanojpeg to libjpeg to be able to load progressive JPEGs
 - Added toot stat display to home screen

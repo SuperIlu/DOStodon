@@ -35,10 +35,8 @@ function Mastodon(url) {
 	this.failed_requests = 0;
 
 	this.get = new Curl();
-	this.get.SetSslVerify(false);
 
 	this.post = new Curl();
-	this.post.SetSslVerify(false);
 }
 
 /**
