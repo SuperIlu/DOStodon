@@ -119,6 +119,10 @@ ne2000 0x60 10 0x300
 - Have fun
 
 # Changelog
+## 17. Dec 2022
+- Switched compiler for DOjS from GCC 7.2.0 to 12.2.0
+- Added UTC date of toots
+
 ## 15. Dec 2022
 - Fixed a time() bug in DOjS and re-enabled certificate validation.
 

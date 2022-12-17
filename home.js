@@ -75,6 +75,7 @@ Home.prototype.drawEntries = function () {
 				sens_indi = t['reblog']['sensitive'];
 				sens_txt = RemoveHTML(t['reblog']['spoiler_text']);
 				stats = "boosts:" + t['reblog']['reblogs_count'] + ", favs:" + t['reblog']['favourites_count'] + ", replies:" + t['reblog']['replies_count'];
+				tstamp = FormatTime(t['reblog']['created_at']);
 			} else {
 				if (t['account']['display_name']) {
 					header = RemoveHTML("From " + t['account']['display_name'] + " (@" + t['account']['username'] + ")");
@@ -85,13 +86,15 @@ Home.prototype.drawEntries = function () {
 				sens_indi = t['sensitive'];
 				sens_txt = RemoveHTML(t['spoiler_text']);
 				stats = "boosts:" + t['reblogs_count'] + ", favs:" + t['favourites_count'] + ", replies:" + t['replies_count'];
+				tstamp = FormatTime(t['created_at']);
 			}
 			t.dostodon = {
 				"header": header,
 				"content": content,
 				"sensitive_txt": sens_txt,
 				"sensitive_indicator": sens_indi,
-				"stats": stats
+				"stats": stats,
+				"tstamp": tstamp
 			};
 		}
 		// render toot header and text
@@ -131,7 +134,7 @@ Home.prototype.drawEntries = function () {
 					}
 				}
 				if (media_rendered) {
-					yPos += LIST_IMG_SIZE;
+					yPos += LIST_IMG_SIZE + 2;
 				}
 				if (media_str.length > 0) {
 					// render media indicator for non-pictures
@@ -139,6 +142,9 @@ Home.prototype.drawEntries = function () {
 				}
 			}
 		}
+
+		// display timestamp
+		DisplayMultilineText(LIST_IMG_SIZE + LIST_IMG_SIZE / 2 + 8, yPos, EGA.LIGHT_GREY, t.dostodon.tstamp, false, 68);
 
 		// display toot stats
 		yPos = DisplayMultilineText(300, yPos, EGA.LIGHT_GREY, t.dostodon.stats, false, 68);

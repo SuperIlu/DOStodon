@@ -58,6 +58,28 @@ function FormatURL(str) {
 	return "https://" + str;
 }
 
+function FormatTime(tstr) {
+	var ts = new Date(tstr);
+	// var now = new Date(new Date() - TIMEZONE_DELTA); // TODO: where to get TZ info from?
+
+	// var seconds = Math.floor((now - ts) / 1000);
+	// var minutes = Math.floor(seconds / 60);
+	// var hours = Math.floor(minutes / 60);
+	// var days = Math.floor(hours / 24);
+
+	// if (seconds < 120) {
+	// 	return seconds + "s";
+	// } else if (minutes < 120) {
+	// 	return minutes + "m";
+	// } else if (hours < 48) {
+	// 	return hours + "h";
+	// } else if (days < 7) {
+	// 	return days + "d";
+	// } else {
+	return ts.toLocaleDateString("en-US") + " " + ts.toLocaleTimeString("en-US").split(".")[0] + " UTC";
+	// }
+}
+
 function DisplayMultilineText(x, y, col, txt, cursor, maxChars) {
 	var l;
 	var yPos;
@@ -185,8 +207,9 @@ function unescapeHTML(str) {
 
 // export functions and version
 exports.__VERSION__ = 1;
+exports.NetworkOperation = NetworkOperation;
 exports.FormatURL = FormatURL;
 exports.DisplayMultilineText = DisplayMultilineText;
 exports.RemoveHTML = RemoveHTML;
 exports.DrawLogo = DrawLogo;
-exports.NetworkOperation = NetworkOperation;
+exports.FormatTime = FormatTime;
