@@ -83,9 +83,13 @@ The source is split into several files right now:
 DOStodon is implemented using DOjS native API (no p5js emulation). Network operations block the input processing/rendering.
 
 # DOSBox-X config
-I used "dosbox-x-mingw-win64-20220901233004.zip" of [DOSBox-X](https://github.com/joncampbell123/dosbox-x/releases) to test this version of DOStodon.
+I used [dosbox-x-mingw-win64-20220331123456.zip](https://github.com/joncampbell123/dosbox-x/releases/download/dosbox-x-v0.83.24/dosbox-x-mingw-win64-20220331123456.zip) of [DOSBox-X](https://github.com/joncampbell123/dosbox-x/releases) to test this version of DOStodon.
 
-**Make sure to use the MinGW builds as slirp does not work for Visual Studio builds!**
+**
+Warning:
+- Make sure to use the MinGW builds as slirp does not work for Visual Studio builds!
+- Do NOT use any DOSBox-X never than v0.83.24, they have a known problem with file IO
+**
 
 My `dosbox.conf` looks like this:
 ```
@@ -122,6 +126,11 @@ ne2000 0x60 10 0x300
 - Have fun
 
 # Changelog
+## 19. Dec 2022
+- Updated README regarding DOSBox-X
+- Added debug timestamp during startup
+- Fixed 486 incompatibility (hopefully)
+
 ## 17. Dec 2022
 - Switched compiler for DOjS from GCC 7.2.0 to 12.2.0
 - Added UTC date of toots

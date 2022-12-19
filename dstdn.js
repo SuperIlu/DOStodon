@@ -66,8 +66,35 @@ var notifications = null;
 var info = null;
 var current_screen = null;
 
+
+function sslTest(url) {
+	Println("+++ Trying " + url)
+
+	var https = new Curl();
+	var resp = https.DoRequest(url);
+	if (resp[2] != 200) {
+		Println("+++ FAIL " + url)
+	} else {
+		Println("+++ OK  " + url)
+	}
+}
+
+/*
+** This function is called once when the script is started.
+*/
+
 function Setup() {
 	Println("Resolve(google.com) = " + JSON.stringify(Resolve("google.com")));
+	Println("Date/Time           = " + new Date());
+
+	// simple https get
+	// sslTest("https://mastodon.social/about");
+	// sslTest("https://retrochat.online/about");
+	// sslTest("https://bitbang.social/about");
+	// sslTest("https://raw.githubusercontent.com/SuperIlu/DOjSHPackages/master/dojs/index.json");
+	// sslTest("https://curl.se");
+	// sslTest("https://www.shdon.com/");
+	// sslTest("https://www.heise.de");
 
 	MouseShowCursor(false);
 
