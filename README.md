@@ -51,6 +51,7 @@ Just run `DOStodon`.
 - If you press DOWN on the last entry in home/notifications older entries are fetched.
 
 ## Limitations
+- There is a SQLite based disk cache for images pending. Right now there is a problem with recent DOSBox-X versions and file IO which will creaste broken SQLite databases.
 - Disabled TLS/SSL certificate verification for now. DOStodon is not able to verify the certificate of https://mastodon.social anymore and I need to dive deeper into the reason for that.
 - Can only display the home timeline and notifications. No support for hashtags, local or global timelines.
 - 2FA is not supported right now!
@@ -83,12 +84,12 @@ The source is split into several files right now:
 DOStodon is implemented using DOjS native API (no p5js emulation). Network operations block the input processing/rendering.
 
 # DOSBox-X config
-I used [dosbox-x-mingw-win64-20220331123456.zip](https://github.com/joncampbell123/dosbox-x/releases/download/dosbox-x-v0.83.24/dosbox-x-mingw-win64-20220331123456.zip) of [DOSBox-X](https://github.com/joncampbell123/dosbox-x/releases) to test this version of DOStodon.
+I used [DOSBox-X](https://github.com/joncampbell123/dosbox-x/releases) version 2022.09.0 to test this version of DOStodon. See below for version help.
 
 **
 Warning:
 - Make sure to use the MinGW builds as slirp does not work for Visual Studio builds!
-- Do NOT use any DOSBox-X never than v0.83.24, they have a known problem with file IO
+- Older DOSBox-X versions do not support slirp networking
 **
 
 My `dosbox.conf` looks like this:
