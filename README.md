@@ -84,6 +84,9 @@ DOStodon is implemented using DOjS native API (no p5js emulation). Network opera
 
 # DOSBox-X config
 I used "dosbox-x-mingw-win64-20220901233004.zip" of [DOSBox-X](https://github.com/joncampbell123/dosbox-x/releases) to test this version of DOStodon.
+
+**Make sure to use the MinGW builds as slirp does not work for Visual Studio builds!**
+
 My `dosbox.conf` looks like this:
 ```
 [sdl]
