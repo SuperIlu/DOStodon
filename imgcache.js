@@ -18,7 +18,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// TODO: cache groesse!
+// caches
 var cache = new LRUCache(100);
 var profile = new LRUCache(20);
 var large = new LRUCache(15);
@@ -90,7 +90,7 @@ function GetScaledImage(url, size) {
 
 function GetImage(url) {
 	//Println('GetImage fetching ' + url);
-	var resp = m.DoGet([], url);
+	var resp = dstdn.m.DoGet([], url);
 
 	if (resp[2] === 200) {
 		try {

@@ -145,8 +145,8 @@ Toot.prototype.toot = function () {
 	}
 
 	if (txt.length > 0) {
-		m.Toot(txt, replyId, spoiler);
-		toot_snd.Play(255, 128, false);
+		dstdn.m.Toot(txt, replyId, spoiler);
+		dstdn.toot_snd.Play(255, 128, false);
 		this.txt = "";
 		this.reply = null;
 	}

@@ -100,7 +100,7 @@ function DisplayMultilineText(x, y, col, txt, cursor, maxChars) {
 	// draw the text
 	for (l = 0; l < txt_lines.length; l++) {
 		yPos = l * TXT_SIZE;
-		sfont.DrawStringLeft(x, y + yPos, txt_lines[l], col, NO_COLOR);
+		dstdn.sfont.DrawStringLeft(x, y + yPos, txt_lines[l], col, NO_COLOR);
 		last_line = txt_lines[l];
 	}
 
@@ -112,7 +112,7 @@ function DisplayMultilineText(x, y, col, txt, cursor, maxChars) {
 				cursorString += " ";
 			}
 			cursorString += "_";
-			sfont.DrawStringLeft(x, y + yPos, cursorString, col, NO_COLOR);
+			dstdn.sfont.DrawStringLeft(x, y + yPos, cursorString, col, NO_COLOR);
 		}
 		frame++;
 	}
@@ -125,17 +125,19 @@ function DisplayMultilineText(x, y, col, txt, cursor, maxChars) {
  * draw mastodon logo as busy indicator
  */
 function DrawLogo() {
+	var logo = dstdn.logo;
+
 	var boxStartX = Width / 2 - logo.width / 2 - 3;
 	var boxStartY = Height / 2 - logo.height / 2 - 3;
 	var boxWidth = boxStartX + logo.width + 6;
-	var boxHeight = boxStartY + logo.height + 6 + sfont.height;
+	var boxHeight = boxStartY + logo.height + 6 + dstdn.sfont.height;
 	FilledBox(boxStartX, boxStartY, boxWidth, boxHeight, EGA.BLACK);
 	// Box(boxStartX, boxStartY, boxWidth, boxHeight, EGA.LIGHT_RED);
 
 	var logoX = Width / 2 - logo.width / 2;
 	var logoY = Height / 2 - logo.height / 2;
 	logo.DrawTrans(logoX, logoY);
-	sfont.DrawStringCenter(Width / 2, logoY + logo.height + 2, "BUSY", EGA.LIGHT_RED, NO_COLOR);
+	dstdn.sfont.DrawStringCenter(Width / 2, logoY + logo.height + 2, "BUSY", EGA.LIGHT_RED, NO_COLOR);
 }
 
 /**
@@ -205,6 +207,57 @@ function unescapeHTML(str) {
 //
 /////
 
+/**
+ * draw the sidebar
+ */
+function DisplaySidebar() {
+	var col;
+
+	var xStart = CONTENT_WIDTH;
+	var xStartTxt = xStart + 4;
+
+	// 120 pixel height per box
+	Line(xStart, 0, xStart, 480, EGA.BLUE);
+
+	if (dstdn.current_screen === home) {
+		col = EGA.LIGHT_RED;
+	} else {
+		col = EGA.LIGHT_BLUE;
+	}
+	dstdn.sfont.DrawStringLeft(xStartTxt, 60, "F1:", col, NO_COLOR);
+	dstdn.sfont.DrawStringLeft(xStartTxt, 68, "Home", col, NO_COLOR);
+
+	Line(xStart, 120, Width, 120, EGA.BLUE);
+
+	if (dstdn.current_screen === notifications) {
+		col = EGA.LIGHT_RED;
+	} else {
+		col = EGA.LIGHT_BLUE;
+	}
+	dstdn.sfont.DrawStringLeft(xStartTxt, 180, "F2:", col, NO_COLOR);
+	dstdn.sfont.DrawStringLeft(xStartTxt, 188, "Noti", col, NO_COLOR);
+
+	Line(xStart, 240, Width, 240, EGA.BLUE);
+
+	if (dstdn.current_screen === toot) {
+		col = EGA.LIGHT_RED;
+	} else {
+		col = EGA.LIGHT_BLUE;
+	}
+	dstdn.sfont.DrawStringLeft(xStartTxt, 300, "F3:", col, NO_COLOR);
+	dstdn.sfont.DrawStringLeft(xStartTxt, 308, "Toot", col, NO_COLOR);
+
+	Line(xStart, 360, Width, 360, EGA.BLUE);
+
+	if (dstdn.current_screen === info) {
+		col = EGA.LIGHT_RED;
+	} else {
+		col = EGA.LIGHT_BLUE;
+	}
+	dstdn.sfont.DrawStringLeft(xStartTxt, 420, "F4:", col, NO_COLOR);
+	dstdn.sfont.DrawStringLeft(xStartTxt, 428, "Info", col, NO_COLOR);
+}
+
 // export functions and version
 exports.__VERSION__ = 1;
 exports.NetworkOperation = NetworkOperation;
@@ -213,3 +266,4 @@ exports.DisplayMultilineText = DisplayMultilineText;
 exports.RemoveHTML = RemoveHTML;
 exports.DrawLogo = DrawLogo;
 exports.FormatTime = FormatTime;
+exports.DisplaySidebar = DisplaySidebar;

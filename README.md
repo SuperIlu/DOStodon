@@ -77,7 +77,7 @@ The source is split into several files right now:
 - `home.js` the home timeline
 - `imgcache.js` image fetching/caching
 - `info.js` info screen display
-- `login.js` server login
+- `splash.js` splash screen
 - `mstdn.js` contains the Mastodon REST API
 - `notific.js` the notification timeline
 - `profile.js` profile viewer
@@ -114,11 +114,11 @@ ne2000 0x60 3 0x300
 ```
 
 # TODO
-- Check if there is a nanojpeg replacement that supports progresive JPEGs
 - Display image descriptions
 - Add image-upload
 - Add Local/Global/Hashtag-Timelines
 - Look into character-encoding again
+- b/w JPGs are displayed wrong
 - Have fun
 
 # Changelog

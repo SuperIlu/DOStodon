@@ -59,34 +59,34 @@ Profile.prototype.Draw = function () {
 	} else {
 		header = this.profile['acct'];
 	}
-	lfont.DrawStringLeft(txtStartX, yPos, header, EGA.YELLOW, NO_COLOR);
-	yPos += lfont.height;
-	yPos += sfont.height;
+	dstdn.lfont.DrawStringLeft(txtStartX, yPos, header, EGA.YELLOW, NO_COLOR);
+	yPos += dstdn.lfont.height;
+	yPos += dstdn.sfont.height;
 
 	if (!this.note) {
 		this.note = RemoveHTML(this.profile['note'])
 	}
 	yPos = DisplayMultilineText(txtStartX, yPos, EGA.WHITE, this.note, false, 48);
-	yPos += sfont.height;
-	yPos += sfont.height;
+	yPos += dstdn.sfont.height;
+	yPos += dstdn.sfont.height;
 
 	var joined = "Joined: " + new Date(this.profile['created_at']).toLocaleString("de-DE");
-	lfont.DrawStringLeft(txtStartX, yPos, joined, EGA.WHITE, NO_COLOR);
-	yPos += lfont.height;
-	yPos += sfont.height;
+	dstdn.lfont.DrawStringLeft(txtStartX, yPos, joined, EGA.WHITE, NO_COLOR);
+	yPos += dstdn.lfont.height;
+	yPos += dstdn.sfont.height;
 
 	var stats = "Followers: " + this.profile['followers_count'];
-	sfont.DrawStringLeft(txtStartX, yPos, stats, EGA.WHITE, NO_COLOR);
-	yPos += sfont.height;
+	dstdn.sfont.DrawStringLeft(txtStartX, yPos, stats, EGA.WHITE, NO_COLOR);
+	yPos += dstdn.sfont.height;
 	stats = "Following: " + this.profile['following_count'];
-	sfont.DrawStringLeft(txtStartX, yPos, stats, EGA.WHITE, NO_COLOR);
-	yPos += sfont.height;
+	dstdn.sfont.DrawStringLeft(txtStartX, yPos, stats, EGA.WHITE, NO_COLOR);
+	yPos += dstdn.sfont.height;
 	stats = "Posts: " + this.profile['statuses_count'];
-	sfont.DrawStringLeft(txtStartX, yPos, stats, EGA.WHITE, NO_COLOR);
-	yPos += sfont.height;
-	yPos += lfont.height;
+	dstdn.sfont.DrawStringLeft(txtStartX, yPos, stats, EGA.WHITE, NO_COLOR);
+	yPos += dstdn.sfont.height;
+	yPos += dstdn.lfont.height;
 
-	lfont.DrawStringLeft(txtStartX, yPos, "<Press any KEY to exit>", EGA.LIGHT_BLUE, NO_COLOR);
+	dstdn.lfont.DrawStringLeft(txtStartX, yPos, "<Press any KEY to exit>", EGA.LIGHT_BLUE, NO_COLOR);
 
 	// fetch image if possible, but try only once
 	if (this.fetch_image) {

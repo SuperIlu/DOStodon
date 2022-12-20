@@ -129,11 +129,11 @@ Notifications.prototype.pollData = function (older) {
 			poll_id = null;
 		}
 	}
-	var toots = m.Notifications(MAX_POLL, poll_id, older);
+	var toots = dstdn.m.Notifications(MAX_POLL, poll_id, older);
 	Println("NOTI Polled: " + poll_id);
 
 	if (toots.length > 0) {
-		noti_snd.Play(255, 128, false);
+		dstdn.noti_snd.Play(255, 128, false);
 
 		if (older) {
 			this.current_list.push.apply(this.current_list, toots);
@@ -265,12 +265,12 @@ Notifications.prototype.Input = function (key, keyCode, char) {
 			switch (char) {
 				case "P":
 				case "p":
-					profile.SetProfile(e['account']);
+					dstdn.profile.SetProfile(e['account']);
 					break;
 				case "r":
 				case "R":
 					if (e['status']) {
-						toot.Reply(e['status']);
+						dstdn.toot.Reply(e['status']);
 					}
 					return true;
 					break;
@@ -278,8 +278,8 @@ Notifications.prototype.Input = function (key, keyCode, char) {
 				case "b":
 					if (e['status']) {
 						this.netop = new NetworkOperation(function () {
-							m.Reblog(e['status']['id']);
-							boost_snd.Play(255, 128, false);
+							dstdn.m.Reblog(e['status']['id']);
+							dstdn.boost_snd.Play(255, 128, false);
 						});
 					}
 					break;
@@ -287,8 +287,8 @@ Notifications.prototype.Input = function (key, keyCode, char) {
 				case "f":
 					if (e['status']) {
 						this.netop = new NetworkOperation(function () {
-							m.Favorite(e['status']['id']);
-							fav_snd.Play(255, 128, false);
+							dstdn.m.Favorite(e['status']['id']);
+							dstdn.fav_snd.Play(255, 128, false);
 						});
 					}
 					break;

@@ -25,8 +25,10 @@ LoadLibrary("curl");
 LoadLibrary("jpeg");
 LoadLibrary("png");
 
+Include("evchain");
+
 Include("mstdn.js");
-Include("login.js");
+Include("splash.js");
 Include("home.js");
 Include("toot.js");
 Include("notific.js");
@@ -50,22 +52,22 @@ var LIST_IMG_SIZE = 32;
 var PROFILE_IMG_SIZE = 200;
 var CONTENT_WIDTH = 600;
 var MAX_POLL = 30;
+var PROGRESS_HEIGHT = 10;
 
-var m = null;
-var creds = null;
-var splash = null;
-var logo = null;
-var sfont = null;
-var lfont = null;
-
-// screens
-var home = null;
-var profile = null;
-var toot = null;
-var notifications = null;
-var info = null;
-var current_screen = null;
-
+// contains all instance data
+var dstdn = {
+	m: null,
+	creds: null,
+	logo: null,
+	sfont: null,
+	lfont: null,
+	home: null,
+	profile: null,
+	toot: null,
+	notifications: null,
+	info: null,
+	current_screen: null
+};
 
 function sslTest(url) {
 	Println("+++ Trying " + url)
@@ -97,57 +99,20 @@ function Setup() {
 	// sslTest("https://www.heise.de");
 
 	MouseShowCursor(false);
-
-	// load images
-	splash = new Bitmap(SPLASH_SCREEN);
-	logo = new Bitmap(MASTODON_LOGO);
-
-	// load fonts
-	sfont = new Font(JSBOOTPATH + "fonts/pc8x8.fnt");
-	lfont = new Font(JSBOOTPATH + "fonts/pc8x16.fnt");
-
-	// load sounds
-	home_snd = new Sample("invplop.wav");
-	noti_snd = new Sample("plop.wav");
-	toot_snd = new Sample("toot.wav");
-	boost_snd = new Sample("boost.wav");
-	fav_snd = new Sample("fav.wav");
-
-	// create screens
-	home = new Home();
-	toot = new Toot();
-	notifications = new Notifications();
-	profile = new Profile();
-	info = new Info();
-
-	current_screen = home;
-
-	// sfont = new Font(JSBOOTPATH + "fonts/unir08.fnt");
-	// sfont = new Font(JSBOOTPATH + "fonts/unir09.fnt");
+	dstdn.current_screen = new Splash();
 }
 
 function Loop() {
-	// startup+splash
-	if (splash) {
+	try {
 		ClearScreen(EGA.BLACK);
-		splash.Draw(0, 0);
-		sfont.DrawStringCenter(Width / 2, Height / 4, "Loggin in...", EGA.BLACK, NO_COLOR);
-		sfont.DrawStringCenter(Width / 2, Height / 4 * 3, "(c) 2022 by <superilu@yahoo.com>", EGA.BLACK, NO_COLOR);
-		splash = null;
-	} else if (!m) {
-		// login
-		m = Login();
-	} else {
-		try {
-			ClearScreen(EGA.BLACK);
-			if (!profile.Draw()) {
-				current_screen.Draw();
-			}
-			DisplaySidebar();
-		} catch (e) {
-			Println(e);
+		if (!dstdn.profile || !dstdn.profile.Draw()) {
+			dstdn.current_screen.Draw();
 		}
-		info.Update();
+	} catch (e) {
+		Println(e);
+	}
+	if (dstdn.info) {
+		dstdn.info.Update();
 	}
 }
 
@@ -162,75 +127,27 @@ function Input(e) {
 		// Println("KeyCode:" + keyCode);
 		// Println("Char:" + String.fromCharCode(key));
 
-		if (!profile.Input(key, keyCode, char)) {
+		if (!dstdn.profile || !dstdn.profile.Input(key, keyCode, char)) {
 			switch (keyCode) {
 				case KEY.Code.KEY_F1:
-					current_screen = home;
+					dstdn.current_screen = dstdn.home;
 					break;
 				case KEY.Code.KEY_F2:
-					current_screen = notifications;
+					dstdn.current_screen = dstdn.notifications;
 					break;
 				case KEY.Code.KEY_F3:
-					current_screen = toot;
+					dstdn.current_screen = dstdn.toot;
 					break;
 				case KEY.Code.KEY_F4:
-					current_screen = info;
+					dstdn.current_screen = dstdn.info;
 					break;
 				default:
-					var res = current_screen.Input(key, keyCode, char);
+					var res = dstdn.current_screen.Input(key, keyCode, char);
 					if (res) {
-						current_screen = toot;
+						dstdn.current_screen = toot;
 					}
 					break;
 			}
 		}
 	}
-}
-
-function DisplaySidebar() {
-	var col;
-
-	var xStart = CONTENT_WIDTH;
-	var xStartTxt = xStart + 4;
-
-	// 120 pixel height per box
-	Line(xStart, 0, xStart, 480, EGA.BLUE);
-
-	if (current_screen === home) {
-		col = EGA.LIGHT_RED;
-	} else {
-		col = EGA.LIGHT_BLUE;
-	}
-	sfont.DrawStringLeft(xStartTxt, 60, "F1:", col, NO_COLOR);
-	sfont.DrawStringLeft(xStartTxt, 68, "Home", col, NO_COLOR);
-
-	Line(xStart, 120, Width, 120, EGA.BLUE);
-
-	if (current_screen === notifications) {
-		col = EGA.LIGHT_RED;
-	} else {
-		col = EGA.LIGHT_BLUE;
-	}
-	sfont.DrawStringLeft(xStartTxt, 180, "F2:", col, NO_COLOR);
-	sfont.DrawStringLeft(xStartTxt, 188, "Noti", col, NO_COLOR);
-
-	Line(xStart, 240, Width, 240, EGA.BLUE);
-
-	if (current_screen === toot) {
-		col = EGA.LIGHT_RED;
-	} else {
-		col = EGA.LIGHT_BLUE;
-	}
-	sfont.DrawStringLeft(xStartTxt, 300, "F3:", col, NO_COLOR);
-	sfont.DrawStringLeft(xStartTxt, 308, "Toot", col, NO_COLOR);
-
-	Line(xStart, 360, Width, 360, EGA.BLUE);
-
-	if (current_screen === info) {
-		col = EGA.LIGHT_RED;
-	} else {
-		col = EGA.LIGHT_BLUE;
-	}
-	sfont.DrawStringLeft(xStartTxt, 420, "F4:", col, NO_COLOR);
-	sfont.DrawStringLeft(xStartTxt, 428, "Info", col, NO_COLOR);
 }

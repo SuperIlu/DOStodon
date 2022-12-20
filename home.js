@@ -138,11 +138,7 @@ Home.prototype.drawEntries = function () {
 			}
 		}
 
-		// display timestamp
-		DisplayMultilineText(LIST_IMG_SIZE + LIST_IMG_SIZE / 2 + 8, yPos, EGA.LIGHT_GREY, t.dostodon.tstamp, false, 68);
-
-		// display toot stats
-		yPos = DisplayMultilineText(300, yPos, EGA.LIGHT_GREY, t.dostodon.stats, false, 68);
+		var statusY = minY > yPos ? minY : yPos;
 
 		// display fav/boost/bookmark state
 		var fstate = "[";
@@ -157,12 +153,18 @@ Home.prototype.drawEntries = function () {
 			fstate += " ";
 		}
 		if (e['bookmarked']) {
-			fstate += "B";
+			fstate += "M";
 		} else {
 			fstate += " ";
 		}
 		fstate += "]";
-		minY = DisplayMultilineText(0, minY, EGA.YELLOW, fstate, false, 10);
+		DisplayMultilineText(0, statusY, EGA.YELLOW, fstate, false, 10);
+
+		// display timestamp
+		DisplayMultilineText(LIST_IMG_SIZE + LIST_IMG_SIZE / 2 + 8, statusY, EGA.LIGHT_GREY, t.dostodon.tstamp, false, 68);
+
+		// display toot stats
+		yPos = DisplayMultilineText(300, statusY, EGA.LIGHT_GREY, t.dostodon.stats, false, 68);
 
 		// increase yPos to minimum height and draw line
 		if (yPos < minY) {
@@ -186,11 +188,11 @@ Home.prototype.pollData = function (older) {
 			poll_id = null;
 		}
 	}
-	var toots = m.TimelineHome(MAX_POLL, poll_id, older);
+	var toots = dstdn.m.TimelineHome(MAX_POLL, poll_id, older);
 	Println("HOME Polled: " + poll_id);
 
 	if (toots.length > 0) {
-		noti_snd.Play(255, 128, false);
+		dstdn.noti_snd.Play(255, 128, false);
 
 		if (older) {
 			this.current_list.push.apply(this.current_list, toots);
@@ -348,7 +350,7 @@ Home.prototype.Input = function (key, keyCode, char) {
 						this.setPreview(e, 3);
 						break;
 					case "P":
-						profile.SetProfile(e['account']);
+						dstdn.profile.SetProfile(e['account']);
 						break;
 					case 'c':
 					case 'C':
@@ -357,11 +359,11 @@ Home.prototype.Input = function (key, keyCode, char) {
 						}
 						break
 					case "p":
-						profile.SetProfile(t['account']);
+						dstdn.profile.SetProfile(t['account']);
 						break;
 					case "r":
 					case "R":
-						toot.Reply(e);
+						dstdn.toot.Reply(e);
 						return true;
 						break;
 					case "d":
@@ -369,42 +371,54 @@ Home.prototype.Input = function (key, keyCode, char) {
 						Println(JSON.stringify(e));
 						break;
 					case "B":
-					case "b":
-						this.netop = new NetworkOperation(function () {
-							if (e['reblogged']) {
-								m.UnReblog(e['id']);
+						if (e['reblogged']) {
+							this.netop = new NetworkOperation(function () {
+								dstdn.m.UnReblog(e['id']);
 								e['reblogged'] = false;
-							} else {
-								m.Reblog(e['id']);
-								boost_snd.Play(255, 128, false);
+							});
+						}
+						break;
+					case "b":
+						if (!e['reblogged']) {
+							this.netop = new NetworkOperation(function () {
+								dstdn.m.Reblog(e['id']);
+								dstdn.boost_snd.Play(255, 128, false);
 								e['reblogged'] = true;
-							}
-						});
+							});
+						}
 						break;
 					case "F":
-					case "f":
-						this.netop = new NetworkOperation(function () {
-							if (e['favourited']) {
-								m.UnFavorite(e['id']);
+						if (e['favourited']) {
+							this.netop = new NetworkOperation(function () {
+								dstdn.m.UnFavorite(e['id']);
 								e['favourited'] = false;
-							} else {
-								m.Favorite(e['id']);
-								fav_snd.Play(255, 128, false);
+							});
+						}
+						break;
+					case "f":
+						if (!e['favourited']) {
+							this.netop = new NetworkOperation(function () {
+								dstdn.m.Favorite(e['id']);
+								dstdn.fav_snd.Play(255, 128, false);
 								e['favourited'] = true;
-							}
-						});
+							});
+						}
 						break;
 					case "M":
-					case "m":
-						this.netop = new NetworkOperation(function () {
-							if (e['bookmarked']) {
-								m.UnBookmark(e['id']);
+						if (e['bookmarked']) {
+							this.netop = new NetworkOperation(function () {
+								dstdn.m.UnBookmark(e['id']);
 								e['bookmarked'] = false;
-							} else {
-								m.Bookmark(e['id']);
+							});
+						}
+						break;
+					case "m":
+						if (!e['bookmarked']) {
+							this.netop = new NetworkOperation(function () {
+								dstdn.m.Bookmark(e['id']);
 								e['bookmarked'] = true;
-							}
-						});
+							});
+						}
 						break;
 				}
 				break;
