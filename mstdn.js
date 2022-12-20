@@ -230,14 +230,15 @@ Mastodon.prototype.Toot = function (txt, reply_id, spoiler) {
 }
 
 /**
- * favorite a toot (status).
+ * run opration on toot (status).
  * @see https://docs.joinmastodon.org/methods/statuses/
  * 
  * @param {string} id the toot id.
+ * @param {string} op the opration.
  * 
  * @returns a https://docs.joinmastodon.org/entities/status/, an exception is thrown for an error
  */
-Mastodon.prototype.Favorite = function (id) {
+Mastodon.prototype.changeStatus = function (id, op) {
 	if (!this.token) {
 		throw new Error("No credential set");
 	}
@@ -249,14 +250,26 @@ Mastodon.prototype.Favorite = function (id) {
 		['dummy', "data"]
 	];
 
-	var resp = this.DoPost(headers, postdata, this.base_url + "/api/v1/statuses/" + id + "/favourite");
+	var resp = this.DoPost(headers, postdata, this.base_url + "/api/v1/statuses/" + id + "/" + op);
 
 
 	if (resp[2] === 200) {
 		return JSON.parse(resp[0].ToString());
 	} else {
-		throw new Error("Favorite failed: " + resp[2] + ": " + resp[0].ToString());
+		throw new Error(op + " failed: " + resp[2] + ": " + resp[0].ToString());
 	}
+}
+
+/**
+ * favorite a toot (status).
+ * @see https://docs.joinmastodon.org/methods/statuses/
+ * 
+ * @param {string} id the toot id.
+ * 
+ * @returns a https://docs.joinmastodon.org/entities/status/, an exception is thrown for an error
+ */
+Mastodon.prototype.Favorite = function (id) {
+	return this.changeStatus(id, "favourite");
 }
 
 /**
@@ -268,24 +281,55 @@ Mastodon.prototype.Favorite = function (id) {
  * @returns a https://docs.joinmastodon.org/entities/status/, an exception is thrown for an error
  */
 Mastodon.prototype.Reblog = function (id) {
-	if (!this.token) {
-		throw new Error("No credential set");
-	}
+	return this.changeStatus(id, "reblog");
+}
 
-	var headers = [
-		['Authorization: Bearer ' + this.token]
-	];
-	var postdata = [
-		['dummy', "data"]
-	];
+/**
+ * bookmark a toot (status).
+ * @see https://docs.joinmastodon.org/methods/statuses/
+ * 
+ * @param {string} id the toot id.
+ * 
+ * @returns a https://docs.joinmastodon.org/entities/status/, an exception is thrown for an error
+ */
+Mastodon.prototype.Bookmark = function (id) {
+	return this.changeStatus(id, "bookmark");
+}
 
-	var resp = this.DoPost(headers, postdata, this.base_url + "/api/v1/statuses/" + id + "/reblog");
+/**
+ * unfavorite a toot (status).
+ * @see https://docs.joinmastodon.org/methods/statuses/
+ * 
+ * @param {string} id the toot id.
+ * 
+ * @returns a https://docs.joinmastodon.org/entities/status/, an exception is thrown for an error
+ */
+Mastodon.prototype.UnFavorite = function (id) {
+	return this.changeStatus(id, "unfavourite");
+}
 
-	if (resp[2] === 200) {
-		return JSON.parse(resp[0].ToString());
-	} else {
-		throw new Error("Favorite failed: " + resp[2] + ": " + resp[0].ToString());
-	}
+/**
+ * unboost a toot (status).
+ * @see https://docs.joinmastodon.org/methods/statuses/
+ * 
+ * @param {string} id the toot id.
+ * 
+ * @returns a https://docs.joinmastodon.org/entities/status/, an exception is thrown for an error
+ */
+Mastodon.prototype.UnReblog = function (id) {
+	return this.changeStatus(id, "unreblog");
+}
+
+/**
+ * unbookmark a toot (status).
+ * @see https://docs.joinmastodon.org/methods/statuses/
+ * 
+ * @param {string} id the toot id.
+ * 
+ * @returns a https://docs.joinmastodon.org/entities/status/, an exception is thrown for an error
+ */
+Mastodon.prototype.UnBookmark = function (id) {
+	return this.changeStatus(id, "unbookmark");
 }
 
 /**

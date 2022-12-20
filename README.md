@@ -82,39 +82,29 @@ The source is split into several files right now:
 
 DOStodon is implemented using DOjS native API (no p5js emulation). Network operations block the input processing/rendering.
 
-# DOSBox-X config
-I used [dosbox-x-mingw-win64-20220331123456.zip](https://github.com/joncampbell123/dosbox-x/releases/download/dosbox-x-v0.83.24/dosbox-x-mingw-win64-20220331123456.zip) of [DOSBox-X](https://github.com/joncampbell123/dosbox-x/releases) to test this version of DOStodon.
+# DOSBox-staging config
+I use [DOSBox Staging](https://github.com/dosbox-staging/dosbox-staging/releases/tag/v0.79.1) to test this version of DOStodon. A NE2000 packet driver can be found on [this](http://www.georgpotthast.de/sioux/packet.htm) page [here](http://www.georgpotthast.de/sioux/pktdrv/ne2000.zip).
 
-**
-Warning:
-- Make sure to use the MinGW builds as slirp does not work for Visual Studio builds!
-- Do NOT use any DOSBox-X never than v0.83.24, they have a known problem with file IO
-**
-
-My `dosbox.conf` looks like this:
+My `dosbox-staging.conf` looks like this:
 ```
-[sdl]
-windowresolution = 1024x768
-output = opengl
-
 [dosbox]
-machine  = svga_s3
-captures = capture
-memsize  = 64
+memsize = 64
 
 [cpu]
-cycles = max
+cputype = pentium_slow
+cycles  = max
 
-[ne2000]
-ne2000=true
-nicirq=10
-backend=slirp
-
+[ethernet]
+ne2000  = true
+nicbase = 300
+nicirq  = 3
+macaddr = AC:DE:48:88:99:AA
 
 [autoexec]
-mount c C:\Users\ilu\Documents\_DEVEL\DOStodon
+mount c E:\_DEVEL\GitHub\DOStodon
+PATH=d:;%PATH%
 c:
-ne2000 0x60 10 0x300
+ne2000 0x60 3 0x300
 ```
 
 # TODO
@@ -126,6 +116,9 @@ ne2000 0x60 10 0x300
 - Have fun
 
 # Changelog
+## 20. Dec 2022
+- Updated README regarding DOSBox (switched from DOSBox-X to DOSBox-staging)
+
 ## 19. Dec 2022
 - Updated README regarding DOSBox-X
 - Added debug timestamp during startup

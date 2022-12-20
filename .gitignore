@@ -14,3 +14,11 @@ local_CREDS.JSN
 crash.js
 symify.exe
 TMPIMG
+dosbox.exe
+dosbox-staging.conf
+libc++.dll
+NE2000.COM
+SDL2.dll
+SDL2_net.dll
+resources/
+test_images/

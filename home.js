@@ -60,9 +60,14 @@ Home.prototype.drawEntries = function () {
 		// get toot and display it
 		var t = this.current_list[current];
 
+		var e = t;
+		if (t['reblog']) {
+			e = t['reblog'];
+		}
+
 		this.lazyDrawImage(t['account']['avatar_static'], null, 0, yPos);
 		if (t['reblog']) {
-			this.lazyDrawImage(t['reblog']['account']['avatar_static'], null, LIST_IMG_SIZE / 2, yPos);
+			this.lazyDrawImage(e['account']['avatar_static'], null, LIST_IMG_SIZE / 2, yPos);
 		}
 
 		// filter all displayed strings only once and store them in 'dostodon' key
@@ -70,24 +75,19 @@ Home.prototype.drawEntries = function () {
 			var header = "";
 			var content = "";
 			if (t['reblog']) {
-				header = RemoveHTML("@" + t['account']['username'] + " BOOSTED " + t['reblog']['account']['username']);
-				content = RemoveHTML(t['reblog']['content']);
-				sens_indi = t['reblog']['sensitive'];
-				sens_txt = RemoveHTML(t['reblog']['spoiler_text']);
-				stats = "boosts:" + t['reblog']['reblogs_count'] + ", favs:" + t['reblog']['favourites_count'] + ", replies:" + t['reblog']['replies_count'];
-				tstamp = FormatTime(t['reblog']['created_at']);
+				header = RemoveHTML("@" + t['account']['username'] + " BOOSTED " + e['account']['username']);
 			} else {
 				if (t['account']['display_name']) {
 					header = RemoveHTML("From " + t['account']['display_name'] + " (@" + t['account']['username'] + ")");
 				} else {
 					header = RemoveHTML("From @" + t['account']['username']);
 				}
-				content = RemoveHTML(t['content']);
-				sens_indi = t['sensitive'];
-				sens_txt = RemoveHTML(t['spoiler_text']);
-				stats = "boosts:" + t['reblogs_count'] + ", favs:" + t['favourites_count'] + ", replies:" + t['replies_count'];
-				tstamp = FormatTime(t['created_at']);
 			}
+			content = RemoveHTML(e['content']);
+			sens_indi = e['sensitive'];
+			sens_txt = RemoveHTML(e['spoiler_text']);
+			stats = "boosts:" + e['reblogs_count'] + ", favs:" + e['favourites_count'] + ", replies:" + e['replies_count'];
+			tstamp = FormatTime(e['created_at']);
 			t.dostodon = {
 				"header": header,
 				"content": content,
@@ -112,12 +112,7 @@ Home.prototype.drawEntries = function () {
 		}
 
 		// render media images
-		var media;
-		if (t['reblog']) {
-			media = t['reblog']['media_attachments'];
-		} else {
-			media = t['media_attachments'];
-		}
+		var media = e['media_attachments'];;
 		if (!t.dostodon.sensitive_indicator) {
 			if (media && media.length > 0) {
 				var media_rendered = false;
@@ -148,6 +143,26 @@ Home.prototype.drawEntries = function () {
 
 		// display toot stats
 		yPos = DisplayMultilineText(300, yPos, EGA.LIGHT_GREY, t.dostodon.stats, false, 68);
+
+		// display fav/boost/bookmark state
+		var fstate = "[";
+		if (e['favourited']) {
+			fstate += "F";
+		} else {
+			fstate += " ";
+		}
+		if (e['reblogged']) {
+			fstate += "B";
+		} else {
+			fstate += " ";
+		}
+		if (e['bookmarked']) {
+			fstate += "B";
+		} else {
+			fstate += " ";
+		}
+		fstate += "]";
+		minY = DisplayMultilineText(0, minY, EGA.YELLOW, fstate, false, 10);
 
 		// increase yPos to minimum height and draw line
 		if (yPos < minY) {
@@ -291,7 +306,11 @@ Home.prototype.Input = function (key, keyCode, char) {
 	if (this.image_preview) {
 		this.image_preview = null;
 	} else {
-		var e = this.current_list[this.selected];
+		var t = this.current_list[this.selected];
+		var e = t;
+		if (t['reblog']) {
+			e = t['reblog'];
+		}
 		switch (keyCode) {
 			case KEY.Code.KEY_DOWN:
 				this.buttonDown();
@@ -329,20 +348,16 @@ Home.prototype.Input = function (key, keyCode, char) {
 						this.setPreview(e, 3);
 						break;
 					case "P":
-						if (e['reblog']) {
-							profile.SetProfile(e['reblog']['account']);
-						} else {
-							profile.SetProfile(e['account']);
-						}
+						profile.SetProfile(e['account']);
 						break;
 					case 'c':
 					case 'C':
-						if (e['dostodon']['sensitive_txt'].length > 0) {
-							e['dostodon']['sensitive_indicator'] = !e['dostodon']['sensitive_indicator'];
+						if (t['dostodon']['sensitive_txt'].length > 0) {
+							t['dostodon']['sensitive_indicator'] = !e['dostodon']['sensitive_indicator'];
 						}
 						break
 					case "p":
-						profile.SetProfile(e['account']);
+						profile.SetProfile(t['account']);
 						break;
 					case "r":
 					case "R":
@@ -356,15 +371,39 @@ Home.prototype.Input = function (key, keyCode, char) {
 					case "B":
 					case "b":
 						this.netop = new NetworkOperation(function () {
-							m.Reblog(e['id']);
-							boost_snd.Play(255, 128, false);
+							if (e['reblogged']) {
+								m.UnReblog(e['id']);
+								e['reblogged'] = false;
+							} else {
+								m.Reblog(e['id']);
+								boost_snd.Play(255, 128, false);
+								e['reblogged'] = true;
+							}
 						});
 						break;
 					case "F":
 					case "f":
 						this.netop = new NetworkOperation(function () {
-							m.Favorite(e['id']);
-							fav_snd.Play(255, 128, false);
+							if (e['favourited']) {
+								m.UnFavorite(e['id']);
+								e['favourited'] = false;
+							} else {
+								m.Favorite(e['id']);
+								fav_snd.Play(255, 128, false);
+								e['favourited'] = true;
+							}
+						});
+						break;
+					case "M":
+					case "m":
+						this.netop = new NetworkOperation(function () {
+							if (e['bookmarked']) {
+								m.UnBookmark(e['id']);
+								e['bookmarked'] = false;
+							} else {
+								m.Bookmark(e['id']);
+								e['bookmarked'] = true;
+							}
 						});
 						break;
 				}
