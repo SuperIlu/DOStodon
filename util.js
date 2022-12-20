@@ -219,7 +219,7 @@ function DisplaySidebar() {
 	// 120 pixel height per box
 	Line(xStart, 0, xStart, 480, EGA.BLUE);
 
-	if (dstdn.current_screen === home) {
+	if (dstdn.current_screen === dstdn.home) {
 		col = EGA.LIGHT_RED;
 	} else {
 		col = EGA.LIGHT_BLUE;
@@ -229,7 +229,7 @@ function DisplaySidebar() {
 
 	Line(xStart, 120, Width, 120, EGA.BLUE);
 
-	if (dstdn.current_screen === notifications) {
+	if (dstdn.current_screen === dstdn.notifications) {
 		col = EGA.LIGHT_RED;
 	} else {
 		col = EGA.LIGHT_BLUE;
@@ -239,7 +239,7 @@ function DisplaySidebar() {
 
 	Line(xStart, 240, Width, 240, EGA.BLUE);
 
-	if (dstdn.current_screen === toot) {
+	if (dstdn.current_screen === dstdn.toot) {
 		col = EGA.LIGHT_RED;
 	} else {
 		col = EGA.LIGHT_BLUE;
@@ -249,7 +249,7 @@ function DisplaySidebar() {
 
 	Line(xStart, 360, Width, 360, EGA.BLUE);
 
-	if (dstdn.current_screen === info) {
+	if (dstdn.current_screen === dstdn.info) {
 		col = EGA.LIGHT_RED;
 	} else {
 		col = EGA.LIGHT_BLUE;

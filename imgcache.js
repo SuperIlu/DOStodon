@@ -19,65 +19,70 @@ SOFTWARE.
 */
 
 // caches
-var cache = new LRUCache(100);
-var profile = new LRUCache(20);
-var large = new LRUCache(15);
+function ImageCache() {
+	this.small = new LRUCache(100);
+	this.profile = new LRUCache(20);
+	this.large = new LRUCache(15);
 
-function GetHashedImage(hash) {
-	if (cache.Get(hash)) {
-		return cache.Get(hash);
+	this.sqlite = new SQLite("CACHE.DB");
+	this.sqlite.Exec("CREATE TABLE IF NOT EXISTS images (key TEXT PRIMARY KEY, data BLOB);");
+}
+
+ImageCache.prototype.GetHashedImage = function (hash) {
+	if (this.small.Get(hash)) {
+		return this.small.Get(hash);
 	} else {
 		var bm = new Bitmap(hash, LIST_IMG_SIZE, LIST_IMG_SIZE);
-		cache.Put(hash, bm);
+		this.small.Put(hash, bm);
 		return bm;
 	}
 }
 
-function GetCachedImage(url) {
-	if (cache.Get(url)) {
-		return cache.Get(url);
+ImageCache.prototype.GetCachedImage = function (url) {
+	if (this.small.Get(url)) {
+		return this.small.Get(url);
 	} else {
 		return null;
 	}
 }
 
-function FetchListImage(url) {
-	if (cache.Get(url)) {
-		return cache.Get(url);
+ImageCache.prototype.FetchListImage = function (url) {
+	if (this.small.Get(url)) {
+		return this.small.Get(url);
 	} else {
-		var ret = GetScaledImage(url, LIST_IMG_SIZE);
-		cache.Put(url, ret);
+		var ret = this.GetScaledImage(url, LIST_IMG_SIZE);
+		this.small.Put(url, ret);
 		return ret;
 	}
 }
 
-function FetchProfileImage(url) {
-	if (profile.Get(url)) {
-		return profile.Get(url);
+ImageCache.prototype.FetchProfileImage = function (url) {
+	if (this.profile.Get(url)) {
+		return this.profile.Get(url);
 	} else {
-		var ret = GetScaledImage(url, PROFILE_IMG_SIZE);
-		profile.Put(url, ret);
+		var ret = this.GetScaledImage(url, PROFILE_IMG_SIZE);
+		this.profile.Put(url, ret);
 		return ret;
 	}
 }
 
-function FetchLargeImage(url) {
-	if (large.Get(url)) {
-		return large.Get(url);
+ImageCache.prototype.FetchLargeImage = function (url) {
+	if (this.large.Get(url)) {
+		return this.large.Get(url);
 	} else {
-		var ret = GetImage(url);
-		large.Put(url, ret);
+		var ret = this.GetImage(url);
+		this.large.Put(url, ret);
 		return ret;
 	}
 }
 
-function GetScaledImage(url, size) {
+ImageCache.prototype.GetScaledImage = function (url, size) {
 	var ret = new Bitmap(size, size);
 	SetRenderBitmap(ret);
 	ClearScreen(EGA.BLACK);
 	Line(0, 0, ret.width, ret.height, EGA.RED);
 	Line(ret.width, 0, 0, ret.height, EGA.RED);
-	var dl = GetImage(url);
+	var dl = this.GetImage(url);
 	if (dl) {
 		dl.DrawAdvanced(
 			0, 0, dl.width, dl.height,
@@ -88,41 +93,41 @@ function GetScaledImage(url, size) {
 	return ret;
 }
 
-function GetImage(url) {
-	//Println('GetImage fetching ' + url);
-	var resp = dstdn.m.DoGet([], url);
+ImageCache.prototype.GetImage = function (url) {
+	res = this.sqlite.Exec("SELECT data FROM images WHERE key=?;", [url]);
 
-	if (resp[2] === 200) {
-		try {
-			return new Bitmap(resp[0]);
-		} catch (e) {
-			Println(e);
-			return null;
+	if (res.length > 0) {
+		// Println('GetImage from cache ' + url);
+		return new Bitmap(res[0].data);
+	} else {
+		// Println('GetImage fetching ' + url);
+		var resp = dstdn.m.DoGet([], url);
+
+		if (resp[2] === 200) {
+			try {
+				this.sqlite.Exec("INSERT INTO images (key, data) VALUES(?,?);", [url, resp[0]]);
+				return new Bitmap(resp[0]);
+			} catch (e) {
+				Println(e);
+				return null;
+			}
 		}
 	}
 }
 
-function NumCacheEntries() {
-	return cache.Size();
+ImageCache.prototype.NumCacheEntries = function () {
+	return this.small.Size();
 }
-function NumProfileEntries() {
-	return profile.Size();
+ImageCache.prototype.NumProfileEntries = function () {
+	return this.profile.Size();
 }
-function NumLargeEntries() {
-	return large.Size();
+ImageCache.prototype.NumLargeEntries = function () {
+	return this.large.Size();
+}
+ImageCache.prototype.NumDiskEntries = function () {
+	return this.sqlite.Exec("SELECT COUNT(*) AS cnt FROM images")[0].cnt;
 }
 
 // export functions and version
 exports.__VERSION__ = 1;
-exports.GetImage = GetImage;
-exports.GetHashedImage = GetHashedImage;
-exports.GetScaledImage = GetScaledImage;
-exports.GetCachedImage = GetCachedImage;
-
-exports.FetchLargeImage = FetchLargeImage;
-exports.FetchListImage = FetchListImage;
-exports.FetchProfileImage = FetchProfileImage;
-
-exports.NumCacheEntries = NumCacheEntries;
-exports.NumProfileEntries = NumProfileEntries;
-exports.NumLargeEntries = NumLargeEntries;
+exports.ImageCache = ImageCache;

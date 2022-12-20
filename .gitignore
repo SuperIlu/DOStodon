@@ -22,3 +22,4 @@ SDL2.dll
 SDL2_net.dll
 resources/
 test_images/
+CACHE.DB

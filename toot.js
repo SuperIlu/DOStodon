@@ -27,7 +27,7 @@ function Toot() {
 }
 
 Toot.prototype.lazyDrawImage = function (url, bhash, x, y) {
-	var img = GetCachedImage(url);
+	var img = dstdn.cache.GetCachedImage(url);
 	if (img) {
 		img.Draw(x, y);
 		Box(x, y, x + LIST_IMG_SIZE, y + LIST_IMG_SIZE, EGA.BLACK);
@@ -35,11 +35,11 @@ Toot.prototype.lazyDrawImage = function (url, bhash, x, y) {
 		if (!this.netop) {
 			var url_copy = url;
 			this.netop = new NetworkOperation(function () {
-				FetchListImage(url_copy);
+				dstdn.cache.FetchListImage(url_copy);
 			});
 		}
 		if (bhash) {
-			GetHashedImage(bhash).Draw(x, y);
+			dstdn.cache.GetHashedImage(bhash).Draw(x, y);
 		} else {
 			Box(x, y, x + LIST_IMG_SIZE, y + LIST_IMG_SIZE, EGA.LIGHT_GREY);
 		}
@@ -103,6 +103,7 @@ Toot.prototype.Draw = function () {
 	if (this.netop && this.netop.Process()) {
 		this.netop = null;
 	}
+	DisplaySidebar();
 }
 
 Toot.prototype.Input = function (key, keyCode, char) {

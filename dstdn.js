@@ -24,6 +24,7 @@ SOFTWARE.
 LoadLibrary("curl");
 LoadLibrary("jpeg");
 LoadLibrary("png");
+LoadLibrary("sqlite");
 
 Include("evchain");
 

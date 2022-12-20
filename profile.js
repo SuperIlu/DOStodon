@@ -93,7 +93,7 @@ Profile.prototype.Draw = function () {
 		this.fetch_image = false;
 		var outer = this;
 		this.netop = new NetworkOperation(function () {
-			outer.image = FetchProfileImage(outer.profile['avatar_static']);
+			outer.image = dstdn.cache.FetchProfileImage(outer.profile['avatar_static']);
 		});
 	}
 	if (this.netop && this.netop.Process()) {

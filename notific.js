@@ -28,14 +28,14 @@ function Notifications() {
 }
 
 Notifications.prototype.lazyDrawImage = function (url, x, y) {
-	var img = GetCachedImage(url);
+	var img = dstdn.cache.GetCachedImage(url);
 	if (img) {
 		img.Draw(x, y);
 	} else {
 		if (!this.netop) {
 			var url_copy = url;
 			this.netop = new NetworkOperation(function () {
-				FetchListImage(url_copy);
+				dstdn.cache.FetchListImage(url_copy);
 			});
 		}
 		Box(x, y, x + LIST_IMG_SIZE, y + LIST_IMG_SIZE, EGA.LIGHT_GREY);
@@ -170,6 +170,7 @@ Notifications.prototype.Draw = function () {
 		DrawLogo();
 		this.doPoll = true;
 	}
+	DisplaySidebar();
 }
 
 Notifications.prototype.buttonDown = function () {

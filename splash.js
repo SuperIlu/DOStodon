@@ -64,6 +64,9 @@ function Splash() {
 	this.chain.Add(function () { outer.txt = "Creating INFO screen..."; });
 	this.chain.Add(function () { dstdn.info = new Info(); });
 
+	this.chain.Add(function () { outer.txt = "Creating ImageCache..."; });
+	this.chain.Add(function () { dstdn.cache = new ImageCache(); });
+
 	this.chain.Add(function () { outer.txt = "Logging in..."; });
 	this.chain.Add(function () { outer.login(); });
 

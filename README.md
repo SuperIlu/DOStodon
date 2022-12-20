@@ -118,12 +118,15 @@ ne2000 0x60 3 0x300
 - Add image-upload
 - Add Local/Global/Hashtag-Timelines
 - Look into character-encoding again
-- b/w JPGs are displayed wrong
 - Have fun
 
 # Changelog
 ## 20. Dec 2022
 - Updated README regarding DOSBox (switched from DOSBox-X to DOSBox-staging)
+- Added UnBoost and UnFav
+- Added Bookmarks
+- Added boost/fav/bookmark markers
+- Added splash screen
 
 ## 19. Dec 2022
 - Updated README regarding DOSBox-X

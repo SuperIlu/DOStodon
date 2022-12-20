@@ -28,7 +28,7 @@ function Home() {
 }
 
 Home.prototype.lazyDrawImage = function (url, bhash, x, y) {
-	var img = GetCachedImage(url);
+	var img = dstdn.cache.GetCachedImage(url);
 	if (img) {
 		img.Draw(x, y);
 		Box(x, y, x + LIST_IMG_SIZE, y + LIST_IMG_SIZE, EGA.BLACK);
@@ -36,11 +36,11 @@ Home.prototype.lazyDrawImage = function (url, bhash, x, y) {
 		if (!this.netop) {
 			var url_copy = url;
 			this.netop = new NetworkOperation(function () {
-				FetchListImage(url_copy);
+				dstdn.cache.FetchListImage(url_copy);
 			});
 		}
 		if (bhash) {
-			GetHashedImage(bhash).Draw(x, y);
+			dstdn.cache.GetHashedImage(bhash).Draw(x, y);
 		} else {
 			Box(x, y, x + LIST_IMG_SIZE, y + LIST_IMG_SIZE, EGA.LIGHT_GREY);
 		}
@@ -237,6 +237,7 @@ Home.prototype.Draw = function () {
 		DrawLogo();
 		this.doPoll = true;
 	}
+	DisplaySidebar();
 }
 
 Home.prototype.buttonDown = function () {
@@ -456,7 +457,7 @@ Home.prototype.setPreview = function (e, idx) {
 		};
 		this.netop = new NetworkOperation(function () {
 			outer.image_preview = {
-				"img": FetchLargeImage(media['preview_url']),
+				"img": dstdn.cache.FetchLargeImage(media['preview_url']),
 				"width": w,
 				"height": h
 			};

@@ -45,9 +45,10 @@ Info.prototype.Draw = function () {
 	info += "Loaded toots          : " + dstdn.home.current_list.length + "\n";
 	info += "Loaded notifications  : " + dstdn.notifications.current_list.length + "\n";
 	info += "\n";
-	info += "Small cache entries   : " + NumCacheEntries() + "/100\n";
-	info += "Profile cache entries : " + NumProfileEntries() + "/20\n";
-	info += "Large cache entries   : " + NumLargeEntries() + "/15\n";
+	info += "Small cache entries   : " + dstdn.cache.NumCacheEntries() + "/100\n";
+	info += "Profile cache entries : " + dstdn.cache.NumProfileEntries() + "/20\n";
+	info += "Large cache entries   : " + dstdn.cache.NumLargeEntries() + "/15\n";
+	info += "Disk cache entries    : " + dstdn.cache.NumDiskEntries() + "\n";
 	info += "\n";
 	info += "Total mem available   : " + mem_info.total + "\n";
 	info += "Memory Remaining      : " + mem_info.remaining + "\n";
@@ -68,6 +69,8 @@ Info.prototype.Draw = function () {
 	Line(TEXT_START_OFFSET, yPos + TEXT_START_OFFSET, CONTENT_WIDTH - TEXT_START_OFFSET, yPos + TEXT_START_OFFSET, EGA.BLUE); // max line
 	Line(TEXT_START_OFFSET, yPos + TEXT_START_OFFSET, TEXT_START_OFFSET, Height - TEXT_START_OFFSET, EGA.LIGHT_RED); // y-axis
 	Line(TEXT_START_OFFSET, Height - TEXT_START_OFFSET, CONTENT_WIDTH - TEXT_START_OFFSET, Height - TEXT_START_OFFSET, EGA.LIGHT_RED); // x-axis
+
+	DisplaySidebar();
 
 	return true;
 }
