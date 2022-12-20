@@ -35,8 +35,12 @@ Just run `DOStodon`.
 - `UP/DOWN, Page UP/DOWN, HOME/END`: scroll entries in home/notifications
 - `p`: Show profile of currently selected entry (for boost the boosters profile)
 - `P`: Show profile of currently selected entry (for boost the original profile)
-- `B`: Boost/reblog currently selected toot in home screen
-- `F`: Favorite/like currently selected toot in home screen
+- `b`: Boost/reblog currently selected toot in home screen
+- `B`: UN-Boost/reblog currently selected toot in home screen
+- `f`: Favorite/like currently selected toot in home screen
+- `F`: UN-Favorite/like currently selected toot in home screen
+- `m`: Bookmark currently selected toot in home screen
+- `M`: UN-Bookmark currently selected toot in home screen
 - `R`: reply to selected toot in home screen
 - `D`: Print JSON of selected toot in home screen to logfile
 - `C`: Toggle toots with content warning
@@ -84,6 +88,8 @@ DOStodon is implemented using DOjS native API (no p5js emulation). Network opera
 
 # DOSBox-staging config
 I use [DOSBox Staging](https://github.com/dosbox-staging/dosbox-staging/releases/tag/v0.79.1) to test this version of DOStodon. A NE2000 packet driver can be found on [this](http://www.georgpotthast.de/sioux/packet.htm) page [here](http://www.georgpotthast.de/sioux/pktdrv/ne2000.zip).
+
+**DO NOT use DOSBox-X right now, it has a known bug in file io which creates broken SQLite databases**
 
 My `dosbox-staging.conf` looks like this:
 ```
