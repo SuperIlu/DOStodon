@@ -90,9 +90,13 @@ DOStodon is implemented using DOjS native API (no p5js emulation). Network opera
 I use [DOSBox Staging](https://github.com/dosbox-staging/dosbox-staging/releases/tag/v0.79.1) to test this version of DOStodon. A NE2000 packet driver can be found on [this](http://www.georgpotthast.de/sioux/packet.htm) page [here](http://www.georgpotthast.de/sioux/pktdrv/ne2000.zip).
 
 **DO NOT use DOSBox-X right now, it has a known bug in file io which creates broken SQLite databases**
+**DOSBox-staging has a problem with mouse support, thats why I disabled that in the example config!**
 
 My `dosbox-staging.conf` looks like this:
 ```
+[sdl]
+capture_mouse = nomouse
+
 [dosbox]
 memsize = 64
 
@@ -127,6 +131,7 @@ ne2000 0x60 3 0x300
 - Added Bookmarks
 - Added boost/fav/bookmark markers
 - Added splash screen
+- Added SQLite based image cache. Images are deleted from cache after 28 days.
 
 ## 19. Dec 2022
 - Updated README regarding DOSBox-X

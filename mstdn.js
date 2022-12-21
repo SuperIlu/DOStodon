@@ -49,6 +49,7 @@ function Mastodon(url) {
  * @returns the https-response like Curl.DoRequest()
  */
 Mastodon.prototype.DoPost = function (header, postdata, url) {
+	Println("POST:" + url);
 	// this.post = new Curl();
 	this.post.ClearHeaders();
 	for (var i = 0; i < header.length; i++) {
@@ -70,7 +71,6 @@ Mastodon.prototype.DoPost = function (header, postdata, url) {
 	if (resp[2] !== 200) {
 		this.failed_requests++;
 	}
-	// Println("POST:" + url);
 	// Println("POST:" + resp[0].ToString());
 	// Println("POST:" + resp[1].ToString());
 	// Println("POST:" + resp[2]);
@@ -86,6 +86,7 @@ Mastodon.prototype.DoPost = function (header, postdata, url) {
  * @returns the https-response like Curl.DoRequest()
  */
 Mastodon.prototype.DoGet = function (header, url) {
+	Println("GET:" + url);
 	// this.get = new Curl();
 	this.get.ClearHeaders();
 	for (var i = 0; i < header.length; i++) {
@@ -102,7 +103,6 @@ Mastodon.prototype.DoGet = function (header, url) {
 	if (resp[2] !== 200) {
 		this.failed_requests++;
 	}
-	// Println("GET:" + url);
 	// Println("GET:" + resp[0].ToString());
 	// Println("GET:" + resp[1].ToString());
 	// Println("GET:" + resp[2]);

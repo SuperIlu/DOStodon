@@ -20,12 +20,14 @@ SOFTWARE.
 
 // caches
 function ImageCache() {
-	this.small = new LRUCache(100);
-	this.profile = new LRUCache(20);
-	this.large = new LRUCache(15);
+	this.small = new LRUCache(50);
+	this.profile = new LRUCache(10);
+	this.large = new LRUCache(10);
 
+	// create disk cache and delete entries older than 4w
 	this.sqlite = new SQLite("CACHE.DB");
-	this.sqlite.Exec("CREATE TABLE IF NOT EXISTS images (key TEXT PRIMARY KEY, data BLOB);");
+	this.sqlite.Exec("CREATE TABLE IF NOT EXISTS images (key TEXT PRIMARY KEY, timestamp INTEGER, data BLOB);");
+	this.sqlite.Exec("DELETE FROM images WHERE timestamp <= DATE('now','-28 day');");
 }
 
 ImageCache.prototype.GetHashedImage = function (hash) {
@@ -105,7 +107,7 @@ ImageCache.prototype.GetImage = function (url) {
 
 		if (resp[2] === 200) {
 			try {
-				this.sqlite.Exec("INSERT INTO images (key, data) VALUES(?,?);", [url, resp[0]]);
+				this.sqlite.Exec("INSERT INTO images (key, timestamp, data) VALUES(?,CURRENT_DATE,?);", [url, resp[0]]);
 				return new Bitmap(resp[0]);
 			} catch (e) {
 				Println(e);

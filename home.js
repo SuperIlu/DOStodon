@@ -311,7 +311,7 @@ Home.prototype.Input = function (key, keyCode, char) {
 	} else {
 		var t = this.current_list[this.selected];
 		var e = t;
-		if (t['reblog']) {
+		if (t && t['reblog']) {
 			e = t['reblog'];
 		}
 		switch (keyCode) {
