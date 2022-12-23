@@ -23,3 +23,9 @@ SDL2_net.dll
 resources/
 test_images/
 CACHE.DB
+*.dll
+COPYING.txt
+dosbox_with_debugger.exe
+README.txt
+doc/manual.txt
+doc/video.txt

@@ -26,6 +26,7 @@ The access tokens are stored in `CREDS.JSN` if the login is successful.
 Just run `DOStodon`.
 
 ## Keys
+### Common
 - `ESC`: Quit DOStodon
 - `F1`: Switch to home timeline
 - `F2`: Switch to notifications
@@ -35,6 +36,8 @@ Just run `DOStodon`.
 - `UP/DOWN, Page UP/DOWN, HOME/END`: scroll entries in home/notifications
 - `p`: Show profile of currently selected entry (for boost the boosters profile)
 - `P`: Show profile of currently selected entry (for boost the original profile)
+
+### Home
 - `b`: Boost/reblog currently selected toot in home screen
 - `B`: UN-Boost/reblog currently selected toot in home screen
 - `f`: Favorite/like currently selected toot in home screen
@@ -44,9 +47,20 @@ Just run `DOStodon`.
 - `R`: reply to selected toot in home screen
 - `D`: Print JSON of selected toot in home screen to logfile
 - `C`: Toggle toots with content warning
-- `DEL`: delete toot composer text and reply-to toot
-- `CTRL-ENTER`: Send toot in Toot editor
 - `1..4`: show media attachment 1 to 4. Any key to close.
+
+### Editor
+- `CTRL-ENTER`: Send toot in Toot editor
+- `DEL`: delete toot composer text and reply-to toot
+
+### Profile screen
+- `ENTER`: close profile
+- `f`: follow
+- `F`: unfollow
+- `b`: block
+- `B`: unblock
+- `m`: mute
+- `M`: unmute
 
 ## General
 - DOStodon is busy while the Mastodon logo is displayed in middle of the screen. Don't hit keys like crazy, every keypress will be queued :)
@@ -125,6 +139,10 @@ ne2000 0x60 3 0x300
 - Have fun
 
 # Changelog
+## 22. Dec 2022
+- Added follow/mute/block info to profile screen
+- Added (un) follow/mute/block keys to profile screen (yet untested)
+
 ## 20. Dec 2022
 - Updated README regarding DOSBox (switched from DOSBox-X to DOSBox-staging)
 - Added UnBoost and UnFav
