@@ -192,7 +192,7 @@ Home.prototype.pollData = function (older) {
 	Println("HOME Polled: " + poll_id);
 
 	if (toots.length > 0) {
-		dstdn.noti_snd.Play(255, 128, false);
+		dstdn.home_snd.Play(255, 128, false);
 
 		if (older) {
 			this.current_list.push.apply(this.current_list, toots);

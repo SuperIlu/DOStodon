@@ -140,6 +140,7 @@ Profile.prototype.Draw = function () {
 }
 
 Profile.prototype.Input = function (key, keyCode, char) {
+	var outer = this;
 	switch (keyCode) {
 		case KEY.Code.KEY_ENTER:
 			this.SetProfile(null);
@@ -152,7 +153,7 @@ Profile.prototype.Input = function (key, keyCode, char) {
 					if (this.relation && this.relation['following']) {
 						this.netop = new NetworkOperation(function () {
 							dstdn.m.UnFollow(outer.profile['id']);
-							this.relation['following'] = false;
+							outer.relation['following'] = false;
 						});
 					}
 					break;
@@ -161,7 +162,7 @@ Profile.prototype.Input = function (key, keyCode, char) {
 					if (this.relation && !this.relation['following']) {
 						this.netop = new NetworkOperation(function () {
 							dstdn.m.Follow(outer.profile['id']);
-							this.relation['following'] = true;
+							outer.relation['following'] = true;
 						});
 					}
 					break;
@@ -170,7 +171,7 @@ Profile.prototype.Input = function (key, keyCode, char) {
 					if (this.relation && this.relation['blocking']) {
 						this.netop = new NetworkOperation(function () {
 							dstdn.m.UnBlock(outer.profile['id']);
-							this.relation['blocking'] = false;
+							outer.relation['blocking'] = false;
 						});
 					}
 					break;
@@ -179,7 +180,7 @@ Profile.prototype.Input = function (key, keyCode, char) {
 					if (this.relation && !this.relation['blocking']) {
 						this.netop = new NetworkOperation(function () {
 							dstdn.m.Block(outer.profile['id']);
-							this.relation['blocking'] = true;
+							outer.relation['blocking'] = true;
 						});
 					}
 					break;
@@ -188,7 +189,7 @@ Profile.prototype.Input = function (key, keyCode, char) {
 					if (this.relation && this.relation['muting']) {
 						this.netop = new NetworkOperation(function () {
 							dstdn.m.UnMute(outer.profile['id']);
-							this.relation['muting'] = false;
+							outer.relation['muting'] = false;
 						});
 					}
 					break;
@@ -196,8 +197,8 @@ Profile.prototype.Input = function (key, keyCode, char) {
 					// mute
 					if (this.relation && !this.relation['muting']) {
 						this.netop = new NetworkOperation(function () {
-							dstdn.m.UnMute(outer.profile['id']);
-							this.relation['muting'] = true;
+							dstdn.m.Mute(outer.profile['id']);
+							outer.relation['muting'] = true;
 						});
 					}
 					break;

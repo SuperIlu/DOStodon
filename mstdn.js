@@ -486,7 +486,7 @@ Mastodon.prototype.changeAccount = function (id, op) {
  * 
  * @returns a https://docs.joinmastodon.org/entities/Relationship/, an exception is thrown for an error
  */
-Mastodon.prototype.UnReblog = function (id) {
+Mastodon.prototype.Follow = function (id) {
 	return this.changeAccount(id, "follow");
 }
 
@@ -510,7 +510,7 @@ Mastodon.prototype.UnFollow = function (id) {
  * 
  * @returns a https://docs.joinmastodon.org/entities/Relationship/, an exception is thrown for an error
  */
-Mastodon.prototype.UnBlock = function (id) {
+Mastodon.prototype.Block = function (id) {
 	return this.changeAccount(id, "block");
 }
 
@@ -534,7 +534,7 @@ Mastodon.prototype.UnBlock = function (id) {
  * 
  * @returns a https://docs.joinmastodon.org/entities/Relationship/, an exception is thrown for an error
  */
-Mastodon.prototype.UnBlock = function (id) {
+Mastodon.prototype.Mute = function (id) {
 	return this.changeAccount(id, "mute");
 }
 
@@ -546,7 +546,7 @@ Mastodon.prototype.UnBlock = function (id) {
  * 
  * @returns a https://docs.joinmastodon.org/entities/Relationship/, an exception is thrown for an error
  */
-Mastodon.prototype.UnBlock = function (id) {
+Mastodon.prototype.UnMute = function (id) {
 	return this.changeAccount(id, "unmute");
 }
 

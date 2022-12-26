@@ -96,24 +96,24 @@ ImageCache.prototype.GetScaledImage = function (url, size) {
 }
 
 ImageCache.prototype.GetImage = function (url) {
-	res = this.sqlite.Exec("SELECT data FROM images WHERE key=?;", [url]);
+	try {
+		res = this.sqlite.Exec("SELECT data FROM images WHERE key=?;", [url]);
 
-	if (res.length > 0) {
-		// Println('GetImage from cache ' + url);
-		return new Bitmap(res[0].data);
-	} else {
-		// Println('GetImage fetching ' + url);
-		var resp = dstdn.m.DoGet([], url);
+		if (res.length > 0) {
+			// Println('GetImage from cache ' + url);
+			return new Bitmap(res[0].data);
+		} else {
+			// Println('GetImage fetching ' + url);
+			var resp = dstdn.m.DoGet([], url);
 
-		if (resp[2] === 200) {
-			try {
+			if (resp[2] === 200) {
 				this.sqlite.Exec("INSERT INTO images (key, timestamp, data) VALUES(?,CURRENT_DATE,?);", [url, resp[0]]);
 				return new Bitmap(resp[0]);
-			} catch (e) {
-				Println(e);
-				return null;
 			}
 		}
+	} catch (e) {
+		Println(url + ": " + e);
+		return null;
 	}
 }
 

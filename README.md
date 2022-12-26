@@ -139,6 +139,12 @@ ne2000 0x60 3 0x300
 - Have fun
 
 # Changelog
+## 26. Dec 2022
+- Fixed issue with the image cache
+- Fixed issue with profile screen follow/block/mute function
+- Fixed wrong sound being played
+- Added Makefile to create DOSTODON.ZIP
+
 ## 22. Dec 2022
 - Added follow/mute/block info to profile screen
 - Added (un) follow/mute/block keys to profile screen (yet untested)
