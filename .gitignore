@@ -5,11 +5,8 @@ CREDS.JSN
 TMPIMG.JPG
 TMPIMG.PNG
 W32DHCP.TMP
-real_cacert.pem
-real_CREDS.JSN
 SPLASH.BMP
 local_cacert.pem
-local_CREDS.JSN
 *.DJS
 crash.js
 symify.exe
@@ -23,3 +20,6 @@ SDL2_net.dll
 resources/
 test_images/
 CACHE.DB
+bitbang-CREDS.JSN
+local-CREDS.JSN
+mastodon-CREDS.JSN
