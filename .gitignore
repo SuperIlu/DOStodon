@@ -23,3 +23,9 @@ CACHE.DB
 bitbang-CREDS.JSN
 local-CREDS.JSN
 mastodon-CREDS.JSN
+*.dll
+COPYING.txt
+dosbox_with_debugger.exe
+README.txt
+doc/manual.txt
+doc/video.txt

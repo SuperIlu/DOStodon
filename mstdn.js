@@ -49,7 +49,7 @@ function Mastodon(url) {
  * @returns the https-response like Curl.DoRequest()
  */
 Mastodon.prototype.DoPost = function (header, postdata, url) {
-	Println("POST:" + url);
+	// Println("POST:" + url);
 	// this.post = new Curl();
 	this.post.ClearHeaders();
 	for (var i = 0; i < header.length; i++) {
@@ -86,7 +86,7 @@ Mastodon.prototype.DoPost = function (header, postdata, url) {
  * @returns the https-response like Curl.DoRequest()
  */
 Mastodon.prototype.DoGet = function (header, url) {
-	Println("GET:" + url);
+	// Println("GET:" + url);
 	// this.get = new Curl();
 	this.get.ClearHeaders();
 	for (var i = 0; i < header.length; i++) {
@@ -412,6 +412,144 @@ Mastodon.prototype.Notifications = function (limit, id, older) {
 		throw new Error("Notifications failed: " + resp[2] + ": " + resp[0].ToString());
 	}
 }
+
+/**
+ * get account relationships from the server
+ * 
+ * @param {string[]} ids the list of ids to fetch the status for
+ * 
+ * @returns an array of https://docs.joinmastodon.org/entities/Relationship/
+ */
+Mastodon.prototype.GetRelationships = function (ids) {
+	if (!this.token) {
+		throw new Error("No credential set");
+	}
+
+	var headers = [
+		['Authorization: Bearer ' + this.token]
+	];
+
+	// build URL
+	var url = this.base_url + "/api/v1/accounts/relationships";
+	for (var i = 0; i < ids.length; i++) {
+		if (i == 0) {
+			url += "?id[]=" + ids[i];
+		} else {
+			url += "&id[]=" + ids[i];
+		}
+	}
+
+	var resp = this.DoGet(headers, url);
+
+	if (resp[2] === 200) {
+		return JSON.parse(resp[0].ToString());
+	} else {
+		throw new Error("Relationships failed: " + resp[2] + ": " + resp[0].ToString());
+	}
+}
+
+/**
+ * run opration on account.
+ * @see https://docs.joinmastodon.org/methods/accounts/
+ * 
+ * @param {string} id the account id.
+ * @param {string} op the opration.
+ * 
+ * @returns a https://docs.joinmastodon.org/entities/Relationship/, an exception is thrown for an error
+ */
+Mastodon.prototype.changeAccount = function (id, op) {
+	if (!this.token) {
+		throw new Error("No credential set");
+	}
+
+	var headers = [
+		['Authorization: Bearer ' + this.token]
+	];
+	var postdata = [
+		['dummy', "data"]
+	];
+
+	var resp = this.DoPost(headers, postdata, this.base_url + "/api/v1/accounts/" + id + "/" + op);
+
+	if (resp[2] === 200) {
+		return JSON.parse(resp[0].ToString());
+	} else {
+		throw new Error(op + " failed: " + resp[2] + ": " + resp[0].ToString());
+	}
+}
+
+/**
+ * follow an account.
+ * @see https://docs.joinmastodon.org/methods/accounts/
+ * 
+ * @param {string} id the account id.
+ * 
+ * @returns a https://docs.joinmastodon.org/entities/Relationship/, an exception is thrown for an error
+ */
+Mastodon.prototype.UnReblog = function (id) {
+	return this.changeAccount(id, "follow");
+}
+
+/**
+ * unfollow an account.
+ * @see https://docs.joinmastodon.org/methods/accounts/
+ * 
+ * @param {string} id the account id.
+ * 
+ * @returns a https://docs.joinmastodon.org/entities/Relationship/, an exception is thrown for an error
+ */
+Mastodon.prototype.UnFollow = function (id) {
+	return this.changeAccount(id, "unfollow");
+}
+
+/**
+ * block an account.
+ * @see https://docs.joinmastodon.org/methods/accounts/
+ * 
+ * @param {string} id the account id.
+ * 
+ * @returns a https://docs.joinmastodon.org/entities/Relationship/, an exception is thrown for an error
+ */
+Mastodon.prototype.UnBlock = function (id) {
+	return this.changeAccount(id, "block");
+}
+
+/**
+ * unblock an account.
+ * @see https://docs.joinmastodon.org/methods/accounts/
+ * 
+ * @param {string} id the account id.
+ * 
+ * @returns a https://docs.joinmastodon.org/entities/Relationship/, an exception is thrown for an error
+ */
+Mastodon.prototype.UnBlock = function (id) {
+	return this.changeAccount(id, "unblock");
+}
+
+/**
+ * mute an account.
+ * @see https://docs.joinmastodon.org/methods/accounts/
+ * 
+ * @param {string} id the account id.
+ * 
+ * @returns a https://docs.joinmastodon.org/entities/Relationship/, an exception is thrown for an error
+ */
+Mastodon.prototype.UnBlock = function (id) {
+	return this.changeAccount(id, "mute");
+}
+
+/**
+ * unmute an account.
+ * @see https://docs.joinmastodon.org/methods/accounts/
+ * 
+ * @param {string} id the account id.
+ * 
+ * @returns a https://docs.joinmastodon.org/entities/Relationship/, an exception is thrown for an error
+ */
+Mastodon.prototype.UnBlock = function (id) {
+	return this.changeAccount(id, "unmute");
+}
+
 
 // export functions and version
 exports.__VERSION__ = 1;

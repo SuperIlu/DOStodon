@@ -24,6 +24,7 @@ function Profile() {
 	this.profile = null;
 	this.image = null;
 	this.note = null;
+	this.relation = null;
 	this.fetch_image = false;
 }
 
@@ -31,6 +32,7 @@ Profile.prototype.SetProfile = function (p) {
 	this.profile = p;
 	this.image = null;
 	this.note = null;
+	this.relation = null;
 	if (p) {
 		this.fetch_image = true;
 	}
@@ -86,7 +88,37 @@ Profile.prototype.Draw = function () {
 	yPos += dstdn.sfont.height;
 	yPos += dstdn.lfont.height;
 
-	dstdn.lfont.DrawStringLeft(txtStartX, yPos, "<Press any KEY to exit>", EGA.LIGHT_BLUE, NO_COLOR);
+	var rel = "";
+	if (this.relation) {
+		if (this.relation['following']) {
+			rel += "FOLLOWING\n";
+		} else {
+			rel += "\n";
+		}
+		if (this.relation['followed_by']) {
+			rel += "FOLLOWS YOU\n";
+		} else {
+			rel += "\n";
+		}
+		if (this.relation['muting']) {
+			rel += "MUTED\n";
+		} else {
+			rel += "\n";
+		}
+		if (this.relation['blocking']) {
+			rel += "BLOCKED\n";
+		} else {
+			rel += "\n";
+		}
+		if (this.relation['blocked_by']) {
+			rel += "BLOCKED YOU\n";
+		} else {
+			rel += "\n";
+		}
+	}
+	yPos = DisplayMultilineText(txtStartX, yPos, EGA.YELLOW, rel, false, 48);
+
+	dstdn.lfont.DrawStringLeft(txtStartX, yPos, "<Press ENTER KEY to exit>", EGA.LIGHT_BLUE, NO_COLOR);
 
 	// fetch image if possible, but try only once
 	if (this.fetch_image) {
@@ -94,6 +126,10 @@ Profile.prototype.Draw = function () {
 		var outer = this;
 		this.netop = new NetworkOperation(function () {
 			outer.image = dstdn.cache.FetchProfileImage(outer.profile['avatar_static']);
+			outer.relation = dstdn.m.GetRelationships([outer.profile['id']]);
+			if (outer.relation && outer.relation[0]) {
+				outer.relation = outer.relation[0];
+			}
 		});
 	}
 	if (this.netop && this.netop.Process()) {
@@ -104,12 +140,71 @@ Profile.prototype.Draw = function () {
 }
 
 Profile.prototype.Input = function (key, keyCode, char) {
-	if (this.profile) {
-		this.SetProfile(null);
-		return true;
-	} else {
-		return false;
+	switch (keyCode) {
+		case KEY.Code.KEY_ENTER:
+			this.SetProfile(null);
+			return true;
+			break;
+		default:
+			switch (char) {
+				case "F":
+					// unfollow
+					if (this.relation && this.relation['following']) {
+						this.netop = new NetworkOperation(function () {
+							dstdn.m.UnFollow(outer.profile['id']);
+							this.relation['following'] = false;
+						});
+					}
+					break;
+				case "f":
+					// follow
+					if (this.relation && !this.relation['following']) {
+						this.netop = new NetworkOperation(function () {
+							dstdn.m.Follow(outer.profile['id']);
+							this.relation['following'] = true;
+						});
+					}
+					break;
+				case "B":
+					// unblock
+					if (this.relation && this.relation['blocking']) {
+						this.netop = new NetworkOperation(function () {
+							dstdn.m.UnBlock(outer.profile['id']);
+							this.relation['blocking'] = false;
+						});
+					}
+					break;
+				case "b":
+					// block
+					if (this.relation && !this.relation['blocking']) {
+						this.netop = new NetworkOperation(function () {
+							dstdn.m.Block(outer.profile['id']);
+							this.relation['blocking'] = true;
+						});
+					}
+					break;
+				case "M":
+					// unmute
+					if (this.relation && this.relation['muting']) {
+						this.netop = new NetworkOperation(function () {
+							dstdn.m.UnMute(outer.profile['id']);
+							this.relation['muting'] = false;
+						});
+					}
+					break;
+				case "m":
+					// mute
+					if (this.relation && !this.relation['muting']) {
+						this.netop = new NetworkOperation(function () {
+							dstdn.m.UnMute(outer.profile['id']);
+							this.relation['muting'] = true;
+						});
+					}
+					break;
+			}
+			break;
 	}
+	return this.profile != null;
 }
 
 // export functions and version
