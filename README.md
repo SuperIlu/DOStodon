@@ -147,7 +147,6 @@ ne2000 0x60 3 0x300
 # TODO
 - Display image descriptions
 - Add image-upload
-- Add Local/Global/Hashtag-Timelines
 - Look into character-encoding again
 - Have fun
 
@@ -155,7 +154,7 @@ ne2000 0x60 3 0x300
 ## 28. Dec 2022
 - Added local timeline
 - Added global timeline
-- Added hastag timeline
+- Added hashtag timeline
 - Added 'view bookmarks'
 - Added 'view favorites'
 - Added text input field
