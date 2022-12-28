@@ -50,19 +50,60 @@ function Splash() {
 	this.chain.Add(function () { dstdn.fav_snd = new Sample("fav.wav"); });
 
 	this.chain.Add(function () { outer.txt = "Creating HOME screen..."; });
-	this.chain.Add(function () { dstdn.home = new Home(); });
+	this.chain.Add(function () { dstdn.all_screens[SCR_HOME] = new Home(function (outer, max, id, older) { return dstdn.m.TimelineHome(max, id, older); }, false); });
 
-	this.chain.Add(function () { outer.txt = "Creating TOOT screen..."; });
-	this.chain.Add(function () { dstdn.toot = new Toot(); });
+	this.chain.Add(function () { outer.txt = "Creating LOCAL screen..."; });
+	this.chain.Add(function () { dstdn.all_screens[SCR_LOCAL] = new Home(function (outer, max, id, older) { return dstdn.m.TimelinePublic(true, max, id, older); }, false); });
+
+	this.chain.Add(function () { outer.txt = "Creating GLOBAL screen..."; });
+	this.chain.Add(function () { dstdn.all_screens[SCR_GLOBAL] = new Home(function (outer, max, id, older) { return dstdn.m.TimelinePublic(false, max, id, older); }, false); });
+
+	this.chain.Add(function () { outer.txt = "Creating TAG screen..."; });
+	this.chain.Add(function () {
+		dstdn.all_screens[SCR_TAG] = new Home(
+			function (outer, max, id, older) {
+				if (outer.tag) {
+					if (outer.tag.length > 0) {
+						return dstdn.m.TimelineTag(outer.tag, max, id, older);
+					} else {
+						return [];
+					}
+				} else {
+					if (!dstdn.get_text) {
+						dstdn.get_text = new EnterText("Enter hashtag", outer.tag ? "#" + outer.tag : "#", function (txt) {
+							if (txt) {
+								if (txt.startsWith("#")) {
+									outer.tag = txt.substring(1);
+								} else {
+									outer.tag = txt;
+								}
+								outer.last_poll = null;
+							}
+							dstdn.get_text = null;
+						});
+						return [];
+					}
+				}
+			}, true);
+	});
+
+	this.chain.Add(function () { outer.txt = "Creating BOOKMARK screen..."; });
+	this.chain.Add(function () { dstdn.all_screens[SCR_BMARK] = new Home(function (outer, max, id, older) { outer.current_list = []; return dstdn.m.Bookmarks(); }, false); });
+
+	this.chain.Add(function () { outer.txt = "Creating FAVORITES screen..."; });
+	this.chain.Add(function () { dstdn.all_screens[SCR_FAV] = new Home(function (outer, max, id, older) { outer.current_list = []; return dstdn.m.Favourites(); }, false); });
 
 	this.chain.Add(function () { outer.txt = "Creating NOTIFICATION screen..."; });
-	this.chain.Add(function () { dstdn.notifications = new Notifications(); });
+	this.chain.Add(function () { dstdn.all_screens[SCR_NOTI] = new Notifications(); });
+
+	this.chain.Add(function () { outer.txt = "Creating TOOT screen..."; });
+	this.chain.Add(function () { dstdn.all_screens[SCR_TOOT] = new Toot(); });
+
+	this.chain.Add(function () { outer.txt = "Creating INFO screen..."; });
+	this.chain.Add(function () { dstdn.all_screens[SCR_INFO] = new Info(); });
 
 	this.chain.Add(function () { outer.txt = "Creating PROFILE screen..."; });
 	this.chain.Add(function () { dstdn.profile = new Profile(); });
-
-	this.chain.Add(function () { outer.txt = "Creating INFO screen..."; });
-	this.chain.Add(function () { dstdn.info = new Info(); });
 
 	this.chain.Add(function () { outer.txt = "Creating ImageCache..."; });
 	this.chain.Add(function () { dstdn.cache = new ImageCache(); });
@@ -87,7 +128,7 @@ Splash.prototype.Draw = function () {
 
 	if (!this.chain.Step()) {
 		this.splash = null;
-		dstdn.current_screen = dstdn.home;
+		dstdn.current_screen = dstdn.all_screens[SCR_HOME];
 	}
 }
 

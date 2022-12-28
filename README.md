@@ -30,12 +30,17 @@ Just run `DOStodon`.
 - `ESC`: Quit DOStodon
 - `F1`: Switch to home timeline
 - `F2`: Switch to notifications
-- `F3`: Switch to Toot composer
-- `F4`: Info screen
-- `F5`: Poll/Refresh home/notifications
+- `F3`: Switch to hashtag timeline
+- `F4`: Switch to local timeline
+- `F5`: Switch to global timeline
+- `F6`: Switch to bookmarks list (last 40)
+- `F7`: Switch to favourites list (last 40)
+- `F10`: Switch to Toot composer
+- `F11`: Info screen
+- `F12`: Poll/Refresh home/notification timelines
 - `UP/DOWN, Page UP/DOWN, HOME/END`: scroll entries in home/notifications
-- `p`: Show profile of currently selected entry (for boost the boosters profile)
-- `P`: Show profile of currently selected entry (for boost the original profile)
+- `p`: Show profile of currently selected entry (for boosts the boosters profile)
+- `P`: Show profile of currently selected entry (for boosts the original profile)
 
 ### Home
 - `b`: Boost/reblog currently selected toot in home screen
@@ -44,13 +49,20 @@ Just run `DOStodon`.
 - `F`: UN-Favorite/like currently selected toot in home screen
 - `m`: Bookmark currently selected toot in home screen
 - `M`: UN-Bookmark currently selected toot in home screen
-- `R`: reply to selected toot in home screen
-- `D`: Print JSON of selected toot in home screen to logfile
-- `C`: Toggle toots with content warning
+- `R`/`r`: reply to selected toot in home screen
+- `D`/`d`: Print JSON of selected toot in home screen to logfile
+- `C`/`c`: Toggle toots with content warning
 - `1..4`: show media attachment 1 to 4. Any key to close.
+
+### Tag timeline
+- `T`/`t`: change tag
+- `ENTER`: confirm tag in tag editor
+- `BACKSPACE`: delete character in tag editor
+- `DEL`: close/cancel tag editor
 
 ### Editor
 - `CTRL-ENTER`: Send toot in Toot editor
+- `BACKSPACE`: delete character
 - `DEL`: delete toot composer text and reply-to toot
 
 ### Profile screen
@@ -64,13 +76,15 @@ Just run `DOStodon`.
 
 ## General
 - DOStodon is busy while the Mastodon logo is displayed in middle of the screen. Don't hit keys like crazy, every keypress will be queued :)
-- DOStodon poll home/notifications every 5 minutes for new entries.
+- DOStodon poll home/notifications every 5 minutes for new entries. Countdown is in the lower right corner.
 - To add a content warning/spoiler to a toot start the toot with "cw:". The first line of the toot will be the content warning, all subsequent lines will be the body text of the toot.
 - If you press DOWN on the last entry in home/notifications older entries are fetched.
+- Favourite/boost/bookmark status ([FBM]) is displayed below the profile picture of each toot.
+- The selected hashtag is displayed in the upper right corner of the hashtag timeline.
+- When first selecting the hashtag timeline you have to enter a hashtag.
 
 ## Limitations
 - Disabled TLS/SSL certificate verification for now. DOStodon is not able to verify the certificate of https://mastodon.social anymore and I need to dive deeper into the reason for that.
-- Can only display the home timeline and notifications. No support for hashtags, local or global timelines.
 - 2FA is not supported right now!
 - logging in with passwords that contain characters outside 7bit ASCII might not be possible
 - HTTPS requests can take quite a lot of time, be patient!
@@ -81,8 +95,7 @@ Just run `DOStodon`.
 - No support for characters like umlauts, etc.
 - Hashtags or usernames are not highlighted.
 - The toot composer only supports BACKSPACE, it is not a real text editor.
-- No fetching of older entries when you scroll down (yet)
-- The image cache is never cleared during runtime, DOStodon will eventually run out of memory
+- Bookmarks and favourites do not support pagination (yet).
 - **NO REAL TESTING/QUALITY ASSURANCE!** Folks, this is a **fun project**, if you need a production ready client contribute or use something real! If it works for you, it works, but don't blame me for broken commits or missing features...
 
 # Hacking/contributions
@@ -139,6 +152,16 @@ ne2000 0x60 3 0x300
 - Have fun
 
 # Changelog
+## 28. Dec 2022
+- Added local timeline
+- Added global timeline
+- Added hastag timeline
+- Added 'view bookmarks'
+- Added 'view favorites'
+- Added text input field
+- Reworked sidebar
+- Added auto refresh countdown
+
 ## 26. Dec 2022
 - Fixed issue with the image cache
 - Fixed issue with profile screen follow/block/mute function

@@ -333,7 +333,7 @@ Mastodon.prototype.UnBookmark = function (id) {
 }
 
 /**
- * get toots from server
+ * get toots from server: home
  * @see https://docs.joinmastodon.org/methods/timelines/
  * 
  * @param {number} [limit] max number of entries to fetch, default: 10
@@ -370,6 +370,151 @@ Mastodon.prototype.TimelineHome = function (limit, id, older) {
 		return res
 	} else {
 		throw new Error("Home timeline failed: " + resp[2] + ": " + resp[0].ToString());
+	}
+}
+
+/**
+ * get toots from server: tag
+ * @see https://docs.joinmastodon.org/methods/timelines/
+ * 
+ * @param {string} tag the tag to search for (without leading '#')
+ * @param {number} [limit] max number of entries to fetch, default: 10
+ * @param {number} [id] last fetched id, if set only never entries will be fetched
+ * @param {bool} [older] if true, entries older than id are fetched, if false entries newer than id.
+ * 
+ * @returns an array of https://docs.joinmastodon.org/entities/status/, an exception is thrown for an error
+ */
+Mastodon.prototype.TimelineTag = function (tag, limit, id, older) {
+	if (!this.token) {
+		throw new Error("No credential set");
+	}
+
+	limit = limit || 10;
+
+	var headers = [
+		['Authorization: Bearer ' + this.token]
+	];
+
+	// build URL
+	var url = this.base_url + "/api/v1/timelines/tag/" + tag + "?limit=" + limit;
+	if (id) {
+		if (older) {
+			url += "&max_id=" + id;
+		} else {
+			url += "&since_id=" + id;
+		}
+	}
+
+	var resp = this.DoGet(headers, url);
+
+	if (resp[2] === 200) {
+		var res = JSON.parse(resp[0].ToString());
+		return res
+	} else {
+		throw new Error("Tag timeline failed: " + resp[2] + ": " + resp[0].ToString());
+	}
+}
+
+/**
+ * get toots from server: public
+ * @see https://docs.joinmastodon.org/methods/timelines/
+ * 
+ * @param {boolean} local get local (true) or global (false) timeline.
+ * @param {number} [limit] max number of entries to fetch, default: 10
+ * @param {number} [id] last fetched id, if set only never entries will be fetched
+ * @param {bool} [older] if true, entries older than id are fetched, if false entries newer than id.
+ * 
+ * @returns an array of https://docs.joinmastodon.org/entities/status/, an exception is thrown for an error
+ */
+Mastodon.prototype.TimelinePublic = function (local, limit, id, older) {
+	if (!this.token) {
+		throw new Error("No credential set");
+	}
+
+	limit = limit || 10;
+
+	var headers = [
+		['Authorization: Bearer ' + this.token]
+	];
+
+	// build URL
+	var url = this.base_url + "/api/v1/timelines/public?limit=" + limit;
+	if (id) {
+		if (older) {
+			url += "&max_id=" + id;
+		} else {
+			url += "&since_id=" + id;
+		}
+	}
+	if (local) {
+		url += "&local=true";
+	} else {
+		url += "&local=false";
+	}
+
+	var resp = this.DoGet(headers, url);
+
+	if (resp[2] === 200) {
+		var res = JSON.parse(resp[0].ToString());
+		return res
+	} else {
+		throw new Error("Public timeline failed: " + resp[2] + ": " + resp[0].ToString());
+	}
+}
+
+/**
+ * get bookmarks from server
+ * @see https://docs.joinmastodon.org/methods/bookmarks/
+ * 
+ * @returns an array of https://docs.joinmastodon.org/entities/status/, an exception is thrown for an error
+ */
+Mastodon.prototype.Bookmarks = function () {
+	if (!this.token) {
+		throw new Error("No credential set");
+	}
+
+	var headers = [
+		['Authorization: Bearer ' + this.token]
+	];
+
+	// build URL
+	var url = this.base_url + "/api/v1/bookmarks?limit=40"
+
+	var resp = this.DoGet(headers, url);
+
+	if (resp[2] === 200) {
+		var res = JSON.parse(resp[0].ToString());
+		return res
+	} else {
+		throw new Error("Bookmarks failed: " + resp[2] + ": " + resp[0].ToString());
+	}
+}
+
+/**
+ * get favourites from server
+ * @see https://docs.joinmastodon.org/methods/favourites/
+ * 
+ * @returns an array of https://docs.joinmastodon.org/entities/status/, an exception is thrown for an error
+ */
+Mastodon.prototype.Favourites = function () {
+	if (!this.token) {
+		throw new Error("No credential set");
+	}
+
+	var headers = [
+		['Authorization: Bearer ' + this.token]
+	];
+
+	// build URL
+	var url = this.base_url + "/api/v1/favourites?limit=40"
+
+	var resp = this.DoGet(headers, url);
+
+	if (resp[2] === 200) {
+		var res = JSON.parse(resp[0].ToString());
+		return res
+	} else {
+		throw new Error("Bookmarks failed: " + resp[2] + ": " + resp[0].ToString());
 	}
 }
 

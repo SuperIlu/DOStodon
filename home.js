@@ -18,13 +18,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-function Home() {
+function Home(poll_func, isTag) {
 	this.last_poll = null;		// last time of poll
 	this.current_list = [];		// current list of toots to render
 	this.current_top = 0;		// currently displayed entry on top of screen
 	this.current_bottom = 0;	// currently displayed entry on bottom of screen
 	this.selected = 0;			// currently selected entry
 	this.doPoll = false;		// poll for new entries next call
+	this.poll_func = poll_func; // function to use to poll new entries
+	this.isTag = isTag;			// is this a tag timeline?
+	this.tag = null;			// current tag
 }
 
 Home.prototype.lazyDrawImage = function (url, bhash, x, y) {
@@ -188,8 +191,8 @@ Home.prototype.pollData = function (older) {
 			poll_id = null;
 		}
 	}
-	var toots = dstdn.m.TimelineHome(MAX_POLL, poll_id, older);
-	Println("HOME Polled: " + poll_id);
+
+	var toots = this.poll_func(this, MAX_POLL, poll_id, older);
 
 	if (toots.length > 0) {
 		dstdn.home_snd.Play(255, 128, false);
@@ -238,6 +241,20 @@ Home.prototype.Draw = function () {
 		this.doPoll = true;
 	}
 	DisplaySidebar();
+
+	if (this.last_poll) {
+		var delta = Math.floor((POLL_DELAY - (new Date() - this.last_poll)) / 1000);
+		var deltaWidth = dstdn.sfont.StringWidth("0000");
+		FilledBox(CONTENT_WIDTH - deltaWidth, Height - dstdn.sfont.height, CONTENT_WIDTH - 1, Height, Color(64, 32, 32));
+		dstdn.sfont.DrawStringRight(CONTENT_WIDTH - 1, Height - dstdn.sfont.height, delta, EGA.LIGHT_GREEN, NO_COLOR);
+	}
+
+	if (this.isTag && this.tag) {
+		var tag = "#" + this.tag;
+		var tagWidth = dstdn.sfont.StringWidth(tag);
+		FilledBox(CONTENT_WIDTH - tagWidth, 0, CONTENT_WIDTH - 1, dstdn.sfont.height, Color(64, 32, 32));
+		dstdn.sfont.DrawStringRight(CONTENT_WIDTH - 1, 0, tag, EGA.YELLOW, NO_COLOR);
+	}
 }
 
 Home.prototype.buttonDown = function () {
@@ -333,7 +350,7 @@ Home.prototype.Input = function (key, keyCode, char) {
 			case KEY.Code.KEY_END:
 				this.end();
 				break;
-			case KEY.Code.KEY_F5:
+			case KEY.Code.KEY_F12:
 				this.last_poll = 0;
 				break;
 			default:
@@ -364,12 +381,34 @@ Home.prototype.Input = function (key, keyCode, char) {
 						break;
 					case "r":
 					case "R":
-						dstdn.toot.Reply(e);
+						dstdn.all_screens[SCR_TOOT].Reply(e);
 						return true;
 						break;
 					case "d":
 					case "D":
 						Println(JSON.stringify(e));
+						break;
+					case "t":
+					case "T":
+						if (this.isTag) {
+							if (!dstdn.get_text) {
+								var outer = this;
+								dstdn.get_text = new EnterText("Enter hashtag", outer.tag ? "#" + outer.tag : "#", function (txt) {
+									if (txt) {
+										if (txt.startsWith("#")) {
+											txt = txt.substring(1);
+										}
+
+										if (outer.tag !== txt) {
+											outer.last_poll = null;
+											outer.tag = txt;
+											outer.current_list = [];
+										}
+									}
+									dstdn.get_text = null;
+								});
+							}
+						}
 						break;
 					case "B":
 						if (e['reblogged']) {

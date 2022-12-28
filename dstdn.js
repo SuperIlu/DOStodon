@@ -55,6 +55,16 @@ var CONTENT_WIDTH = 600;
 var MAX_POLL = 30;
 var PROGRESS_HEIGHT = 10;
 
+var SCR_HOME = 0;
+var SCR_NOTI = 1;
+var SCR_TAG = 2;
+var SCR_LOCAL = 3;
+var SCR_GLOBAL = 4;
+var SCR_BMARK = 5;
+var SCR_FAV = 6;
+var SCR_TOOT = 9;
+var SCR_INFO = 10;
+
 // contains all instance data
 var dstdn = {
 	m: null,
@@ -62,12 +72,10 @@ var dstdn = {
 	logo: null,
 	sfont: null,
 	lfont: null,
-	home: null,
 	profile: null,
-	toot: null,
-	notifications: null,
-	info: null,
-	current_screen: null
+	current_screen: null,
+	get_text: null,
+	all_screens: []
 };
 
 function sslTest(url) {
@@ -112,8 +120,12 @@ function Loop() {
 	} catch (e) {
 		Println(e);
 	}
-	if (dstdn.info) {
-		dstdn.info.Update();
+	if (dstdn.all_screens[SCR_INFO]) {
+		dstdn.all_screens[SCR_INFO].Update();
+	}
+
+	if (dstdn.get_text) {
+		dstdn.get_text.Draw();
 	}
 }
 
@@ -128,24 +140,30 @@ function Input(e) {
 		// Println("KeyCode:" + keyCode);
 		// Println("Char:" + String.fromCharCode(key));
 
-		if (!dstdn.profile || !dstdn.profile.Input(key, keyCode, char)) {
+		if (dstdn.get_text) {
+			dstdn.get_text.Input(key, keyCode, char);
+		} else if (!dstdn.profile || !dstdn.profile.Input(key, keyCode, char)) {
 			switch (keyCode) {
 				case KEY.Code.KEY_F1:
-					dstdn.current_screen = dstdn.home;
-					break;
 				case KEY.Code.KEY_F2:
-					dstdn.current_screen = dstdn.notifications;
-					break;
 				case KEY.Code.KEY_F3:
-					dstdn.current_screen = dstdn.toot;
-					break;
 				case KEY.Code.KEY_F4:
-					dstdn.current_screen = dstdn.info;
+				case KEY.Code.KEY_F5:
+				case KEY.Code.KEY_F6:
+				case KEY.Code.KEY_F7:
+				case KEY.Code.KEY_F8:
+				case KEY.Code.KEY_F9:
+				case KEY.Code.KEY_F10:
+				case KEY.Code.KEY_F11:
+					var idx = keyCode - KEY.Code.KEY_F1;
+					if (dstdn.all_screens[idx]) {
+						dstdn.current_screen = dstdn.all_screens[idx];
+					}
 					break;
 				default:
 					var res = dstdn.current_screen.Input(key, keyCode, char);
 					if (res) {
-						dstdn.current_screen = toot;
+						dstdn.current_screen = dstdn.all_screens[SCR_TOOT];
 					}
 					break;
 			}

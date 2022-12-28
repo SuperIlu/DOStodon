@@ -112,7 +112,7 @@ Toot.prototype.Input = function (key, keyCode, char) {
 		this.txt = this.txt.slice(0, this.txt.length - 1);
 	} else if (keyCode == KEY.Code.KEY_DEL) {
 		// undo 'reply to' and all text
-		this.txt = ""
+		this.txt = "";
 		this.reply = null;
 	} else if (keyCode == KEY.Code.KEY_ENTER) {
 		if (key === 13) {

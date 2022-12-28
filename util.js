@@ -39,6 +39,53 @@ NetworkOperation.prototype.Process = function () {
 	}
 }
 
+function EnterText(title, txt, onClose) {
+	this.txt = txt;
+	this.title = title;
+	this.maxChars = 60;
+	this.yStart = Height / 2 - dstdn.sfont.height;
+	this.yEnd = Height / 2 + dstdn.sfont.height * 2;
+	this.charWidth = dstdn.sfont.StringWidth(" ");
+	this.xStart = Width / 2 - (this.maxChars / 2 + 1) * this.charWidth;
+	this.xEnd = Width / 2 + (this.maxChars / 2 + 1) * this.charWidth;
+	this.onClose = onClose;
+	this.frame = 0;
+}
+EnterText.prototype.Draw = function () {
+	FilledBox(this.xStart, this.yStart - dstdn.sfont.height, this.xEnd, this.yEnd, Color(32));
+	Box(this.xStart, this.yStart, this.xEnd, this.yEnd, EGA.LIGHT_BLUE);
+	dstdn.sfont.DrawStringCenter(Width / 2, this.yStart - dstdn.sfont.height / 2, this.title, EGA.YELLOW, NO_COLOR);
+	dstdn.sfont.DrawStringLeft(this.xStart + this.charWidth, this.yStart + dstdn.sfont.height, this.txt, EGA.WHITE, NO_COLOR);
+
+	// draw blinking cursor
+	if (Math.ceil(this.frame / 10) % 2) {
+		var cursorString = "";
+		for (var j = 0; j < this.txt.length; j++) {
+			cursorString += " ";
+		}
+		cursorString += "_";
+		dstdn.sfont.DrawStringLeft(this.xStart + this.charWidth, this.yStart + dstdn.sfont.height, cursorString, EGA.WHITE, NO_COLOR);
+	}
+	this.frame++;
+}
+EnterText.prototype.Input = function (key, keyCode, char) {
+	if (keyCode == KEY.Code.KEY_BACKSPACE) {
+		// delete last character
+		this.txt = this.txt.slice(0, this.txt.length - 1);
+	} else if (keyCode == KEY.Code.KEY_DEL) {
+		// undo 'reply to' and all text
+		this.onClose(null);
+	} else if (keyCode == KEY.Code.KEY_ENTER) {
+		this.onClose(this.txt);
+	} else {
+		if (key >= CharCode(" ") && (this.txt.length < this.maxChars)) {
+			// add character if not max length and charcode at least a SPACE
+			this.txt += char;
+		}
+	}
+	return false;
+}
+
 /**
  * try to create a well formated server URL.
  * @param {string} str input string
@@ -213,54 +260,53 @@ function unescapeHTML(str) {
 function DisplaySidebar() {
 	var col;
 
+	var fKeys = [
+		[SCR_HOME, 'F1:', 'Home'],
+		[SCR_NOTI, 'F2:', 'Noti'],
+		[SCR_TAG, 'F3:', 'Tag'],
+		[SCR_LOCAL, 'F4:', 'Loc'],
+		[SCR_GLOBAL, 'F5:', 'Glbl'],
+		[SCR_BMARK, 'F6:', 'BM'],
+		[SCR_FAV, 'F7:', 'Fav'],
+		[SCR_TOOT, 'F10:', 'Toot'],
+		[SCR_INFO, 'F11:', 'Info'],
+		[255, 'F12:', 'Refr']
+	];
+
 	var xStart = CONTENT_WIDTH;
 	var xStartTxt = xStart + 4;
+	var fontOffset = dstdn.sfont.height / 2 + 1;
+	var ySpace = Height / fKeys.length;
+	var ySpace_2 = ySpace / 2;
+	yPos = ySpace / 2;
 
-	// 120 pixel height per box
-	Line(xStart, 0, xStart, 480, EGA.BLUE);
+	for (var i = 0; i < fKeys.length; i++) {
+		var k = fKeys[i];
 
-	if (dstdn.current_screen === dstdn.home) {
-		col = EGA.LIGHT_RED;
-	} else {
-		col = EGA.LIGHT_BLUE;
+		if (dstdn.all_screens[k[0]] === dstdn.current_screen) {
+			col = EGA.LIGHT_RED;
+			FilledBox(xStart, yPos - ySpace_2 + 2, Width, yPos + ySpace_2, EGA.BLUE);
+		} else {
+			col = EGA.LIGHT_BLUE;
+		}
+		dstdn.sfont.DrawStringLeft(xStartTxt, yPos - fontOffset, k[1], col, NO_COLOR);
+		dstdn.sfont.DrawStringLeft(xStartTxt, yPos + fontOffset, k[2], col, NO_COLOR);
+
+		Line(xStart, yPos + ySpace_2, Width, yPos + ySpace_2, EGA.LIGHT_BLUE);
+		Line(xStart, yPos + ySpace_2 + 1, Width, yPos + ySpace_2 + 1, EGA.BLUE);
+
+		yPos += ySpace;
 	}
-	dstdn.sfont.DrawStringLeft(xStartTxt, 60, "F1:", col, NO_COLOR);
-	dstdn.sfont.DrawStringLeft(xStartTxt, 68, "Home", col, NO_COLOR);
 
-	Line(xStart, 120, Width, 120, EGA.BLUE);
-
-	if (dstdn.current_screen === dstdn.notifications) {
-		col = EGA.LIGHT_RED;
-	} else {
-		col = EGA.LIGHT_BLUE;
-	}
-	dstdn.sfont.DrawStringLeft(xStartTxt, 180, "F2:", col, NO_COLOR);
-	dstdn.sfont.DrawStringLeft(xStartTxt, 188, "Noti", col, NO_COLOR);
-
-	Line(xStart, 240, Width, 240, EGA.BLUE);
-
-	if (dstdn.current_screen === dstdn.toot) {
-		col = EGA.LIGHT_RED;
-	} else {
-		col = EGA.LIGHT_BLUE;
-	}
-	dstdn.sfont.DrawStringLeft(xStartTxt, 300, "F3:", col, NO_COLOR);
-	dstdn.sfont.DrawStringLeft(xStartTxt, 308, "Toot", col, NO_COLOR);
-
-	Line(xStart, 360, Width, 360, EGA.BLUE);
-
-	if (dstdn.current_screen === dstdn.info) {
-		col = EGA.LIGHT_RED;
-	} else {
-		col = EGA.LIGHT_BLUE;
-	}
-	dstdn.sfont.DrawStringLeft(xStartTxt, 420, "F4:", col, NO_COLOR);
-	dstdn.sfont.DrawStringLeft(xStartTxt, 428, "Info", col, NO_COLOR);
+	// draw vertical divider
+	Line(xStart, 0, xStart, Height, EGA.LIGHT_BLUE);
+	Line(xStart + 1, 0, xStart + 1, Height, EGA.BLUE);
 }
 
 // export functions and version
 exports.__VERSION__ = 1;
 exports.NetworkOperation = NetworkOperation;
+exports.EnterText = EnterText;
 exports.FormatURL = FormatURL;
 exports.DisplayMultilineText = DisplayMultilineText;
 exports.RemoveHTML = RemoveHTML;

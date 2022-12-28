@@ -130,7 +130,6 @@ Notifications.prototype.pollData = function (older) {
 		}
 	}
 	var toots = dstdn.m.Notifications(MAX_POLL, poll_id, older);
-	Println("NOTI Polled: " + poll_id);
 
 	if (toots.length > 0) {
 		dstdn.noti_snd.Play(255, 128, false);
@@ -171,6 +170,13 @@ Notifications.prototype.Draw = function () {
 		this.doPoll = true;
 	}
 	DisplaySidebar();
+
+	if (this.last_poll) {
+		var delta = Math.floor((POLL_DELAY - (new Date() - this.last_poll)) / 1000);
+		var deltaWidth = dstdn.sfont.StringWidth("0000");
+		FilledBox(CONTENT_WIDTH - deltaWidth, Height - dstdn.sfont.height, CONTENT_WIDTH - 1, Height, Color(64, 32, 32));
+		dstdn.sfont.DrawStringRight(CONTENT_WIDTH - 1, Height - dstdn.sfont.height, delta, EGA.LIGHT_GREEN, NO_COLOR);
+	}
 }
 
 Notifications.prototype.buttonDown = function () {
@@ -259,7 +265,7 @@ Notifications.prototype.Input = function (key, keyCode, char) {
 		case KEY.Code.KEY_END:
 			this.end();
 			break;
-		case KEY.Code.KEY_F5:
+		case KEY.Code.KEY_F12:
 			this.last_poll = 0;
 			break;
 		default:
@@ -271,7 +277,7 @@ Notifications.prototype.Input = function (key, keyCode, char) {
 				case "r":
 				case "R":
 					if (e['status']) {
-						dstdn.toot.Reply(e['status']);
+						dstdn.all_screens[SCR_TOOT].Reply(e['status']);
 					}
 					return true;
 					break;
