@@ -68,7 +68,7 @@ EnterText.prototype.Draw = function () {
 	}
 	this.frame++;
 }
-EnterText.prototype.Input = function (key, keyCode, char) {
+EnterText.prototype.Input = function (key, keyCode, char, eventKey) {
 	if (keyCode == KEY.Code.KEY_BACKSPACE) {
 		// delete last character
 		this.txt = this.txt.slice(0, this.txt.length - 1);
@@ -125,6 +125,20 @@ function FormatTime(tstr) {
 	// } else {
 	return ts.toLocaleDateString("en-US") + " " + ts.toLocaleTimeString("en-US").split(".")[0] + " UTC";
 	// }
+}
+
+function TextOverlay(txt, col) {
+	var fntSize = dstdn.sfont.height;
+
+	var xStart = fntSize;
+	var yStart = fntSize;
+	var xEnd = Width - 2 * fntSize;
+	var yEnd = Height - 2 * fntSize;
+
+	FilledBox(xStart, yStart, xEnd, yEnd, Color(32));
+	Box(xStart, yStart, xEnd, yEnd, EGA.LIGHT_BLUE);
+
+	DisplayMultilineText(xStart + fntSize, yStart + fntSize, col, txt, false, 70);
 }
 
 function DisplayMultilineText(x, y, col, txt, cursor, maxChars) {
@@ -257,7 +271,7 @@ function unescapeHTML(str) {
 /**
  * draw the sidebar
  */
-function DisplaySidebar() {
+function DisplaySidebar(contextView) {
 	var col;
 
 	var fKeys = [
@@ -280,27 +294,35 @@ function DisplaySidebar() {
 	var ySpace_2 = ySpace / 2;
 	yPos = ySpace / 2;
 
-	for (var i = 0; i < fKeys.length; i++) {
-		var k = fKeys[i];
+	if (!contextView) {
+		for (var i = 0; i < fKeys.length; i++) {
+			var k = fKeys[i];
 
-		if (dstdn.all_screens[k[0]] === dstdn.current_screen) {
-			col = EGA.LIGHT_RED;
-			FilledBox(xStart, yPos - ySpace_2 + 2, Width, yPos + ySpace_2, EGA.BLUE);
-		} else {
-			col = EGA.LIGHT_BLUE;
+			if (dstdn.all_screens[k[0]] === dstdn.current_screen) {
+				col = EGA.LIGHT_RED;
+				FilledBox(xStart, yPos - ySpace_2 + 2, Width, yPos + ySpace_2, EGA.BLUE);
+			} else {
+				col = EGA.LIGHT_BLUE;
+			}
+			dstdn.sfont.DrawStringLeft(xStartTxt, yPos - fontOffset, k[1], col, NO_COLOR);
+			dstdn.sfont.DrawStringLeft(xStartTxt, yPos + fontOffset, k[2], col, NO_COLOR);
+
+			Line(xStart, yPos + ySpace_2, Width, yPos + ySpace_2, EGA.LIGHT_BLUE);
+			Line(xStart, yPos + ySpace_2 + 1, Width, yPos + ySpace_2 + 1, EGA.BLUE);
+
+			yPos += ySpace;
 		}
-		dstdn.sfont.DrawStringLeft(xStartTxt, yPos - fontOffset, k[1], col, NO_COLOR);
-		dstdn.sfont.DrawStringLeft(xStartTxt, yPos + fontOffset, k[2], col, NO_COLOR);
-
-		Line(xStart, yPos + ySpace_2, Width, yPos + ySpace_2, EGA.LIGHT_BLUE);
-		Line(xStart, yPos + ySpace_2 + 1, Width, yPos + ySpace_2 + 1, EGA.BLUE);
-
-		yPos += ySpace;
+	} else {
+		DisplayMultilineText(xStartTxt, yPos, EGA.YELLOW, " <\nCTX\nVIEW\n\n P\n R\n E\n S\n S\n\n R\n E\n T\n U\n R\n N", false, 10);
 	}
-
 	// draw vertical divider
 	Line(xStart, 0, xStart, Height, EGA.LIGHT_BLUE);
 	Line(xStart + 1, 0, xStart + 1, Height, EGA.BLUE);
+}
+
+function AppendArray(a, b) {
+	a.push.apply(a, b);
+	return a;
 }
 
 // export functions and version
@@ -313,3 +335,5 @@ exports.RemoveHTML = RemoveHTML;
 exports.DrawLogo = DrawLogo;
 exports.FormatTime = FormatTime;
 exports.DisplaySidebar = DisplaySidebar;
+exports.AppendArray = AppendArray;
+exports.TextOverlay = TextOverlay;

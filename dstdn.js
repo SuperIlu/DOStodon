@@ -65,6 +65,19 @@ var SCR_FAV = 6;
 var SCR_TOOT = 9;
 var SCR_INFO = 10;
 
+var HOME_HOME = 1;
+var HOME_LOCAL = 2;
+var HOME_GLOBAL = 3;
+var HOME_TAG = 4;
+var HOME_BMARK = 5;
+var HOME_FAV = 6;
+var HOME_CONTEXT = 7;
+
+var KEY_CTRL_1 = 7170;
+var KEY_CTRL_2 = 7426;
+var KEY_CTRL_3 = 7682;
+var KEY_CTRL_4 = 7938;
+
 // contains all instance data
 var dstdn = {
 	m: null,
@@ -138,11 +151,11 @@ function Input(e) {
 		// Println("\nEventKey:" + e.key);
 		// Println("Key:" + key);
 		// Println("KeyCode:" + keyCode);
-		// Println("Char:" + String.fromCharCode(key));
+		// Println("Char:" + char);
 
 		if (dstdn.get_text) {
-			dstdn.get_text.Input(key, keyCode, char);
-		} else if (!dstdn.profile || !dstdn.profile.Input(key, keyCode, char)) {
+			dstdn.get_text.Input(key, keyCode, char, e.key);
+		} else if (!dstdn.profile || !dstdn.profile.Input(key, keyCode, char, e.key)) {
 			switch (keyCode) {
 				case KEY.Code.KEY_F1:
 				case KEY.Code.KEY_F2:
@@ -161,7 +174,7 @@ function Input(e) {
 					}
 					break;
 				default:
-					var res = dstdn.current_screen.Input(key, keyCode, char);
+					var res = dstdn.current_screen.Input(key, keyCode, char, e.key);
 					if (res) {
 						dstdn.current_screen = dstdn.all_screens[SCR_TOOT];
 					}

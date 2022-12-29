@@ -42,7 +42,7 @@ Just run `DOStodon`.
 - `p`: Show profile of currently selected entry (for boosts the boosters profile)
 - `P`: Show profile of currently selected entry (for boosts the original profile)
 
-### Home
+### Timelines
 - `b`: Boost/reblog currently selected toot in home screen
 - `B`: UN-Boost/reblog currently selected toot in home screen
 - `f`: Favorite/like currently selected toot in home screen
@@ -53,6 +53,8 @@ Just run `DOStodon`.
 - `D`/`d`: Print JSON of selected toot in home screen to logfile
 - `C`/`c`: Toggle toots with content warning
 - `1..4`: show media attachment 1 to 4. Any key to close.
+- `CTRL-1..4`: show image description of media attachment 1 to 4. Any key to close.
+- `ENTER`: show thread view of current entry, `ENTER` or `BACKSPACE` to return to timeline.
 
 ### Tag timeline
 - `T`/`t`: change tag
@@ -151,6 +153,13 @@ ne2000 0x60 3 0x300
 - Have fun
 
 # Changelog
+## 29. Dec 2022
+- Added scroll indicators `^` and `v` at the very right of the screen
+- Added thread view for toots.
+- Fixed bug with toggling content warnings on toots with no spoiler text
+- Added image description viewing
+- Added help screen when pressing `H`
+
 ## 28. Dec 2022
 - Added local timeline
 - Added global timeline

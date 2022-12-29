@@ -695,6 +695,33 @@ Mastodon.prototype.UnMute = function (id) {
 	return this.changeAccount(id, "unmute");
 }
 
+/**
+ * get toot context (status).
+ * @see https://docs.joinmastodon.org/methods/statuses/
+ * 
+ * @param {string} id the toot id.
+ * 
+ * @returns a https://docs.joinmastodon.org/entities/Context/, an exception is thrown for an error
+ */
+Mastodon.prototype.Context = function (id) {
+	if (!this.token) {
+		throw new Error("No credential set");
+	}
+
+	var headers = [
+		['Authorization: Bearer ' + this.token]
+	];
+
+	// build URL
+	var resp = this.DoGet(headers, this.base_url + "/api/v1/statuses/" + id + "/context");
+
+	if (resp[2] === 200) {
+		var res = JSON.parse(resp[0].ToString());
+		return res
+	} else {
+		throw new Error("Context failed: " + resp[2] + ": " + resp[0].ToString());
+	}
+}
 
 // export functions and version
 exports.__VERSION__ = 1;

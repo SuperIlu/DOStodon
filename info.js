@@ -70,7 +70,7 @@ Info.prototype.Draw = function () {
 	Line(TEXT_START_OFFSET, yPos + TEXT_START_OFFSET, TEXT_START_OFFSET, Height - TEXT_START_OFFSET, EGA.LIGHT_RED); // y-axis
 	Line(TEXT_START_OFFSET, Height - TEXT_START_OFFSET, CONTENT_WIDTH - TEXT_START_OFFSET, Height - TEXT_START_OFFSET, EGA.LIGHT_RED); // x-axis
 
-	DisplaySidebar();
+	DisplaySidebar(false);
 
 	return true;
 }
@@ -90,7 +90,7 @@ Info.prototype.Update = function () {
 	}
 }
 
-Info.prototype.Input = function (key, keyCode, char) {
+Info.prototype.Input = function (key, keyCode, char, eventKey) {
 	return false;
 }
 

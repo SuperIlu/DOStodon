@@ -50,13 +50,13 @@ function Splash() {
 	this.chain.Add(function () { dstdn.fav_snd = new Sample("fav.wav"); });
 
 	this.chain.Add(function () { outer.txt = "Creating HOME screen..."; });
-	this.chain.Add(function () { dstdn.all_screens[SCR_HOME] = new Home(function (outer, max, id, older) { return dstdn.m.TimelineHome(max, id, older); }, false); });
+	this.chain.Add(function () { dstdn.all_screens[SCR_HOME] = new Home(function (outer, max, id, older) { return dstdn.m.TimelineHome(max, id, older); }, HOME_HOME); });
 
 	this.chain.Add(function () { outer.txt = "Creating LOCAL screen..."; });
-	this.chain.Add(function () { dstdn.all_screens[SCR_LOCAL] = new Home(function (outer, max, id, older) { return dstdn.m.TimelinePublic(true, max, id, older); }, false); });
+	this.chain.Add(function () { dstdn.all_screens[SCR_LOCAL] = new Home(function (outer, max, id, older) { return dstdn.m.TimelinePublic(true, max, id, older); }, HOME_LOCAL); });
 
 	this.chain.Add(function () { outer.txt = "Creating GLOBAL screen..."; });
-	this.chain.Add(function () { dstdn.all_screens[SCR_GLOBAL] = new Home(function (outer, max, id, older) { return dstdn.m.TimelinePublic(false, max, id, older); }, false); });
+	this.chain.Add(function () { dstdn.all_screens[SCR_GLOBAL] = new Home(function (outer, max, id, older) { return dstdn.m.TimelinePublic(false, max, id, older); }, HOME_GLOBAL); });
 
 	this.chain.Add(function () { outer.txt = "Creating TAG screen..."; });
 	this.chain.Add(function () {
@@ -84,14 +84,14 @@ function Splash() {
 						return [];
 					}
 				}
-			}, true);
+			}, HOME_TAG);
 	});
 
 	this.chain.Add(function () { outer.txt = "Creating BOOKMARK screen..."; });
-	this.chain.Add(function () { dstdn.all_screens[SCR_BMARK] = new Home(function (outer, max, id, older) { outer.current_list = []; return dstdn.m.Bookmarks(); }, false); });
+	this.chain.Add(function () { dstdn.all_screens[SCR_BMARK] = new Home(function (outer, max, id, older) { outer.current_list = []; return dstdn.m.Bookmarks(); }, HOME_BMARK); });
 
 	this.chain.Add(function () { outer.txt = "Creating FAVORITES screen..."; });
-	this.chain.Add(function () { dstdn.all_screens[SCR_FAV] = new Home(function (outer, max, id, older) { outer.current_list = []; return dstdn.m.Favourites(); }, false); });
+	this.chain.Add(function () { dstdn.all_screens[SCR_FAV] = new Home(function (outer, max, id, older) { outer.current_list = []; return dstdn.m.Favourites(); }, HOME_FAV); });
 
 	this.chain.Add(function () { outer.txt = "Creating NOTIFICATION screen..."; });
 	this.chain.Add(function () { dstdn.all_screens[SCR_NOTI] = new Notifications(); });
@@ -174,7 +174,7 @@ Splash.prototype.login = function () {
 	}
 }
 
-Splash.prototype.Input = function (key, keyCode, char) {
+Splash.prototype.Input = function (key, keyCode, char, eventKey) {
 	return false;
 }
 

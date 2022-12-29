@@ -25,6 +25,8 @@ function Notifications() {
 	this.current_bottom = 0;	// currently displayed entry on bottom of screen
 	this.selected = 0;			// currently selected entry
 	this.doPoll = false;		// poll for new entries next call
+	this.context = null;		// thread context
+	this.textOverlay = null;	// text overlay
 }
 
 Notifications.prototype.lazyDrawImage = function (url, x, y) {
@@ -135,7 +137,7 @@ Notifications.prototype.pollData = function (older) {
 		dstdn.noti_snd.Play(255, 128, false);
 
 		if (older) {
-			this.current_list.push.apply(this.current_list, toots);
+			this.current_list = AppendArray(this.current_list, toots);
 		} else {
 			// fix up indices
 			if (this.selected > 0) {
@@ -146,36 +148,51 @@ Notifications.prototype.pollData = function (older) {
 			}
 
 			// merge lists
-			toots.push.apply(toots, this.current_list);
-			this.current_list = toots;
+			this.current_list = AppendArray(toots, this.current_list);
 		}
 	}
 }
 
 Notifications.prototype.Draw = function () {
-	if (this.doPoll) {
-		this.pollData(false);
-		this.last_poll = new Date();
-		this.doPoll = false;
-	}
+	if (this.context) {
+		this.context.Draw();
+	} else {
+		if (this.doPoll) {
+			this.pollData(false);
+			this.last_poll = new Date();
+			this.doPoll = false;
+		}
 
-	this.drawEntries();
+		this.drawEntries();
 
-	if (this.netop && this.netop.Process()) {
-		this.netop = null;
-	}
+		if (this.netop && this.netop.Process()) {
+			this.netop = null;
+		}
 
-	if (!this.last_poll || (new Date() - this.last_poll > POLL_DELAY)) {
-		DrawLogo();
-		this.doPoll = true;
-	}
-	DisplaySidebar();
+		if (!this.last_poll || (new Date() - this.last_poll > POLL_DELAY)) {
+			DrawLogo();
+			this.doPoll = true;
+		}
+		DisplaySidebar(false);
 
-	if (this.last_poll) {
-		var delta = Math.floor((POLL_DELAY - (new Date() - this.last_poll)) / 1000);
-		var deltaWidth = dstdn.sfont.StringWidth("0000");
-		FilledBox(CONTENT_WIDTH - deltaWidth, Height - dstdn.sfont.height, CONTENT_WIDTH - 1, Height, Color(64, 32, 32));
-		dstdn.sfont.DrawStringRight(CONTENT_WIDTH - 1, Height - dstdn.sfont.height, delta, EGA.LIGHT_GREEN, NO_COLOR);
+		// draw list indicators
+		if (this.current_top != 0) {
+			dstdn.sfont.DrawStringRight(Width, 0, "^", EGA.LIGHT_RED, NO_COLOR);
+		}
+		if (this.current_bottom < this.current_list.length - 1) {
+			dstdn.sfont.DrawStringRight(Width, Height - dstdn.sfont.height, "v", EGA.LIGHT_RED, NO_COLOR);
+		}
+
+		if (this.last_poll) {
+			var delta = Math.floor((POLL_DELAY - (new Date() - this.last_poll)) / 1000);
+			var deltaWidth = dstdn.sfont.StringWidth("0000");
+			FilledBox(CONTENT_WIDTH - deltaWidth, Height - dstdn.sfont.height, CONTENT_WIDTH - 1, Height, Color(64, 32, 32));
+			dstdn.sfont.DrawStringRight(CONTENT_WIDTH - 1, Height - dstdn.sfont.height, delta, EGA.LIGHT_GREEN, NO_COLOR);
+		}
+
+		if (this.textOverlay) {
+			TextOverlay(this.textOverlay, EGA.WHITE);
+		}
 	}
 }
 
@@ -244,63 +261,86 @@ Notifications.prototype.pageUp = function () {
 	}
 }
 
-Notifications.prototype.Input = function (key, keyCode, char) {
-	var e = this.current_list[this.selected];
-	switch (keyCode) {
-		case KEY.Code.KEY_DOWN:
-			this.buttonDown();
-			break;
-		case KEY.Code.KEY_UP:
-			this.buttonUp();
-			break;
-		case KEY.Code.KEY_PGDN:
-			this.pageDown();
-			break;
-		case KEY.Code.KEY_PGUP:
-			this.pageUp();
-			break;
-		case KEY.Code.KEY_HOME:
-			this.home();
-			break;
-		case KEY.Code.KEY_END:
-			this.end();
-			break;
-		case KEY.Code.KEY_F12:
-			this.last_poll = 0;
-			break;
-		default:
-			switch (char) {
-				case "P":
-				case "p":
-					dstdn.profile.SetProfile(e['account']);
-					break;
-				case "r":
-				case "R":
-					if (e['status']) {
-						dstdn.all_screens[SCR_TOOT].Reply(e['status']);
-					}
-					return true;
-					break;
-				case "B":
-				case "b":
-					if (e['status']) {
-						this.netop = new NetworkOperation(function () {
-							dstdn.m.Reblog(e['status']['id']);
-							dstdn.boost_snd.Play(255, 128, false);
-						});
-					}
-					break;
-				case "F":
-				case "f":
-					if (e['status']) {
-						this.netop = new NetworkOperation(function () {
-							dstdn.m.Favorite(e['status']['id']);
-							dstdn.fav_snd.Play(255, 128, false);
-						});
-					}
-					break;
-			}
-			break;
+Notifications.prototype.Input = function (key, keyCode, char, eventKey) {
+	if (this.textOverlay) {
+		this.textOverlay = null;
+	} else if (this.context) {
+		if (keyCode == KEY.Code.KEY_ENTER || keyCode == KEY.Code.KEY_BACKSPACE) {
+			this.context = null;
+		} else {
+			return this.context.Input(key, keyCode, char, eventKey);
+		}
+	} else {
+		var e = this.current_list[this.selected];
+		switch (keyCode) {
+			case KEY.Code.KEY_DOWN:
+				this.buttonDown();
+				break;
+			case KEY.Code.KEY_UP:
+				this.buttonUp();
+				break;
+			case KEY.Code.KEY_PGDN:
+				this.pageDown();
+				break;
+			case KEY.Code.KEY_PGUP:
+				this.pageUp();
+				break;
+			case KEY.Code.KEY_HOME:
+				this.home();
+				break;
+			case KEY.Code.KEY_END:
+				this.end();
+				break;
+			case KEY.Code.KEY_F12:
+				this.last_poll = 0;
+				break;
+			case KEY.Code.KEY_ENTER:
+				if (e['status']) {
+					e = e['status'];
+					this.context = new Home(
+						function (outer, max, id, older) {
+							var ctx = dstdn.m.Context(e['id']);
+
+							// append ancestors
+							var ret = ctx['ancestors'];
+
+							// append selected entry and mark as current entry
+							outer.selected = ret.length;
+							outer.current_top = ret.length;
+							ret.push(e);
+
+							// append descendants
+							ret = AppendArray(ret, ctx['descendants']);
+
+							return ret;
+						}, HOME_CONTEXT);
+				}
+				break;
+			default:
+				switch (char) {
+					case "P":
+					case "p":
+						dstdn.profile.SetProfile(e['account']);
+						break;
+					case "r":
+					case "R":
+						if (e['status']) {
+							dstdn.all_screens[SCR_TOOT].Reply(e['status']);
+						}
+						break;
+					case "h":
+					case "H":
+						this.textOverlay = "Notification screen HELP\n\n";
+						this.textOverlay += "- `UP/DOWN`      : scroll entries\n";
+						this.textOverlay += "- `Page UP/DOWN` : scroll entries page wise\n";
+						this.textOverlay += "- `HOME/END`     : got to first/last entry\n";
+						this.textOverlay += "- `p`            : Profile of current entry (the boosters profile)\n";
+						this.textOverlay += "- `P`            : Profile of current entry (the original profile)\n";
+						this.textOverlay += "- `ENTER`        : Thread view of current entry, `ENTER` to exit\n";
+						break;
+				}
+				break;
+		}
 	}
 	return false;
 }

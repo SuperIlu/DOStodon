@@ -43,6 +43,7 @@ bitbang:
 	cp bitbang-CREDS.JSN CREDS.JSN
 
 zip: $(ZIP_FILES)
+	rm -f DOSTODON.ZIP
 	zip -9 -r DOSTODON.ZIP $(ZIP_FILES)
 
 clean:

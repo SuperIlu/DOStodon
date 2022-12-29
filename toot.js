@@ -103,10 +103,10 @@ Toot.prototype.Draw = function () {
 	if (this.netop && this.netop.Process()) {
 		this.netop = null;
 	}
-	DisplaySidebar();
+	DisplaySidebar(false);
 }
 
-Toot.prototype.Input = function (key, keyCode, char) {
+Toot.prototype.Input = function (key, keyCode, char, eventKey) {
 	if (keyCode == KEY.Code.KEY_BACKSPACE) {
 		// delete last character
 		this.txt = this.txt.slice(0, this.txt.length - 1);
