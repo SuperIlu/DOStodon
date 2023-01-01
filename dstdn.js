@@ -78,6 +78,8 @@ var KEY_CTRL_2 = 7426;
 var KEY_CTRL_3 = 7682;
 var KEY_CTRL_4 = 7938;
 
+var KEY_CTRL_S = 4883;
+
 // contains all instance data
 var dstdn = {
 	m: null,
@@ -88,7 +90,8 @@ var dstdn = {
 	profile: null,
 	current_screen: null,
 	get_text: null,
-	all_screens: []
+	all_screens: [],
+	screenshot_count: 1
 };
 
 function sslTest(url) {
@@ -153,32 +156,37 @@ function Input(e) {
 		// Println("KeyCode:" + keyCode);
 		// Println("Char:" + char);
 
-		if (dstdn.get_text) {
-			dstdn.get_text.Input(key, keyCode, char, e.key);
-		} else if (!dstdn.profile || !dstdn.profile.Input(key, keyCode, char, e.key)) {
-			switch (keyCode) {
-				case KEY.Code.KEY_F1:
-				case KEY.Code.KEY_F2:
-				case KEY.Code.KEY_F3:
-				case KEY.Code.KEY_F4:
-				case KEY.Code.KEY_F5:
-				case KEY.Code.KEY_F6:
-				case KEY.Code.KEY_F7:
-				case KEY.Code.KEY_F8:
-				case KEY.Code.KEY_F9:
-				case KEY.Code.KEY_F10:
-				case KEY.Code.KEY_F11:
-					var idx = keyCode - KEY.Code.KEY_F1;
-					if (dstdn.all_screens[idx]) {
-						dstdn.current_screen = dstdn.all_screens[idx];
-					}
-					break;
-				default:
-					var res = dstdn.current_screen.Input(key, keyCode, char, e.key);
-					if (res) {
-						dstdn.current_screen = dstdn.all_screens[SCR_TOOT];
-					}
-					break;
+		if (e.key == KEY_CTRL_S) {
+			SavePngImage(dstdn.screenshot_count + ".PNG");
+			dstdn.screenshot_count++;
+		} else {
+			if (dstdn.get_text) {
+				dstdn.get_text.Input(key, keyCode, char, e.key);
+			} else if (!dstdn.profile || !dstdn.profile.Input(key, keyCode, char, e.key)) {
+				switch (keyCode) {
+					case KEY.Code.KEY_F1:
+					case KEY.Code.KEY_F2:
+					case KEY.Code.KEY_F3:
+					case KEY.Code.KEY_F4:
+					case KEY.Code.KEY_F5:
+					case KEY.Code.KEY_F6:
+					case KEY.Code.KEY_F7:
+					case KEY.Code.KEY_F8:
+					case KEY.Code.KEY_F9:
+					case KEY.Code.KEY_F10:
+					case KEY.Code.KEY_F11:
+						var idx = keyCode - KEY.Code.KEY_F1;
+						if (dstdn.all_screens[idx]) {
+							dstdn.current_screen = dstdn.all_screens[idx];
+						}
+						break;
+					default:
+						var res = dstdn.current_screen.Input(key, keyCode, char, e.key);
+						if (res) {
+							dstdn.current_screen = dstdn.all_screens[SCR_TOOT];
+						}
+						break;
+				}
 			}
 		}
 	}

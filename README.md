@@ -16,9 +16,13 @@ Help on this project is very much appreciated, contact me on [Twitter](https://t
 
 # Usage
 ## First start
-Please run `DOStodon <server> <username> <password>`
+Please run `DOStodon <server> <email> <password>`
 
-Example: `DOStodon mastodon.social jon@somwhere.sw 1234567890`
+- `server`: the URL of the server you want to connect to (e.g. `mastodon.social` or `https://bitbang.social`). Can be with or without `https://` prefix.
+- `email`: the email address used for registration (shown on the `Preferences -> Account` page in the web).
+- `password`: Your server password. 2FA is not supported. Your password should not contain any non 7bit ASCII characters.
+
+Example: `DOStodon mastodon.social jon@somwhere.com 123abcABC`
 
 The access tokens are stored in `CREDS.JSN` if the login is successful.
 
@@ -41,6 +45,7 @@ Just run `DOStodon`.
 - `UP/DOWN, Page UP/DOWN, HOME/END`: scroll entries in home/notifications
 - `p`: Show profile of currently selected entry (for boosts the boosters profile)
 - `P`: Show profile of currently selected entry (for boosts the original profile)
+- `CTRL-S`: Save screenshot as PNG. Screenshots are numbered, starting with `1.PNG`.
 
 ### Timelines
 - `b`: Boost/reblog currently selected toot in home screen
@@ -147,12 +152,15 @@ ne2000 0x60 3 0x300
 ```
 
 # TODO
-- Display image descriptions
 - Add image-upload
 - Look into character-encoding again
 - Have fun
 
 # Changelog
+## 1. jan 2023
+- Reworked the "login" section in the README
+- You can now save PNG screenshots using `CTRL-S`
+
 ## 29. Dec 2022
 - Added scroll indicators `^` and `v` at the very right of the screen
 - Added thread view for toots.
