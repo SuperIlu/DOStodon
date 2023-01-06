@@ -79,6 +79,7 @@ var KEY_CTRL_3 = 7682;
 var KEY_CTRL_4 = 7938;
 
 var KEY_CTRL_S = 4883;
+var KEY_CTRL_P = 4112;
 
 // contains all instance data
 var dstdn = {

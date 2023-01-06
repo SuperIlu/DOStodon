@@ -142,44 +142,61 @@ function TextOverlay(txt, col) {
 }
 
 function DisplayMultilineText(x, y, col, txt, cursor, maxChars) {
-	var l;
-	var yPos;
-	var last_line = "";
-	var tmp_lines = txt.split('\n');
-	var txt_lines = [];
+	var words = txt.split(/\s*([\n\s])\s*/);
 
-	// split lines at 75 characters and append result to display array
-	for (l = 0; l < tmp_lines.length; l++) {
-		var cl = tmp_lines[l];
-		while (cl.length > maxChars) {
-			txt_lines.push(cl.substring(0, maxChars));
-			cl = cl.substring(maxChars);
+	var yPos = y;
+	var xPos = x;
+	var lineLength = 0;
+	for (var i = 0; i < words.length; i++) {
+		if (words[i] == " ") {
+			// handled by word printing
+		} else if (words[i] == "\n") {
+			// next line
+			yPos += TXT_SIZE;
+			xPos = x;
+			lineLength = 0;
+		} else {
+			var wtxt = words[i] + " ";
+			var c = col;
+			if (wtxt.startsWith("#")) {
+				c = EGA.LIGHT_GREEN;
+			} else if (wtxt.startsWith("@")) {
+				c = EGA.LIGHT_BLUE;
+			}
+
+			// split single token into parts of maxLength
+			wparts = [];
+			while (wtxt.length > maxChars) {
+				wparts.push(wtxt.substring(0, maxChars));
+				wtxt = wtxt.substring(maxChars);
+			}
+			wparts.push(wtxt);
+
+			for (j = 0; j < wparts.length; j++) {
+				var w = wparts[j];
+				if (lineLength + w.length > maxChars) {
+					// next line
+					yPos += TXT_SIZE;
+					xPos = x;
+					lineLength = 0;
+				}
+				dstdn.sfont.DrawStringLeft(xPos, yPos, w, c, NO_COLOR);
+				xPos += dstdn.sfont.StringWidth(w);
+				lineLength += w.length;
+			}
 		}
-		txt_lines.push(cl);
-	}
-
-	// draw the text
-	for (l = 0; l < txt_lines.length; l++) {
-		yPos = l * TXT_SIZE;
-		dstdn.sfont.DrawStringLeft(x, y + yPos, txt_lines[l], col, NO_COLOR);
-		last_line = txt_lines[l];
 	}
 
 	if (cursor) {
 		// draw blinking cursor
 		if (Math.ceil(frame / 10) % 2) {
-			var cursorString = "";
-			for (var j = 0; j < last_line.length; j++) {
-				cursorString += " ";
-			}
-			cursorString += "_";
-			dstdn.sfont.DrawStringLeft(x, y + yPos, cursorString, col, NO_COLOR);
+			dstdn.sfont.DrawStringLeft(xPos - dstdn.sfont.StringWidth(" "), yPos, "_", col, NO_COLOR);
 		}
 		frame++;
 	}
 
 	// return current poition on screen
-	return y + yPos + TXT_SIZE;
+	return yPos + TXT_SIZE;
 }
 
 /**

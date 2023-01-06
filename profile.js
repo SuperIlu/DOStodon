@@ -137,7 +137,6 @@ Profile.prototype.Draw = function () {
 		this.netop = null;
 	}
 
-
 	if (this.textOverlay) {
 		TextOverlay(this.textOverlay, EGA.WHITE);
 	}
