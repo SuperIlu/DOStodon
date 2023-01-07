@@ -741,7 +741,7 @@ Mastodon.prototype.FindAccounts = function (q, following) {
 	];
 
 	// build URL
-	var url = this.base_url + "/api/v1/accounts/search?q=" + q;
+	var url = this.base_url + "/api/v1/accounts/search?q=" + encodeURIComponent(q);
 	if (following) {
 		url += "following=true";
 	}

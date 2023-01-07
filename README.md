@@ -166,7 +166,7 @@ ne2000 0x60 3 0x300
 - Lots of small internal optimizations, especially text rendering
 
 ## 6. jan 2023
-- New, experimental word wrapping algorith with support for coloring hastags and handles
+- New, experimental word wrapping algorithm with support for coloring hashtags and handles
 
 ## 1. jan 2023
 - Reworked the "login" section in the README
