@@ -68,8 +68,8 @@ Toot.prototype.Draw = function () {
 			t.dostodon = { "header": header, "content": content };
 		}
 		var col = EGA.CYAN;
-		yPos = DisplayMultilineText(40, yPos, col, t.dostodon.header, false, 70);
-		yPos = DisplayMultilineText(40, yPos, EGA.WHITE, t.dostodon.content, false, 70);
+		yPos = DisplayMultilineToot(40, yPos, col, t.dostodon.header, false, 70);
+		yPos = DisplayMultilineToot(40, yPos, EGA.WHITE, t.dostodon.content, false, 70);
 
 		// render media images
 		var media;
@@ -98,7 +98,7 @@ Toot.prototype.Draw = function () {
 		yPos += TEXT_START_OFFSET;
 	}
 
-	DisplayMultilineText(TEXT_START_OFFSET, yPos, EGA.GREEN, this.txt, true, TXT_LINE_LENGTH);
+	DisplayMultilineToot(TEXT_START_OFFSET, yPos, EGA.GREEN, this.txt, true, TXT_LINE_LENGTH);
 
 	if (this.netop && this.netop.Process()) {
 		this.netop = null;

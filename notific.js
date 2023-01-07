@@ -106,9 +106,9 @@ Notifications.prototype.drawEntries = function () {
 			col = EGA.MAGENTA;
 		}
 
-		yPos = DisplayMultilineText(40, yPos, col, n.dostodon.header, false, 70);
+		yPos = DisplayMultilineToot(40, yPos, col, n.dostodon.header, false, 70);
 		if (n.dostodon.content.length > 0) {
-			yPos = DisplayMultilineText(40, yPos, EGA.WHITE, n.dostodon.content, false, 70);
+			yPos = DisplayMultilineToot(40, yPos, EGA.WHITE, n.dostodon.content, false, 70);
 		}
 		if (yPos < minY) {
 			yPos = minY;
@@ -337,6 +337,8 @@ Notifications.prototype.Input = function (key, keyCode, char, eventKey) {
 						this.textOverlay += "- `p`            : Profile of current entry (the boosters profile)\n";
 						this.textOverlay += "- `P`            : Profile of current entry (the original profile)\n";
 						this.textOverlay += "- `ENTER`        : Thread view of current entry, `ENTER` to exit\n";
+						this.textOverlay += "- `CTRL-S`       : Save screenshot\n";
+						this.textOverlay += "- `CTRL-P`       : Search user\n";
 						break;
 				}
 				break;

@@ -723,6 +723,40 @@ Mastodon.prototype.Context = function (id) {
 	}
 }
 
+/**
+ * Find accounts on the server
+ * 
+ * @param {string} q the query string
+ * @param {boolean} following Limit the search to users you are following. Defaults to false.
+ * 
+ * @returns an array of https://docs.joinmastodon.org/entities/Account/
+ */
+Mastodon.prototype.FindAccounts = function (q, following) {
+	if (!this.token) {
+		throw new Error("No credential set");
+	}
+
+	var headers = [
+		['Authorization: Bearer ' + this.token]
+	];
+
+	// build URL
+	var url = this.base_url + "/api/v1/accounts/search?q=" + q;
+	if (following) {
+		url += "following=true";
+	}
+
+	var resp = this.DoGet(headers, url);
+
+	if (resp[2] === 200) {
+		return JSON.parse(resp[0].ToString());
+	} else {
+		throw new Error("FindAccounts failed: " + resp[2] + ": " + resp[0].ToString());
+	}
+}
+
+
+
 // export functions and version
 exports.__VERSION__ = 1;
 exports.Mastodon = Mastodon;

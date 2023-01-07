@@ -28,6 +28,9 @@ function Splash() {
 	this.chain.Add(function () { outer.txt = "Loading Logo..."; });
 	this.chain.Add(function () { dstdn.logo = new Bitmap(MASTODON_LOGO); });
 
+	this.chain.Add(function () { outer.txt = "Loading tiny font..."; });
+	this.chain.Add(function () { dstdn.tfont = new Font(JSBOOTPATH + "fonts/pc6x8.fnt"); });
+
 	this.chain.Add(function () { outer.txt = "Loading small font..."; });
 	this.chain.Add(function () { dstdn.sfont = new Font(JSBOOTPATH + "fonts/pc8x8.fnt"); });
 
@@ -69,8 +72,8 @@ function Splash() {
 						return [];
 					}
 				} else {
-					if (!dstdn.get_text) {
-						dstdn.get_text = new EnterText("Enter hashtag", outer.tag ? "#" + outer.tag : "#", function (txt) {
+					if (!dstdn.dialog) {
+						dstdn.dialog = new EnterText("Enter hashtag", outer.tag ? "#" + outer.tag : "#", function (txt) {
 							if (txt) {
 								if (txt.startsWith("#")) {
 									outer.tag = txt.substring(1);
@@ -79,7 +82,7 @@ function Splash() {
 								}
 								outer.last_poll = null;
 							}
-							dstdn.get_text = null;
+							dstdn.dialog = null;
 						});
 						return [];
 					}
@@ -121,7 +124,7 @@ function Splash() {
 Splash.prototype.Draw = function () {
 	this.splash.Draw(0, 0);
 	TextXY(LIST_IMG_SIZE, LIST_IMG_SIZE, this.txt, EGA.BLACK, NO_COLOR);
-	TextXY(LIST_IMG_SIZE, Height - LIST_IMG_SIZE, "(c) 2022 by <superilu@yahoo.com>", EGA.BLACK, NO_COLOR);
+	TextXY(LIST_IMG_SIZE, Height - LIST_IMG_SIZE, "(c) 2022-2023 by <superilu@yahoo.com>", EGA.BLACK, NO_COLOR);
 
 	var boxWidth = (this.length - this.chain.Size()) * this.stepSize;
 	FilledBox(LIST_IMG_SIZE, 2 * LIST_IMG_SIZE, 20 + boxWidth, 2 * LIST_IMG_SIZE + PROGRESS_HEIGHT, EGA.RED);

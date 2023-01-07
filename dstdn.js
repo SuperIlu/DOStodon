@@ -38,6 +38,7 @@ Include("util.js");
 Include("info.js");
 Include("lrucache.js");
 Include("imgcache.js");
+Include("sfield.js");
 
 var CREDS_FILE = "CREDS.JSN";
 var TMP_FILE = "TMPIMG";
@@ -54,6 +55,8 @@ var PROFILE_IMG_SIZE = 200;
 var CONTENT_WIDTH = 600;
 var MAX_POLL = 30;
 var PROGRESS_HEIGHT = 10;
+
+var LIST_IMAGE_SPACING = LIST_IMG_SIZE + LIST_IMG_SIZE / 2 + 8;
 
 var SCR_HOME = 0;
 var SCR_NOTI = 1;
@@ -86,11 +89,12 @@ var dstdn = {
 	m: null,
 	creds: null,
 	logo: null,
+	tfont: null,
 	sfont: null,
 	lfont: null,
 	profile: null,
 	current_screen: null,
-	get_text: null,
+	dialog: null,
 	all_screens: [],
 	screenshot_count: 1
 };
@@ -141,8 +145,8 @@ function Loop() {
 		dstdn.all_screens[SCR_INFO].Update();
 	}
 
-	if (dstdn.get_text) {
-		dstdn.get_text.Draw();
+	if (dstdn.dialog) {
+		dstdn.dialog.Draw();
 	}
 }
 
@@ -160,9 +164,32 @@ function Input(e) {
 		if (e.key == KEY_CTRL_S) {
 			SavePngImage(dstdn.screenshot_count + ".PNG");
 			dstdn.screenshot_count++;
+		} else if (e.key == KEY_CTRL_P) {
+			if (!dstdn.dialog) {
+				var outer = this;
+				dstdn.dialog = new SearchField("Enter name/handle", outer.search_handle ? outer.search_handle : "",
+					function (txt) {
+						if (txt) {
+							var res = dstdn.m.FindAccounts(txt);
+							res.forEach(function (e) {
+								e['dstdn_list_name'] = RemoveHTML("@" + e['acct'] + " (" + e['display_name'] + ")").substring(0, 60);
+							});
+							return res;
+						} else {
+							dstdn.dialog = null;
+						}
+					},
+					function (e) {
+						return e['dstdn_list_name'];
+					},
+					function (a) {
+						dstdn.profile.SetProfile(a);
+						dstdn.dialog = null;
+					});
+			}
 		} else {
-			if (dstdn.get_text) {
-				dstdn.get_text.Input(key, keyCode, char, e.key);
+			if (dstdn.dialog) {
+				dstdn.dialog.Input(key, keyCode, char, e.key);
 			} else if (!dstdn.profile || !dstdn.profile.Input(key, keyCode, char, e.key)) {
 				switch (keyCode) {
 					case KEY.Code.KEY_F1:

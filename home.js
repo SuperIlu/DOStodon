@@ -109,11 +109,11 @@ Home.prototype.drawEntries = function () {
 		} else {
 			col = EGA.CYAN;
 		}
-		yPos = DisplayMultilineText(LIST_IMG_SIZE + LIST_IMG_SIZE / 2 + 8, yPos, col, t.dostodon.header, false, 68);
+		yPos = DisplayMultilineToot(LIST_IMAGE_SPACING, yPos, col, t.dostodon.header, false, 68);
 		if (t.dostodon.sensitive_indicator) {
-			yPos = DisplayMultilineText(LIST_IMG_SIZE + LIST_IMG_SIZE / 2 + 8, yPos, EGA.LIGHT_BLUE, "<CW> " + t.dostodon.sensitive_txt, false, 68);
+			yPos = DisplayMultilineToot(LIST_IMAGE_SPACING, yPos, EGA.LIGHT_BLUE, "<CW> " + t.dostodon.sensitive_txt, false, 68);
 		} else {
-			yPos = DisplayMultilineText(LIST_IMG_SIZE + LIST_IMG_SIZE / 2 + 8, yPos, EGA.WHITE, t.dostodon.content, false, 68);
+			yPos = DisplayMultilineToot(LIST_IMAGE_SPACING, yPos, EGA.WHITE, t.dostodon.content, false, 68);
 		}
 
 		// render media images
@@ -138,7 +138,7 @@ Home.prototype.drawEntries = function () {
 				}
 				if (media_str.length > 0) {
 					// render media indicator for non-pictures
-					yPos = DisplayMultilineText(LIST_IMG_SIZE + LIST_IMG_SIZE / 2 + 8, yPos, EGA.LIGHT_GREY, media_str, false, 68);
+					yPos = DisplayMultilineToot(LIST_IMAGE_SPACING, yPos, EGA.LIGHT_GREY, media_str, false, 68);
 				}
 			}
 		}
@@ -163,13 +163,10 @@ Home.prototype.drawEntries = function () {
 			fstate += " ";
 		}
 		fstate += "]";
-		DisplayMultilineText(0, statusY, EGA.YELLOW, fstate, false, 10);
+		DisplayText(0, statusY, EGA.YELLOW, fstate, dstdn.tfont);
 
-		// display timestamp
-		DisplayMultilineText(LIST_IMG_SIZE + LIST_IMG_SIZE / 2 + 8, statusY, EGA.LIGHT_GREY, t.dostodon.tstamp, false, 68);
-
-		// display toot stats
-		yPos = DisplayMultilineText(300, statusY, EGA.LIGHT_GREY, t.dostodon.stats, false, 68);
+		DisplayText(LIST_IMAGE_SPACING, statusY, EGA.LIGHT_GREY, t.dostodon.tstamp, dstdn.tfont);	// display timestamp
+		yPos = DisplayText(300, statusY, EGA.LIGHT_GREY, t.dostodon.stats, dstdn.tfont);			// display toot stats
 
 		// increase yPos to minimum height and draw line
 		if (yPos < minY) {
@@ -457,9 +454,9 @@ Home.prototype.Input = function (key, keyCode, char, eventKey) {
 							case "t":
 							case "T":
 								if (this.type === HOME_TAG) {
-									if (!dstdn.get_text) {
+									if (!dstdn.dialog) {
 										var outer = this;
-										dstdn.get_text = new EnterText("Enter hashtag", outer.tag ? "#" + outer.tag : "#", function (txt) {
+										dstdn.dialog = new EnterText("Enter hashtag", outer.tag ? "#" + outer.tag : "#", function (txt) {
 											if (txt) {
 												if (txt.startsWith("#")) {
 													txt = txt.substring(1);
@@ -471,7 +468,7 @@ Home.prototype.Input = function (key, keyCode, char, eventKey) {
 													outer.current_list = [];
 												}
 											}
-											dstdn.get_text = null;
+											dstdn.dialog = null;
 										});
 									}
 								}
@@ -496,6 +493,8 @@ Home.prototype.Input = function (key, keyCode, char, eventKey) {
 								this.textOverlay += "- `1..4`         : Show media attachment 1 to 4. Any key to close\n";
 								this.textOverlay += "- `CTRL-1..4`    : Image description of media. Any key to close\n";
 								this.textOverlay += "- `ENTER`        : Thread view of current entry, `ENTER` to exit\n";
+								this.textOverlay += "- `STRL-S`       : Save screenshot\n";
+								this.textOverlay += "- `CTRL-P`       : Search user\n";
 								if (this.type === HOME_TAG) {
 									this.textOverlay += "- `T`/`t`        : change tag\n";
 									this.textOverlay += "- `ENTER`        : confirm tag in tag editor\n";

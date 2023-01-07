@@ -59,12 +59,8 @@ EnterText.prototype.Draw = function () {
 
 	// draw blinking cursor
 	if (Math.ceil(this.frame / 10) % 2) {
-		var cursorString = "";
-		for (var j = 0; j < this.txt.length; j++) {
-			cursorString += " ";
-		}
-		cursorString += "_";
-		dstdn.sfont.DrawStringLeft(this.xStart + this.charWidth, this.yStart + dstdn.sfont.height, cursorString, EGA.WHITE, NO_COLOR);
+		var strWidth = dstdn.sfont.StringWidth(this.txt);
+		dstdn.sfont.DrawStringLeft(this.xStart + this.charWidth + strWidth, this.yStart + dstdn.sfont.height, "_", EGA.WHITE, NO_COLOR);
 	}
 	this.frame++;
 }
@@ -141,7 +137,12 @@ function TextOverlay(txt, col) {
 	DisplayMultilineText(xStart + fntSize, yStart + fntSize, col, txt, false, 70);
 }
 
-function DisplayMultilineText(x, y, col, txt, cursor, maxChars) {
+function DisplayText(x, y, col, txt, fnt) {
+	fnt.DrawStringLeft(x, y, txt, col, NO_COLOR);
+	return y + fnt.height;
+}
+
+function DisplayMultilineToot(x, y, col, txt, cursor, maxChars) {
 	var words = txt.split(/\s*([\n\s])\s*/);
 
 	var yPos = y;
@@ -197,6 +198,47 @@ function DisplayMultilineText(x, y, col, txt, cursor, maxChars) {
 
 	// return current poition on screen
 	return yPos + TXT_SIZE;
+}
+
+function DisplayMultilineText(x, y, col, txt, cursor, maxChars) {
+	var l;
+	var yPos;
+	var last_line = "";
+	var tmp_lines = txt.split('\n');
+	var txt_lines = [];
+
+	// split lines at 75 characters and append result to display array
+	for (l = 0; l < tmp_lines.length; l++) {
+		var cl = tmp_lines[l];
+		while (cl.length > maxChars) {
+			txt_lines.push(cl.substring(0, maxChars));
+			cl = cl.substring(maxChars);
+		}
+		txt_lines.push(cl);
+	}
+
+	// draw the text
+	for (l = 0; l < txt_lines.length; l++) {
+		yPos = l * TXT_SIZE;
+		dstdn.sfont.DrawStringLeft(x, y + yPos, txt_lines[l], col, NO_COLOR);
+		last_line = txt_lines[l];
+	}
+
+	if (cursor) {
+		// draw blinking cursor
+		if (Math.ceil(frame / 10) % 2) {
+			var cursorString = "";
+			for (var j = 0; j < last_line.length; j++) {
+				cursorString += " ";
+			}
+			cursorString += "_";
+			dstdn.sfont.DrawStringLeft(x, y + yPos, cursorString, col, NO_COLOR);
+		}
+		frame++;
+	}
+
+	// return current poition on screen
+	return y + yPos + TXT_SIZE;
 }
 
 /**
@@ -348,9 +390,11 @@ exports.NetworkOperation = NetworkOperation;
 exports.EnterText = EnterText;
 exports.FormatURL = FormatURL;
 exports.DisplayMultilineText = DisplayMultilineText;
+exports.DisplayMultilineToot = DisplayMultilineToot;
 exports.RemoveHTML = RemoveHTML;
 exports.DrawLogo = DrawLogo;
 exports.FormatTime = FormatTime;
 exports.DisplaySidebar = DisplaySidebar;
 exports.AppendArray = AppendArray;
 exports.TextOverlay = TextOverlay;
+exports.DisplayText = DisplayText;

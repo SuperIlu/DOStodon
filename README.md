@@ -46,6 +46,7 @@ Just run `DOStodon`.
 - `p`: Show profile of currently selected entry (for boosts the boosters profile)
 - `P`: Show profile of currently selected entry (for boosts the original profile)
 - `CTRL-S`: Save screenshot as PNG. Screenshots are numbered, starting with `1.PNG`.
+- `CTRL-P`: Search for a user/profile. The profile is displayed when pressing `ENTER`.
 
 ### Timelines
 - `b`: Boost/reblog currently selected toot in home screen
@@ -117,6 +118,7 @@ The source is split into several files right now:
 - `profile.js` profile viewer
 - `toot.js` toot creation
 - `util.js` support code
+- `sfield.js` search field dialog
 
 DOStodon is implemented using DOjS native API (no p5js emulation). Network operations block the input processing/rendering.
 
@@ -157,6 +159,12 @@ ne2000 0x60 3 0x300
 - Have fun
 
 # Changelog
+## 7. jan 2023
+- Added 'LOCKED' and 'BOT' info to profile screen.
+- Used a smaller font for timeline timestamps and toot stats
+- You can now search for a user (profile) by pressing `CTRL-P`
+- Lots of small internal optimizations, especially text rendering
+
 ## 6. jan 2023
 - New, experimental word wrapping algorith with support for coloring hastags and handles
 

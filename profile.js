@@ -62,32 +62,37 @@ Profile.prototype.Draw = function () {
 	} else {
 		header = this.profile['acct'];
 	}
-	dstdn.lfont.DrawStringLeft(txtStartX, yPos, header, EGA.YELLOW, NO_COLOR);
-	yPos += dstdn.lfont.height;
+	yPos = DisplayText(txtStartX, yPos, EGA.YELLOW, header, dstdn.lfont);
 	yPos += dstdn.sfont.height;
 
 	if (!this.note) {
 		this.note = RemoveHTML(this.profile['note'])
 	}
-	yPos = DisplayMultilineText(txtStartX, yPos, EGA.WHITE, this.note, false, 48);
+	yPos = DisplayMultilineToot(txtStartX, yPos, EGA.WHITE, this.note, false, 48);
 	yPos += dstdn.sfont.height;
 	yPos += dstdn.sfont.height;
 
 	var joined = "Joined: " + new Date(this.profile['created_at']).toLocaleString("de-DE");
-	dstdn.lfont.DrawStringLeft(txtStartX, yPos, joined, EGA.WHITE, NO_COLOR);
+
+	yPos = DisplayText(txtStartX, yPos, EGA.WHITE, joined, dstdn.sfont);
 	yPos += dstdn.lfont.height;
-	yPos += dstdn.sfont.height;
 
 	var stats = "Followers: " + this.profile['followers_count'];
-	dstdn.sfont.DrawStringLeft(txtStartX, yPos, stats, EGA.WHITE, NO_COLOR);
-	yPos += dstdn.sfont.height;
+	yPos = DisplayText(txtStartX, yPos, EGA.WHITE, stats, dstdn.sfont);
 	stats = "Following: " + this.profile['following_count'];
-	dstdn.sfont.DrawStringLeft(txtStartX, yPos, stats, EGA.WHITE, NO_COLOR);
-	yPos += dstdn.sfont.height;
+	yPos = DisplayText(txtStartX, yPos, EGA.WHITE, stats, dstdn.sfont);
 	stats = "Posts: " + this.profile['statuses_count'];
-	dstdn.sfont.DrawStringLeft(txtStartX, yPos, stats, EGA.WHITE, NO_COLOR);
-	yPos += dstdn.sfont.height;
+	yPos = DisplayText(txtStartX, yPos, EGA.WHITE, stats, dstdn.sfont);
 	yPos += dstdn.lfont.height;
+
+	var info = "Info: ";
+	if (this.profile['bot']) {
+		info += "BOT ";
+	}
+	if (this.profile['locked']) {
+		info += "LOCKED ";
+	}
+	yPos = DisplayMultilineText(txtStartX, yPos, EGA.LIGHT_GREY, info, false, 48);
 
 	var rel = "";
 	if (this.relation) {
@@ -119,7 +124,7 @@ Profile.prototype.Draw = function () {
 	}
 	yPos = DisplayMultilineText(txtStartX, yPos, EGA.YELLOW, rel, false, 48);
 
-	dstdn.lfont.DrawStringLeft(txtStartX, yPos, "<Press ENTER KEY to exit>", EGA.LIGHT_BLUE, NO_COLOR);
+	DisplayText(txtStartX, yPos, EGA.LIGHT_BLUE, "<Press ENTER KEY to exit>", dstdn.lfont);
 
 	// fetch image if possible, but try only once
 	if (this.fetch_image) {
@@ -214,13 +219,15 @@ Profile.prototype.Input = function (key, keyCode, char, eventKey) {
 						case "h":
 						case "H":
 							this.textOverlay = "Profile screen HELP\n\n";
-							this.textOverlay += "- `ENTER` : close profile screen\n";
-							this.textOverlay += "- `f`     : follow\n";
-							this.textOverlay += "- `F`     : unfollow\n";
-							this.textOverlay += "- `b`     : block\n";
-							this.textOverlay += "- `B`     : unblock\n";
-							this.textOverlay += "- `m`     : mute\n";
-							this.textOverlay += "- `M`     : unmute\n";
+							this.textOverlay += "- `ENTER`        : close profile screen\n";
+							this.textOverlay += "- `f`            : follow\n";
+							this.textOverlay += "- `F`            : unfollow\n";
+							this.textOverlay += "- `b`            : block\n";
+							this.textOverlay += "- `B`            : unblock\n";
+							this.textOverlay += "- `m`            : mute\n";
+							this.textOverlay += "- `M`            : unmute\n";
+							this.textOverlay += "- `CTRL-S`       : Save screenshot\n";
+							this.textOverlay += "- `CTRL-P`       : Search user\n";
 							break;
 					}
 					break;
