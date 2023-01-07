@@ -14,6 +14,11 @@ Just [download](https://github.com/SuperIlu/DOStodon/archive/refs/heads/main.zip
 
 Help on this project is very much appreciated, contact me on [Twitter](https://twitter.com/dec_hl), [Mastodon](https://mastodon.social/@dec_hl) or in the [DOjS Discord](https://discord.gg/J7MUTap9fM) if you want to help...
 
+<img src="https://github.com/SuperIlu/DOStodon/raw/master/images/timeline.png" alt="DOStodon timeline" width="200">
+<img src="https://github.com/SuperIlu/DOStodon/raw/master/images/profile.png" alt="DOStodon profile" width="200">
+<img src="https://github.com/SuperIlu/DOStodon/raw/master/images/find_user.png" alt="DOStodon find user" width="200">
+<img src="https://github.com/SuperIlu/DOStodon/raw/master/images/hashtag.png" alt="DOStodon hashtag" width="200">
+
 # Usage
 ## First start
 Please run `DOStodon <server> <email> <password>`
