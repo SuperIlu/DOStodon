@@ -86,7 +86,7 @@ Mastodon.prototype.DoPost = function (header, postdata, url) {
  * @returns the https-response like Curl.DoRequest()
  */
 Mastodon.prototype.DoGet = function (header, url) {
-	Println("GET:" + url);
+	// Println("GET:" + url);
 	// this.get = new Curl();
 	this.get.ClearHeaders();
 	for (var i = 0; i < header.length; i++) {
@@ -103,9 +103,9 @@ Mastodon.prototype.DoGet = function (header, url) {
 	if (resp[2] !== 200) {
 		this.failed_requests++;
 	}
-	Println("GET:" + resp[0].ToString());
-	Println("GET:" + resp[1].ToString());
-	Println("GET:" + resp[2]);
+	// Println("GET:" + resp[0].ToString());
+	// Println("GET:" + resp[1].ToString());
+	// Println("GET:" + resp[2]);
 	return resp;
 }
 
