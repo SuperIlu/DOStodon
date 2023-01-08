@@ -52,6 +52,7 @@ Just run `DOStodon`.
 - `P`: Show profile of currently selected entry (for boosts the original profile)
 - `CTRL-S`: Save screenshot as PNG. Screenshots are numbered, starting with `1.PNG`.
 - `CTRL-P`: Search for a user/profile. The profile is displayed when pressing `ENTER`.
+- `DEL`: close dialog
 
 ### Timelines
 - `b`: Boost/reblog currently selected toot in home screen
@@ -71,7 +72,6 @@ Just run `DOStodon`.
 - `T`/`t`: change tag
 - `ENTER`: confirm tag in tag editor
 - `BACKSPACE`: delete character in tag editor
-- `DEL`: close/cancel tag editor
 
 ### Editor
 - `CTRL-ENTER`: Send toot in Toot editor
@@ -164,6 +164,12 @@ ne2000 0x60 3 0x300
 - Have fun
 
 # Changelog
+## 8. jan 2023
+- Updated DOjS, new curl, new jpeg decoder and bugfixes
+- Tinkered a little bit on the splash screen
+- You can now press `t` to select a hashtag from the current toot and display the hashtags timeline
+- You can now press `F1`/`F2` in profile view to show a list of followers/following accounts.
+
 ## 7. jan 2023
 - Added 'LOCKED' and 'BOT' info to profile screen.
 - Used a smaller font for timeline timestamps and toot stats

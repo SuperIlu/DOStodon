@@ -39,49 +39,6 @@ NetworkOperation.prototype.Process = function () {
 	}
 }
 
-function EnterText(title, txt, onClose) {
-	this.txt = txt;
-	this.title = title;
-	this.maxChars = 60;
-	this.yStart = Height / 2 - dstdn.sfont.height;
-	this.yEnd = Height / 2 + dstdn.sfont.height * 2;
-	this.charWidth = dstdn.sfont.StringWidth(" ");
-	this.xStart = Width / 2 - (this.maxChars / 2 + 1) * this.charWidth;
-	this.xEnd = Width / 2 + (this.maxChars / 2 + 1) * this.charWidth;
-	this.onClose = onClose;
-	this.frame = 0;
-}
-EnterText.prototype.Draw = function () {
-	FilledBox(this.xStart, this.yStart - dstdn.sfont.height, this.xEnd, this.yEnd, Color(32));
-	Box(this.xStart, this.yStart, this.xEnd, this.yEnd, EGA.LIGHT_BLUE);
-	dstdn.sfont.DrawStringCenter(Width / 2, this.yStart - dstdn.sfont.height / 2, this.title, EGA.YELLOW, NO_COLOR);
-	dstdn.sfont.DrawStringLeft(this.xStart + this.charWidth, this.yStart + dstdn.sfont.height, this.txt, EGA.WHITE, NO_COLOR);
-
-	// draw blinking cursor
-	if (Math.ceil(this.frame / 10) % 2) {
-		var strWidth = dstdn.sfont.StringWidth(this.txt);
-		dstdn.sfont.DrawStringLeft(this.xStart + this.charWidth + strWidth, this.yStart + dstdn.sfont.height, "_", EGA.WHITE, NO_COLOR);
-	}
-	this.frame++;
-}
-EnterText.prototype.Input = function (key, keyCode, char, eventKey) {
-	if (keyCode == KEY.Code.KEY_BACKSPACE) {
-		// delete last character
-		this.txt = this.txt.slice(0, this.txt.length - 1);
-	} else if (keyCode == KEY.Code.KEY_DEL) {
-		// undo 'reply to' and all text
-		this.onClose(null);
-	} else if (keyCode == KEY.Code.KEY_ENTER) {
-		this.onClose(this.txt);
-	} else {
-		if (key >= CharCode(" ") && (this.txt.length < this.maxChars)) {
-			// add character if not max length and charcode at least a SPACE
-			this.txt += char;
-		}
-	}
-	return false;
-}
-
 /**
  * try to create a well formated server URL.
  * @param {string} str input string
@@ -387,7 +344,6 @@ function AppendArray(a, b) {
 // export functions and version
 exports.__VERSION__ = 1;
 exports.NetworkOperation = NetworkOperation;
-exports.EnterText = EnterText;
 exports.FormatURL = FormatURL;
 exports.DisplayMultilineText = DisplayMultilineText;
 exports.DisplayMultilineToot = DisplayMultilineToot;

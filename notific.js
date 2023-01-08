@@ -331,14 +331,15 @@ Notifications.prototype.Input = function (key, keyCode, char, eventKey) {
 					case "h":
 					case "H":
 						this.textOverlay = "Notification screen HELP\n\n";
+						this.textOverlay += "- `p`            : Profile of current entry (the boosters profile)\n";
+						this.textOverlay += "- `P`            : Profile of current entry (the original profile)\n";
+						this.textOverlay += "- `CTRL-P`       : Search user\n";
+						this.textOverlay += "- `CTRL-S`       : Save screenshot\n";
 						this.textOverlay += "- `UP/DOWN`      : scroll entries\n";
 						this.textOverlay += "- `Page UP/DOWN` : scroll entries page wise\n";
 						this.textOverlay += "- `HOME/END`     : got to first/last entry\n";
-						this.textOverlay += "- `p`            : Profile of current entry (the boosters profile)\n";
-						this.textOverlay += "- `P`            : Profile of current entry (the original profile)\n";
+						this.textOverlay += "- `DEL`          : close/cancel dialog\n";
 						this.textOverlay += "- `ENTER`        : Thread view of current entry, `ENTER` to exit\n";
-						this.textOverlay += "- `CTRL-S`       : Save screenshot\n";
-						this.textOverlay += "- `CTRL-P`       : Search user\n";
 						break;
 				}
 				break;

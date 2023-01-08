@@ -129,6 +129,8 @@ Splash.prototype.Draw = function () {
 	var boxWidth = (this.length - this.chain.Size()) * this.stepSize;
 	FilledBox(LIST_IMG_SIZE, 2 * LIST_IMG_SIZE, 20 + boxWidth, 2 * LIST_IMG_SIZE + PROGRESS_HEIGHT, EGA.RED);
 
+	Box(LIST_IMG_SIZE, 2 * LIST_IMG_SIZE, 20 + this.length * this.stepSize, 2 * LIST_IMG_SIZE + PROGRESS_HEIGHT, EGA.BLACK);
+
 	if (!this.chain.Step()) {
 		this.splash = null;
 		dstdn.current_screen = dstdn.all_screens[SCR_HOME];

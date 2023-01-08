@@ -452,6 +452,22 @@ Home.prototype.Input = function (key, keyCode, char, eventKey) {
 								Println(JSON.stringify(e));
 								break;
 							case "t":
+								if (e['tags'].length) {
+									dstdn.dialog = new ListField("Select tag", e['tags'],
+										function (e) {
+											return "#" + e['name'];
+										},
+										function (e) {
+											if (e) {
+												var txt = e['name'];
+												var tagScreen = dstdn.all_screens[SCR_TAG];
+												tagScreen.tag = txt;
+												dstdn.current_screen = tagScreen;
+											}
+											dstdn.dialog = null;
+										});
+								}
+								break;
 							case "T":
 								if (this.type === HOME_TAG) {
 									if (!dstdn.dialog) {
@@ -476,30 +492,31 @@ Home.prototype.Input = function (key, keyCode, char, eventKey) {
 							case "h":
 							case "H":
 								this.textOverlay = "Timeline screen HELP\n\n";
-								this.textOverlay += "- `UP/DOWN`      : scroll entries\n";
-								this.textOverlay += "- `Page UP/DOWN` : scroll entries page wise\n";
-								this.textOverlay += "- `HOME/END`     : got to first/last entry\n";
-								this.textOverlay += "- `p`            : Profile of current entry (the boosters profile)\n";
-								this.textOverlay += "- `P`            : Profile of current entry (the original profile)\n";
+								this.textOverlay += "- `1..4`         : Show media attachment 1 to 4. Any key to close\n";
+								this.textOverlay += "- `CTRL-1..4`    : Image description of media. Any key to close\n";
 								this.textOverlay += "- `b`            : Boost selected toot\n";
 								this.textOverlay += "- `B`            : UN-Boost selected toot\n";
+								this.textOverlay += "- `C`/`c`        : Toggle toots with content warning.\n";
+								this.textOverlay += "- `D`/`d`        : Print JSON of selected toot to logfile\n";
 								this.textOverlay += "- `f`            : Favorite selected toot\n";
 								this.textOverlay += "- `F`            : UN-Favorite selected toot\n";
 								this.textOverlay += "- `m`            : Bookmark selected toot\n";
 								this.textOverlay += "- `M`            : UN-Bookmark selected toot\n";
+								this.textOverlay += "- `p`            : Profile of current entry (the boosters profile)\n";
+								this.textOverlay += "- `P`            : Profile of current entry (the original profile)\n";
 								this.textOverlay += "- `R`/`r`        : Reply to selected toot\n";
-								this.textOverlay += "- `D`/`d`        : Print JSON of selected toot to logfile\n";
-								this.textOverlay += "- `C`/`c`        : Toggle toots with content warning.\n";
-								this.textOverlay += "- `1..4`         : Show media attachment 1 to 4. Any key to close\n";
-								this.textOverlay += "- `CTRL-1..4`    : Image description of media. Any key to close\n";
-								this.textOverlay += "- `ENTER`        : Thread view of current entry, `ENTER` to exit\n";
-								this.textOverlay += "- `STRL-S`       : Save screenshot\n";
+								this.textOverlay += "- `t`            : Select tag from current toot\n";
 								this.textOverlay += "- `CTRL-P`       : Search user\n";
+								this.textOverlay += "- `STRL-S`       : Save screenshot\n";
+								this.textOverlay += "- `UP/DOWN`      : scroll entries\n";
+								this.textOverlay += "- `Page UP/DOWN` : scroll entries page wise\n";
+								this.textOverlay += "- `HOME/END`     : got to first/last entry\n";
+								this.textOverlay += "- `ENTER`        : Thread view of current entry, `ENTER` to exit\n";
+								this.textOverlay += "- `DEL`          : close/cancel dialog\n";
 								if (this.type === HOME_TAG) {
-									this.textOverlay += "- `T`/`t`        : change tag\n";
+									this.textOverlay += "- `T`            : change tag dialog\n";
 									this.textOverlay += "- `ENTER`        : confirm tag in tag editor\n";
 									this.textOverlay += "- `BACKSPACE`    : delete character in tag editor\n";
-									this.textOverlay += "- `DEL`          : close/cancel tag editor\n";
 								}
 								break;
 							case "B":

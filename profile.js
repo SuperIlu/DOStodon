@@ -77,11 +77,11 @@ Profile.prototype.Draw = function () {
 	yPos = DisplayText(txtStartX, yPos, EGA.WHITE, joined, dstdn.sfont);
 	yPos += dstdn.lfont.height;
 
-	var stats = "Followers: " + this.profile['followers_count'];
+	var stats = "Followers <F1 for list> : " + this.profile['followers_count'];
 	yPos = DisplayText(txtStartX, yPos, EGA.WHITE, stats, dstdn.sfont);
-	stats = "Following: " + this.profile['following_count'];
+	stats = "Following <F2 for list> : " + this.profile['following_count'];
 	yPos = DisplayText(txtStartX, yPos, EGA.WHITE, stats, dstdn.sfont);
-	stats = "Posts: " + this.profile['statuses_count'];
+	stats = "Posts                   : " + this.profile['statuses_count'];
 	yPos = DisplayText(txtStartX, yPos, EGA.WHITE, stats, dstdn.sfont);
 	yPos += dstdn.lfont.height;
 
@@ -156,6 +156,42 @@ Profile.prototype.Input = function (key, keyCode, char, eventKey) {
 		} else {
 			var outer = this;
 			switch (keyCode) {
+				case KEY.Code.KEY_F1:
+					this.netop = new NetworkOperation(function () {
+						var res = dstdn.m.GetFollow(outer.profile['id'], false);
+						res.forEach(function (e) {
+							e['dstdn_list_name'] = RemoveHTML("@" + e['acct'] + " (" + e['display_name'] + ")").substring(0, 60);
+						});
+						dstdn.dialog = new ListField("Followers (locally known)", res,
+							function (e) {
+								return e['dstdn_list_name'];
+							},
+							function (e) {
+								if (e) {
+									outer.SetProfile(e);
+								}
+								dstdn.dialog = null;
+							});
+					});
+					return true;
+				case KEY.Code.KEY_F2:
+					this.netop = new NetworkOperation(function () {
+						var res = dstdn.m.GetFollow(outer.profile['id'], true);
+						res.forEach(function (e) {
+							e['dstdn_list_name'] = RemoveHTML("@" + e['acct'] + " (" + e['display_name'] + ")").substring(0, 60);
+						});
+						dstdn.dialog = new ListField("Following (locally known)", res,
+							function (e) {
+								return e['dstdn_list_name'];
+							},
+							function (e) {
+								if (e) {
+									outer.SetProfile(e);
+								}
+								dstdn.dialog = null;
+							});
+					});
+					return true;
 				case KEY.Code.KEY_ENTER:
 					this.SetProfile(null);
 					return true;
@@ -219,15 +255,18 @@ Profile.prototype.Input = function (key, keyCode, char, eventKey) {
 						case "h":
 						case "H":
 							this.textOverlay = "Profile screen HELP\n\n";
-							this.textOverlay += "- `ENTER`        : close profile screen\n";
-							this.textOverlay += "- `f`            : follow\n";
-							this.textOverlay += "- `F`            : unfollow\n";
+							this.textOverlay += "- `F1`           : Show followers\n";
+							this.textOverlay += "- `F2`           : Show following\n";
 							this.textOverlay += "- `b`            : block\n";
 							this.textOverlay += "- `B`            : unblock\n";
+							this.textOverlay += "- `f`            : follow\n";
+							this.textOverlay += "- `F`            : unfollow\n";
 							this.textOverlay += "- `m`            : mute\n";
 							this.textOverlay += "- `M`            : unmute\n";
-							this.textOverlay += "- `CTRL-S`       : Save screenshot\n";
 							this.textOverlay += "- `CTRL-P`       : Search user\n";
+							this.textOverlay += "- `CTRL-S`       : Save screenshot\n";
+							this.textOverlay += "- `DEL`          : close/cancel dialog\n";
+							this.textOverlay += "- `ENTER`        : close profile screen\n";
 							break;
 					}
 					break;

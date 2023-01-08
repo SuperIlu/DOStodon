@@ -38,7 +38,7 @@ Include("util.js");
 Include("info.js");
 Include("lrucache.js");
 Include("imgcache.js");
-Include("sfield.js");
+Include("dialogs.js");
 
 var CREDS_FILE = "CREDS.JSN";
 var TMP_FILE = "TMPIMG";
