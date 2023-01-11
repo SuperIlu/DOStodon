@@ -8,11 +8,11 @@ DOStodon is implemented in Javascript and relies on a yet unreleased version of 
 - **A Pentium 133 or faster with at least 32MiB of RAM is recommended.**
 - **Packet drivers can e.g. be found on [packetdriversdos.net](http://packetdriversdos.net/) (make sure to download the driver from the "PC/TCP PACKET DRIVERS" section) or on [crynwr.com](http://crynwr.com/drivers/) or [www.georgpotthast.de](http://www.georgpotthast.de/sioux/packet.htm)**
 - **Make sure you read the section about the limitations!**
-- **see "DOSBox-X config" for an example config that works (for me) with DOSBox-X**
+- **see "DOSBox-staging config" for an example config that works (for me) with DOSBox-staging**
 
 Just [download](https://github.com/SuperIlu/DOStodon/archive/refs/heads/main.zip) the whole repository.
 
-Help on this project is very much appreciated, contact me on [Twitter](https://twitter.com/dec_hl), [Mastodon](https://mastodon.social/@dec_hl) or in the [DOjS Discord](https://discord.gg/J7MUTap9fM) if you want to help...
+Help on this project is very much appreciated, contact me on [Twitter](https://twitter.com/dec_hl), [Mastodon](https://mastodon.social/@dec_hl) or in the [DOjS Discord](https://discord.gg/J7MUTap9fM) if you want to help or have questions...
 
 <img src="https://github.com/SuperIlu/DOStodon/raw/main/images/timeline.png" alt="DOStodon timeline" width="200">
 <img src="https://github.com/SuperIlu/DOStodon/raw/main/images/profile.png" alt="DOStodon profile" width="200">
@@ -89,7 +89,7 @@ Just run `DOStodon`.
 
 ## General
 - DOStodon is busy while the Mastodon logo is displayed in middle of the screen. Don't hit keys like crazy, every keypress will be queued :)
-- DOStodon poll home/notifications every 5 minutes for new entries. Countdown is in the lower right corner.
+- DOStodon polls home/notifications every 5 minutes for new entries. Countdown is in the lower right corner.
 - To add a content warning/spoiler to a toot start the toot with "cw:". The first line of the toot will be the content warning, all subsequent lines will be the body text of the toot.
 - If you press DOWN on the last entry in home/notifications older entries are fetched.
 - Favourite/boost/bookmark status ([FBM]) is displayed below the profile picture of each toot.
@@ -97,7 +97,6 @@ Just run `DOStodon`.
 - When first selecting the hashtag timeline you have to enter a hashtag.
 
 ## Limitations
-- Disabled TLS/SSL certificate verification for now. DOStodon is not able to verify the certificate of https://mastodon.social anymore and I need to dive deeper into the reason for that.
 - 2FA is not supported right now!
 - logging in with passwords that contain characters outside 7bit ASCII might not be possible
 - HTTPS requests can take quite a lot of time, be patient!
@@ -106,7 +105,6 @@ Just run `DOStodon`.
 - No support for HTML tags, they are (badly) filtered out
 - No support for emojis (replaced by spaces)
 - No support for characters like umlauts, etc.
-- Hashtags or usernames are not highlighted.
 - The toot composer only supports BACKSPACE, it is not a real text editor.
 - Bookmarks and favourites do not support pagination (yet).
 - **NO REAL TESTING/QUALITY ASSURANCE!** Folks, this is a **fun project**, if you need a production ready client contribute or use something real! If it works for you, it works, but don't blame me for broken commits or missing features...
@@ -123,7 +121,7 @@ The source is split into several files right now:
 - `profile.js` profile viewer
 - `toot.js` toot creation
 - `util.js` support code
-- `sfield.js` search field dialog
+- `dialogs.js` all input fields
 
 DOStodon is implemented using DOjS native API (no p5js emulation). Network operations block the input processing/rendering.
 
@@ -160,7 +158,10 @@ ne2000 0x60 3 0x300
 
 # TODO
 - Add image-upload
+- NTP access for toot age
+- Notification filtering by type
 - Look into character-encoding again
+- Busy indicator is missing for some network operations
 - Have fun
 
 # Changelog
