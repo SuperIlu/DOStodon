@@ -20,13 +20,21 @@ SOFTWARE.
 
 function Notifications() {
 	this.last_poll = null;		// last time of poll
-	this.current_list = [];		// current list of notification to render
+	this.current_list = [];		// current list of notification to render (filtered)
+	this.full_list = [];		// current list of notification to render (everything)
 	this.current_top = 0;		// currently displayed entry on top of screen
 	this.current_bottom = 0;	// currently displayed entry on bottom of screen
 	this.selected = 0;			// currently selected entry
 	this.doPoll = false;		// poll for new entries next call
 	this.context = null;		// thread context
 	this.textOverlay = null;	// text overlay
+
+	// default filter settings
+	this.showLikes = true;
+	this.showBoosts = true;
+	this.showFollows = true;
+	this.showMentions = true;
+	this.showOthers = true;
 }
 
 Notifications.prototype.lazyDrawImage = function (url, x, y) {
@@ -126,10 +134,10 @@ Notifications.prototype.drawEntries = function () {
 Notifications.prototype.pollData = function (older) {
 	var poll_id;
 	if (older) {
-		poll_id = this.current_list[this.current_list.length - 1]['id'];
+		poll_id = this.full_list[this.full_list.length - 1]['id'];
 	} else {
-		if (this.current_list.length > 0) {
-			poll_id = this.current_list[0]['id'];
+		if (this.full_list.length > 0) {
+			poll_id = this.full_list[0]['id'];
 		} else {
 			poll_id = null;
 		}
@@ -145,7 +153,7 @@ Notifications.prototype.pollData = function (older) {
 		dstdn.noti_snd.Play(255, 128, false);
 
 		if (older) {
-			this.current_list = AppendArray(this.current_list, toots);
+			this.full_list = AppendArray(this.full_list, toots);
 		} else {
 			// fix up indices
 			if (this.selected > 0) {
@@ -156,9 +164,10 @@ Notifications.prototype.pollData = function (older) {
 			}
 
 			// merge lists
-			this.current_list = AppendArray(toots, this.current_list);
+			this.full_list = AppendArray(toots, this.full_list);
 		}
 	}
+	this.reFilter(false);
 }
 
 Notifications.prototype.Draw = function () {
@@ -197,6 +206,18 @@ Notifications.prototype.Draw = function () {
 			FilledBox(CONTENT_WIDTH - deltaWidth, Height - dstdn.sfont.height, CONTENT_WIDTH - 1, Height, Color(64, 32, 32));
 			dstdn.sfont.DrawStringRight(CONTENT_WIDTH - 1, Height - dstdn.sfont.height, delta, EGA.LIGHT_GREEN, NO_COLOR);
 		}
+
+		// draw filter string
+		var filters = "[";
+		filters += this.showLikes ? "L" : " ";
+		filters += this.showBoosts ? "B" : " ";
+		filters += this.showFollows ? "F" : " ";
+		filters += this.showMentions ? "M" : " ";
+		filters += this.showOthers ? "O" : " ";
+		filters += "]";
+		var filterWidth = dstdn.sfont.StringWidth(filters);
+		FilledBox(CONTENT_WIDTH - filterWidth, 0, CONTENT_WIDTH - 1, dstdn.sfont.height, Color(64, 32, 32));
+		dstdn.sfont.DrawStringRight(CONTENT_WIDTH - 1, 0, filters, EGA.YELLOW, NO_COLOR);
 
 		if (this.textOverlay) {
 			TextOverlay(this.textOverlay, EGA.WHITE);
@@ -269,6 +290,49 @@ Notifications.prototype.pageUp = function () {
 	}
 }
 
+Notifications.prototype.reFilter = function (changed) {
+	this.current_list = [];
+
+	for (var i = 0; i < this.full_list.length; i++) {
+		var n = this.full_list[i];
+
+		switch (n['type']) {
+			case 'follow':
+				if (this.showFollows) {
+					this.current_list.push(n);
+				}
+				break;
+			case 'mention':
+				if (this.showMentions) {
+					this.current_list.push(n);
+				}
+				break;
+			case 'reblog':
+				if (this.showBoosts) {
+					this.current_list.push(n);
+				}
+				break;
+			case 'favourite':
+				if (this.showLikes) {
+					this.current_list.push(n);
+				}
+				break;
+			default:
+				if (this.showOthers) {
+					this.current_list.push(n);
+				}
+				break;
+		}
+	}
+
+	// reset list positions
+	if (changed) {
+		this.current_top = 0;
+		this.current_bottom = 0;
+		this.selected = 0;
+	}
+}
+
 Notifications.prototype.Input = function (key, keyCode, char, eventKey) {
 	if (this.textOverlay) {
 		this.textOverlay = null;
@@ -336,11 +400,51 @@ Notifications.prototype.Input = function (key, keyCode, char, eventKey) {
 							dstdn.all_screens[SCR_TOOT].Reply(e['status']);
 						}
 						break;
+					case "l":
+					case "L":
+						this.showLikes = !this.showLikes;
+						this.reFilter(true);
+						break;
+					case "b":
+					case "B":
+						this.showBoosts = !this.showBoosts;
+						this.reFilter(true);
+						break;
+					case "f":
+					case "F":
+						this.showFollows = !this.showFollows;
+						this.reFilter(true);
+						break;
+					case "m":
+					case "M":
+						this.showMentions = !this.showMentions;
+						this.reFilter(true);
+						break;
+					case "o":
+					case "O":
+						this.showOthers = !this.showOthers;
+						this.reFilter(true);
+						break;
+					case " ":
+						// default filter settings
+						this.showLikes = true;
+						this.showBoosts = true;
+						this.showFollows = true;
+						this.showMentions = true;
+						this.showOthers = true;
+						this.reFilter(true);
+						break;
 					case "h":
 					case "H":
 						this.textOverlay = "Notification screen HELP\n\n";
 						this.textOverlay += "- `p`            : Profile of current entry (the boosters profile)\n";
 						this.textOverlay += "- `P`            : Profile of current entry (the original profile)\n";
+						this.textOverlay += "- `L`/`l`        : Toggle showing of favorites\n";
+						this.textOverlay += "- `B`/`b`        : Toggle showing of boosts\n";
+						this.textOverlay += "- `F`/`f`        : Toggle showing of follows\n";
+						this.textOverlay += "- `M`/`m`        : Toggle showing of mentions\n";
+						this.textOverlay += "- `O`/`o`        : Toggle showing of other notifications\n";
+						this.textOverlay += "- `SPACE`        : Reset all filters\n";
 						this.textOverlay += "- `CTRL-P`       : Search user\n";
 						this.textOverlay += "- `CTRL-S`       : Save screenshot\n";
 						this.textOverlay += "- `UP/DOWN`      : scroll entries\n";

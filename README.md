@@ -73,6 +73,14 @@ Just run `DOStodon`.
 - `ENTER`: confirm tag in tag editor
 - `BACKSPACE`: delete character in tag editor
 
+### Notifications
+- `L`/`l`        : Toggle showing of favorites
+- `B`/`b`        : Toggle showing of boosts
+- `F`/`f`        : Toggle showing of follows
+- `M`/`m`        : Toggle showing of mentions
+- `O`/`o`        : Toggle showing of other notifications
+- `SPACE`        : Reset all filters
+
 ### Editor
 - `CTRL-ENTER`: Send toot in Toot editor
 - `BACKSPACE`: delete character
@@ -166,6 +174,7 @@ ne2000 0x60 3 0x300
 # Changelog
 ## 12. jan 2023
 - Toots and notifications now show the time in a more readable fashion as a relative time.
+- Added type filter for notifications
 
 ## 8. jan 2023
 - Updated DOjS, new curl, new jpeg decoder and bugfixes
