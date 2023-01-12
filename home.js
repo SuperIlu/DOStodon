@@ -30,6 +30,7 @@ function Home(poll_func, type) {
 	this.tag = null;			// current tag
 	this.context = null;		// thread context
 	this.textOverlay = null;	// text overlay
+	this.ntp = null;			// ntp date tuple
 }
 
 Home.prototype.lazyDrawImage = function (url, bhash, x, y) {
@@ -92,14 +93,12 @@ Home.prototype.drawEntries = function () {
 			sens_indi = e['sensitive'];
 			sens_txt = RemoveHTML(e['spoiler_text']);
 			stats = "boosts:" + e['reblogs_count'] + ", favs:" + e['favourites_count'] + ", replies:" + e['replies_count'];
-			tstamp = FormatTime(e['created_at']);
 			t.dostodon = {
 				"header": header,
 				"content": content,
 				"sensitive_txt": sens_txt,
 				"sensitive_indicator": sens_indi,
-				"stats": stats,
-				"tstamp": tstamp
+				"stats": stats
 			};
 		}
 		// render toot header and text
@@ -165,7 +164,7 @@ Home.prototype.drawEntries = function () {
 		fstate += "]";
 		DisplayText(0, statusY, EGA.YELLOW, fstate, dstdn.tfont);
 
-		DisplayText(LIST_IMAGE_SPACING, statusY, EGA.LIGHT_GREY, t.dostodon.tstamp, dstdn.tfont);	// display timestamp
+		DisplayText(LIST_IMAGE_SPACING, statusY, EGA.LIGHT_GREY, FormatTime(e['created_at'], this.ntp), dstdn.tfont);	// display timestamp
 		yPos = DisplayText(300, statusY, EGA.LIGHT_GREY, t.dostodon.stats, dstdn.tfont);			// display toot stats
 
 		// increase yPos to minimum height and draw line
@@ -191,7 +190,11 @@ Home.prototype.pollData = function (older) {
 		}
 	}
 
+	// poll toots
 	var toots = this.poll_func(this, MAX_POLL, poll_id, older);
+
+	// and NTP date
+	this.ntp = NtpDate();
 
 	if (toots.length > 0) {
 		dstdn.home_snd.Play(255, 128, false);

@@ -58,26 +58,30 @@ function FormatURL(str) {
 	return "https://" + str;
 }
 
-function FormatTime(tstr) {
+function FormatTime(tstr, ntp) {
 	var ts = new Date(tstr);
-	// var now = new Date(new Date() - TIMEZONE_DELTA); // TODO: where to get TZ info from?
+	if (ntp) {
+		// calculate current UTC from local time difference		
+		var now = ntp.ntp.getTime() + (new Date() - ntp.local);
 
-	// var seconds = Math.floor((now - ts) / 1000);
-	// var minutes = Math.floor(seconds / 60);
-	// var hours = Math.floor(minutes / 60);
-	// var days = Math.floor(hours / 24);
+		var seconds = Math.floor((now - ts) / 1000);
+		var minutes = Math.floor(seconds / 60);
+		var hours = Math.floor(minutes / 60);
+		var days = Math.floor(hours / 24);
 
-	// if (seconds < 120) {
-	// 	return seconds + "s";
-	// } else if (minutes < 120) {
-	// 	return minutes + "m";
-	// } else if (hours < 48) {
-	// 	return hours + "h";
-	// } else if (days < 7) {
-	// 	return days + "d";
-	// } else {
+		if (seconds < 120) {
+			return seconds + "s ago";
+		} else if (minutes < 120) {
+			return minutes + "m ago";
+		} else if (hours < 48) {
+			return hours + "h ago";
+		} else if (days < 7) {
+			return days + "d ago";
+		}
+	}
+
+	// fallback
 	return ts.toLocaleDateString("en-US") + " " + ts.toLocaleTimeString("en-US").split(".")[0] + " UTC";
-	// }
 }
 
 function TextOverlay(txt, col) {
@@ -341,6 +345,52 @@ function AppendArray(a, b) {
 	return a;
 }
 
+/**
+ * get an object containing the NTP and the local time as Date()
+ * 
+ * @returns an object caontaining the "local" and "ntp" Date()
+ */
+function NtpDate() {
+	try {
+		var NTP_TIMESTAMP_DELTA = 2208988800;	// Time in seconds since Jan, 1970 for UNIX epoch.
+
+		var udp = UdpSocket("pool.ntp.org", 123);
+		udp.WriteBytes([
+			0x1B, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 8
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 8
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 8
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 8
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 8
+			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 8
+		]);
+		udp.WaitFlush();
+		udp.WaitInput();
+		var res = udp.ReadInts(48);
+		udp.Close();
+
+		// parse seconds
+		var ntpSeconds = 0;
+		ntpSeconds += res.Get(40) & 0xFF;
+		ntpSeconds *= 256;
+		ntpSeconds += res.Get(41) & 0xFF;
+		ntpSeconds *= 256;
+		ntpSeconds += res.Get(42) & 0xFF;
+		ntpSeconds *= 256;
+		ntpSeconds += res.Get(43) & 0xFF;
+		var epoch = (ntpSeconds - NTP_TIMESTAMP_DELTA); // convert NTP time to epoch
+
+		// return combination of local and ntp date
+		return {
+			"ntp": new Date(epoch * 1000),
+			"local": new Date()
+		};
+	} catch (e) {
+		Println(e);
+		return null;
+	}
+}
+
+
 // export functions and version
 exports.__VERSION__ = 1;
 exports.NetworkOperation = NetworkOperation;
@@ -354,3 +404,4 @@ exports.DisplaySidebar = DisplaySidebar;
 exports.AppendArray = AppendArray;
 exports.TextOverlay = TextOverlay;
 exports.DisplayText = DisplayText;
+exports.NtpDate = NtpDate;

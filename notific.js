@@ -110,6 +110,9 @@ Notifications.prototype.drawEntries = function () {
 		if (n.dostodon.content.length > 0) {
 			yPos = DisplayMultilineToot(40, yPos, EGA.WHITE, n.dostodon.content, false, 70);
 		}
+
+		yPos = DisplayText(LIST_IMAGE_SPACING, yPos, EGA.LIGHT_GREY, FormatTime(n['created_at'], this.ntp), dstdn.tfont);	// display timestamp
+
 		if (yPos < minY) {
 			yPos = minY;
 		}
@@ -131,7 +134,12 @@ Notifications.prototype.pollData = function (older) {
 			poll_id = null;
 		}
 	}
+
+	// poll notification
 	var toots = dstdn.m.Notifications(MAX_POLL, poll_id, older);
+
+	// and NTP date
+	this.ntp = NtpDate();
 
 	if (toots.length > 0) {
 		dstdn.noti_snd.Play(255, 128, false);

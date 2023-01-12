@@ -164,6 +164,9 @@ ne2000 0x60 3 0x300
 - Have fun
 
 # Changelog
+## 12. jan 2023
+- Toots and notifications now show the time in a more readable fashion as a relative time.
+
 ## 8. jan 2023
 - Updated DOjS, new curl, new jpeg decoder and bugfixes
 - Tinkered a little bit on the splash screen
