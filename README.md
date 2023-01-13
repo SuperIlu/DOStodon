@@ -166,13 +166,17 @@ ne2000 0x60 3 0x300
 
 # TODO
 - Add image-upload
-- NTP access for toot age
-- Notification filtering by type
 - Look into character-encoding again
 - Busy indicator is missing for some network operations
+- CTRL-P to insert mentions into toots in editor
+- Color themes?
+- Config dialog?
 - Have fun
 
 # Changelog
+## 13. jan 2023
+- Implemented indentation and lines for toot context view (threads)
+
 ## 12. jan 2023
 - Toots and notifications now show the time in a more readable fashion as a relative time.
 - Added type filter for notifications

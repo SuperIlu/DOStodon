@@ -31,13 +31,13 @@ function Home(poll_func, type) {
 	this.context = null;		// thread context
 	this.textOverlay = null;	// text overlay
 	this.ntp = null;			// ntp date tuple
+	this.tree = null;
 }
 
 Home.prototype.lazyDrawImage = function (url, bhash, x, y) {
 	var img = dstdn.cache.GetCachedImage(url);
 	if (img) {
 		img.Draw(x, y);
-		Box(x, y, x + LIST_IMG_SIZE, y + LIST_IMG_SIZE, EGA.BLACK);
 	} else {
 		if (!this.netop) {
 			var url_copy = url;
@@ -48,15 +48,23 @@ Home.prototype.lazyDrawImage = function (url, bhash, x, y) {
 		if (bhash) {
 			dstdn.cache.GetHashedImage(bhash).Draw(x, y);
 		} else {
-			Box(x, y, x + LIST_IMG_SIZE, y + LIST_IMG_SIZE, EGA.LIGHT_GREY);
 		}
 	}
+	Box(x, y, x + LIST_IMG_SIZE, y + LIST_IMG_SIZE, EGA.LIGHT_GREY);
 }
 
 Home.prototype.drawEntries = function () {
 	var yPos = 0;
 	var current = this.current_top;
+	var indentationEnds = {};
+	if (this.current_top == 0) {
+		indentationEnds[0] = LIST_IMG_SIZE;
+	} else {
+		indentationEnds[0] = 0;
+	}
 	while (yPos < Height - LIST_IMG_SIZE) {
+		var yStart = yPos;
+
 		// check if there are toots left
 		if (current >= this.current_list.length) {
 			break;
@@ -71,9 +79,17 @@ Home.prototype.drawEntries = function () {
 			e = t['reblog'];
 		}
 
-		this.lazyDrawImage(t['account']['avatar_static'], null, 0, yPos);
+		var xPos = 0;
+		var charLength = 68;
+		if (t.indentLevel) {
+			xPos = t.indentLevel * 16;
+			charLength -= 2 * t.indentLevel;
+			indentationEnds[t.indentLevel] = yStart + LIST_IMG_SIZE;
+		}
+
+		this.lazyDrawImage(t['account']['avatar_static'], null, xPos, yPos);
 		if (t['reblog']) {
-			this.lazyDrawImage(e['account']['avatar_static'], null, LIST_IMG_SIZE / 2, yPos);
+			this.lazyDrawImage(e['account']['avatar_static'], null, xPos + (LIST_IMG_SIZE / 2), yPos);
 		}
 
 		// filter all displayed strings only once and store them in 'dostodon' key
@@ -108,11 +124,11 @@ Home.prototype.drawEntries = function () {
 		} else {
 			col = EGA.CYAN;
 		}
-		yPos = DisplayMultilineToot(LIST_IMAGE_SPACING, yPos, col, t.dostodon.header, false, 68);
+		yPos = DisplayMultilineToot(xPos + LIST_IMAGE_SPACING, yPos, col, t.dostodon.header, false, charLength);
 		if (t.dostodon.sensitive_indicator) {
-			yPos = DisplayMultilineToot(LIST_IMAGE_SPACING, yPos, EGA.LIGHT_BLUE, "<CW> " + t.dostodon.sensitive_txt, false, 68);
+			yPos = DisplayMultilineToot(xPos + LIST_IMAGE_SPACING, yPos, EGA.LIGHT_BLUE, "<CW> " + t.dostodon.sensitive_txt, false, charLength);
 		} else {
-			yPos = DisplayMultilineToot(LIST_IMAGE_SPACING, yPos, EGA.WHITE, t.dostodon.content, false, 68);
+			yPos = DisplayMultilineToot(xPos + LIST_IMAGE_SPACING, yPos, EGA.WHITE, t.dostodon.content, false, charLength);
 		}
 
 		// render media images
@@ -120,13 +136,13 @@ Home.prototype.drawEntries = function () {
 		if (!t.dostodon.sensitive_indicator) {
 			if (media && media.length > 0) {
 				var media_rendered = false;
-				var xPos = LIST_IMG_SIZE * 2;
+				var imgX = LIST_IMG_SIZE * 2;
 				var media_str = "";
 				for (var i = 0; i < media.length; i++) {
 					var m = media[i];
 					if (m['type'] === "image") {
-						this.lazyDrawImage(m['preview_url'], m['blurhash'], xPos, yPos);
-						xPos += LIST_IMG_SIZE * 2;
+						this.lazyDrawImage(m['preview_url'], m['blurhash'], imgX, yPos);
+						imgX += LIST_IMG_SIZE * 2;
 						media_rendered = true;
 					} else {
 						media_str += "<" + m['type'] + "> "
@@ -140,6 +156,13 @@ Home.prototype.drawEntries = function () {
 					yPos = DisplayMultilineToot(LIST_IMAGE_SPACING, yPos, EGA.LIGHT_GREY, media_str, false, 68);
 				}
 			}
+		}
+
+		// draw thread view lines
+		if (t.indentLevel) {
+			var linePos = yStart + (LIST_IMG_SIZE / 2);
+			Line(xPos - 8, linePos, xPos, linePos, EGA.LIGHT_GREY);
+			Line(xPos - 8, linePos, xPos - 8, indentationEnds[t.indentLevel - 1], EGA.LIGHT_GREY);
 		}
 
 		var statusY = minY > yPos ? minY : yPos;
@@ -162,15 +185,16 @@ Home.prototype.drawEntries = function () {
 			fstate += " ";
 		}
 		fstate += "]";
-		DisplayText(0, statusY, EGA.YELLOW, fstate, dstdn.tfont);
+		DisplayText(xPos, statusY, EGA.YELLOW, fstate, dstdn.tfont);
 
-		DisplayText(LIST_IMAGE_SPACING, statusY, EGA.LIGHT_GREY, FormatTime(e['created_at'], this.ntp), dstdn.tfont);	// display timestamp
-		yPos = DisplayText(300, statusY, EGA.LIGHT_GREY, t.dostodon.stats, dstdn.tfont);			// display toot stats
+		DisplayText(xPos + LIST_IMAGE_SPACING, statusY, EGA.LIGHT_GREY, FormatTime(e['created_at'], this.ntp), dstdn.tfont);	// display timestamp
+		yPos = DisplayText(350, statusY, EGA.LIGHT_GREY, t.dostodon.stats, dstdn.tfont);			// display toot stats
 
 		// increase yPos to minimum height and draw line
 		if (yPos < minY) {
 			yPos = minY;
 		}
+
 		Line(0, yPos, CONTENT_WIDTH, yPos, EGA.YELLOW);
 		yPos += 4;
 		this.current_bottom = current;
@@ -202,6 +226,9 @@ Home.prototype.pollData = function (older) {
 		if (this.type === HOME_CONTEXT) {
 			// just put the returned list into 'current', scroll positions is already setup by poll_func()
 			this.current_list = toots;
+
+			// make tree and calculate indent
+			this.toTree();
 		} else {
 			if (older) {
 				this.current_list = AppendArray(this.current_list, toots);
@@ -633,6 +660,40 @@ Home.prototype.setDescription = function (e, idx) {
 
 		this.textOverlay = txt;
 	}
+}
+
+Home.prototype.calculateIndentation = function (node, lvl) {
+	node['indentLevel'] = lvl;
+	for (var i = 0; i < node.replies.length; i++) {
+		this.calculateIndentation(node.replies[i], lvl + 1);
+	}
+}
+
+Home.prototype.toTree = function () {
+	var root = this.current_list[0];	// first toot is root
+
+	// create ip->toot mapping and add a 'replies' list to each toot
+	var mapped = {};
+	for (var i = 0; i < this.current_list.length; i++) {
+		var e = this.current_list[i];
+		mapped[e.id] = e;
+		e['replies'] = [];
+	}
+
+	for (var i = 0; i < this.current_list.length; i++) {
+		var e = this.current_list[i];
+		if (e.in_reply_to_id) {
+			var p = mapped[e.in_reply_to_id];
+			if (p) {
+				p.replies.push(e);
+			} else {
+				Println("Could not find toot parent: " + e.in_reply_to_id);
+			}
+		}
+	}
+
+	this.tree = root;
+	this.calculateIndentation(this.tree, 0);
 }
 
 // export functions and version
