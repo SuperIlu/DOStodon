@@ -28,7 +28,6 @@ function Home(poll_func, type) {
 	this.poll_func = poll_func; // function to use to poll new entries
 	this.type = type;			// what kind of timeline is this
 	this.tag = null;			// current tag
-	this.context = null;		// thread context
 	this.textOverlay = null;	// text overlay
 	this.ntp = null;			// ntp date tuple
 	this.tree = null;
@@ -47,7 +46,6 @@ Home.prototype.lazyDrawImage = function (url, bhash, x, y) {
 		}
 		if (bhash) {
 			dstdn.cache.GetHashedImage(bhash).Draw(x, y);
-		} else {
 		}
 	}
 	Box(x, y, x + LIST_IMG_SIZE, y + LIST_IMG_SIZE, EGA.LIGHT_GREY);
@@ -168,7 +166,12 @@ Home.prototype.drawEntries = function () {
 		var statusY = minY > yPos ? minY : yPos;
 
 		// display fav/boost/bookmark state
-		var fstate = "[";
+		var fstate = "";
+		if (t['in_reply_to_id']) {
+			fstate += "<[";
+		} else {
+			fstate += " [";
+		}
 		if (e['favourited']) {
 			fstate += "F";
 		} else {
@@ -249,60 +252,56 @@ Home.prototype.pollData = function (older) {
 }
 
 Home.prototype.Draw = function () {
-	if (this.context) {
-		this.context.Draw();
-	} else {
-		if (this.doPoll) {
-			this.pollData(false);
-			this.last_poll = new Date();
-			this.doPoll = false;
-		}
+	if (this.doPoll) {
+		this.pollData(false);
+		this.last_poll = new Date();
+		this.doPoll = false;
+	}
 
-		this.drawEntries();
+	this.drawEntries();
 
-		if (this.image_preview) {
-			this.image_preview.img.DrawAdvanced(
-				0, 0,
-				this.image_preview.img.width, this.image_preview.img.height,
-				0, 0,
-				this.image_preview.width, this.image_preview.height);
-		}
+	if (this.image_preview) {
+		this.image_preview.img.DrawAdvanced(
+			0, 0,
+			this.image_preview.img.width, this.image_preview.img.height,
+			0, 0,
+			this.image_preview.width, this.image_preview.height);
+	}
 
-		if (this.netop && this.netop.Process()) {
-			this.netop = null;
-		}
+	if (this.netop && this.netop.Process()) {
+		this.netop = null;
+	}
 
-		if (!this.last_poll || (new Date() - this.last_poll > POLL_DELAY)) {
-			DrawLogo();
-			this.doPoll = true;
-		}
-		DisplaySidebar(this.type === HOME_CONTEXT);
+	if (!this.last_poll || (new Date() - this.last_poll > POLL_DELAY)) {
+		DrawLogo();
+		this.doPoll = true;
+	}
+	DisplaySidebar(this.type === HOME_CONTEXT);
 
-		// draw list indicators
-		if (this.current_top != 0) {
-			dstdn.sfont.DrawStringRight(Width, 0, "^", EGA.LIGHT_RED, NO_COLOR);
-		}
-		if (this.current_bottom < this.current_list.length - 1) {
-			dstdn.sfont.DrawStringRight(Width, Height - dstdn.sfont.height, "v", EGA.LIGHT_RED, NO_COLOR);
-		}
+	// draw list indicators
+	if (this.current_top != 0) {
+		dstdn.sfont.DrawStringRight(Width, 0, "^", EGA.LIGHT_RED, NO_COLOR);
+	}
+	if (this.current_bottom < this.current_list.length - 1) {
+		dstdn.sfont.DrawStringRight(Width, Height - dstdn.sfont.height, "v", EGA.LIGHT_RED, NO_COLOR);
+	}
 
-		if (this.last_poll) {
-			var delta = Math.floor((POLL_DELAY - (new Date() - this.last_poll)) / 1000);
-			var deltaWidth = dstdn.sfont.StringWidth("0000");
-			FilledBox(CONTENT_WIDTH - deltaWidth, Height - dstdn.sfont.height, CONTENT_WIDTH - 1, Height, Color(64, 32, 32));
-			dstdn.sfont.DrawStringRight(CONTENT_WIDTH - 1, Height - dstdn.sfont.height, delta, EGA.LIGHT_GREEN, NO_COLOR);
-		}
+	if (this.last_poll) {
+		var delta = Math.floor((POLL_DELAY - (new Date() - this.last_poll)) / 1000);
+		var deltaWidth = dstdn.sfont.StringWidth("0000");
+		FilledBox(CONTENT_WIDTH - deltaWidth, Height - dstdn.sfont.height, CONTENT_WIDTH - 1, Height, Color(64, 32, 32));
+		dstdn.sfont.DrawStringRight(CONTENT_WIDTH - 1, Height - dstdn.sfont.height, delta, EGA.LIGHT_GREEN, NO_COLOR);
+	}
 
-		if (this.type === HOME_TAG && this.tag) {
-			var tag = "#" + this.tag;
-			var tagWidth = dstdn.sfont.StringWidth(tag);
-			FilledBox(CONTENT_WIDTH - tagWidth, 0, CONTENT_WIDTH - 1, dstdn.sfont.height, Color(64, 32, 32));
-			dstdn.sfont.DrawStringRight(CONTENT_WIDTH - 1, 0, tag, EGA.YELLOW, NO_COLOR);
-		}
+	if (this.type === HOME_TAG && this.tag) {
+		var tag = "#" + this.tag;
+		var tagWidth = dstdn.sfont.StringWidth(tag);
+		FilledBox(CONTENT_WIDTH - tagWidth, 0, CONTENT_WIDTH - 1, dstdn.sfont.height, Color(64, 32, 32));
+		dstdn.sfont.DrawStringRight(CONTENT_WIDTH - 1, 0, tag, EGA.YELLOW, NO_COLOR);
+	}
 
-		if (this.textOverlay) {
-			TextOverlay(this.textOverlay, EGA.WHITE);
-		}
+	if (this.textOverlay) {
+		TextOverlay(this.textOverlay, EGA.WHITE);
 	}
 }
 
@@ -374,12 +373,6 @@ Home.prototype.pageUp = function () {
 Home.prototype.Input = function (key, keyCode, char, eventKey) {
 	if (this.textOverlay) {
 		this.textOverlay = null;
-	} else if (this.context) {
-		if (keyCode == KEY.Code.KEY_ENTER || keyCode == KEY.Code.KEY_BACKSPACE) {
-			this.context = null;
-		} else {
-			return this.context.Input(key, keyCode, char, eventKey);
-		}
 	} else {
 		if (this.image_preview) {
 			this.image_preview = null;
@@ -425,9 +418,14 @@ Home.prototype.Input = function (key, keyCode, char, eventKey) {
 					case KEY.Code.KEY_F12:
 						this.last_poll = 0;
 						break;
+					case KEY.Code.KEY_DEL:
+						if (this.type == HOME_CONTEXT) {
+							dstdn.current_screen = this.return_to;
+						}
+						break;
 					case KEY.Code.KEY_ENTER:
 						if (this.type !== HOME_CONTEXT) {
-							this.context = new Home(
+							dstdn.current_screen = new Home(
 								function (outer, max, id, older) {
 									var ctx = dstdn.m.Context(e['id']);
 
@@ -436,14 +434,21 @@ Home.prototype.Input = function (key, keyCode, char, eventKey) {
 
 									// append selected entry and mark as current entry
 									outer.selected = ret.length;
-									outer.current_top = ret.length;
-									ret.push(e);
+									outer.current_top = ret.length - 3;
+									if (outer.current_top < 0) {
+										outer.current_top = 0;
+									}
+									ret.push(Clone(e));
 
 									// append descendants
 									ret = AppendArray(ret, ctx['descendants']);
 
+									Println("outer.current_top = " + outer.current_top);
 									return ret;
 								}, HOME_CONTEXT);
+							dstdn.current_screen.return_to = this;
+						} else {
+							dstdn.current_screen = this.return_to;
 						}
 						break;
 					default:
@@ -475,6 +480,7 @@ Home.prototype.Input = function (key, keyCode, char, eventKey) {
 							case "r":
 							case "R":
 								dstdn.all_screens[SCR_TOOT].Reply(e);
+								dstdn.return_to = this;
 								return true;
 								break;
 							case "d":

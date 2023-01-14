@@ -390,6 +390,9 @@ function NtpDate() {
 	}
 }
 
+function Clone(o) {
+	return JSON.parse(JSON.stringify(o));
+}
 
 // export functions and version
 exports.__VERSION__ = 1;
@@ -405,3 +408,4 @@ exports.AppendArray = AppendArray;
 exports.TextOverlay = TextOverlay;
 exports.DisplayText = DisplayText;
 exports.NtpDate = NtpDate;
+exports.Clone = Clone;

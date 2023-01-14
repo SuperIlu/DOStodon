@@ -307,6 +307,13 @@ Profile.prototype.Input = function (key, keyCode, char, eventKey) {
 								});
 							}
 							break;
+						case "t":
+						case "T":
+							dstdn.all_screens[SCR_TOOT].TootTo(this.profile);
+							this.SetProfile(null);
+							dstdn.current_screen = dstdn.all_screens[SCR_TOOT];
+							return true;
+							break;
 						case "h":
 						case "H":
 							this.textOverlay = "Profile screen HELP\n\n";
@@ -318,6 +325,7 @@ Profile.prototype.Input = function (key, keyCode, char, eventKey) {
 							this.textOverlay += "- `F`            : unfollow\n";
 							this.textOverlay += "- `m`            : mute\n";
 							this.textOverlay += "- `M`            : unmute\n";
+							this.textOverlay += "- `T`/`t`        : toot to person\n";
 							this.textOverlay += "- `CTRL-P`       : Search user\n";
 							this.textOverlay += "- `CTRL-S`       : Save screenshot\n";
 							this.textOverlay += "- `DEL`          : close/cancel dialog\n";

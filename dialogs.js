@@ -20,6 +20,7 @@ function SearchField(title, txt, onEnter, onRender, onClose) {
 	this.onRender = onRender;
 	this.onClose = onClose;
 	this.frame = 0;
+	this.netop = null;
 
 	this.current_list = null;
 	this.current_top = 0;		// currently displayed entry on top of screen
@@ -51,6 +52,10 @@ SearchField.prototype.Draw = function () {
 			dstdn.sfont.DrawStringLeft(this.xStart + this.charWidth + strWidth, this.yStart + dstdn.sfont.height, "_", EGA.WHITE, NO_COLOR);
 		}
 		this.frame++;
+	}
+
+	if (this.netop && this.netop.Process()) {
+		this.netop = null;
 	}
 }
 
@@ -91,10 +96,13 @@ SearchField.prototype.Input = function (key, keyCode, char, eventKey) {
 			// undo 'reply to' and all text
 			this.onClose(null);
 		} else if (keyCode == KEY.Code.KEY_ENTER) {
-			this.current_list = this.onEnter(this.txt);
-			this.current_top = 0;
-			this.current_bottom = 0;
-			this.selected = 0;
+			var outer = this;
+			this.netop = new NetworkOperation(function () {
+				outer.current_list = outer.onEnter(outer.txt);
+				outer.current_top = 0;
+				outer.current_bottom = 0;
+				outer.selected = 0;
+			});
 		} else {
 			if (key >= CharCode(" ") && (this.txt.length < this.maxChars)) {
 				// add character if not max length and charcode at least a SPACE

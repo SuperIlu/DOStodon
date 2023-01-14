@@ -96,7 +96,8 @@ var dstdn = {
 	current_screen: null,
 	dialog: null,
 	all_screens: [],
-	screenshot_count: 1
+	screenshot_count: 1,
+	return_to: null
 };
 
 function sslTest(url) {
@@ -183,7 +184,13 @@ function Input(e) {
 						return e['dstdn_list_name'];
 					},
 					function (a) {
-						dstdn.profile.SetProfile(a);
+						if (a) {
+							if (dstdn.current_screen === dstdn.all_screens[SCR_TOOT]) {
+								dstdn.current_screen.txt += " @" + a['acct'];
+							} else {
+								dstdn.profile.SetProfile(a);
+							}
+						}
 						dstdn.dialog = null;
 					});
 			}
@@ -206,6 +213,7 @@ function Input(e) {
 						var idx = keyCode - KEY.Code.KEY_F1;
 						if (dstdn.all_screens[idx]) {
 							dstdn.current_screen = dstdn.all_screens[idx];
+							return_to = null;
 						}
 						break;
 					default:

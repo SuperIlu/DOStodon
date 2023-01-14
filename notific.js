@@ -378,7 +378,10 @@ Notifications.prototype.Input = function (key, keyCode, char, eventKey) {
 
 							// append selected entry and mark as current entry
 							outer.selected = ret.length;
-							outer.current_top = ret.length;
+							outer.current_top = ret.length - 3;
+							if (outer.current_top < 0) {
+								outer.current_top = 0;
+							}
 							ret.push(e);
 
 							// append descendants

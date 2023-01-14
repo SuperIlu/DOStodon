@@ -114,6 +114,7 @@ Toot.prototype.Input = function (key, keyCode, char, eventKey) {
 		// undo 'reply to' and all text
 		this.txt = "";
 		this.reply = null;
+		this.previousScreen();
 	} else if (keyCode == KEY.Code.KEY_ENTER) {
 		if (key === 13) {
 			// Println("ENTER");
@@ -121,6 +122,7 @@ Toot.prototype.Input = function (key, keyCode, char, eventKey) {
 		} else if (key === 10) {
 			//Println("CTRL ENTER");
 			this.toot();
+			this.previousScreen();
 		}
 	} else {
 		if (key >= CharCode(" ") && (this.txt.length < TXT_MAX)) {
@@ -129,6 +131,13 @@ Toot.prototype.Input = function (key, keyCode, char, eventKey) {
 		}
 	}
 	return false;
+}
+
+Toot.prototype.previousScreen = function () {
+	if (dstdn.return_to) {
+		dstdn.current_screen = dstdn.return_to;
+		dstdn.return_to = null;
+	}
 }
 
 Toot.prototype.toot = function () {
@@ -164,6 +173,11 @@ Toot.prototype.Reply = function (e) {
 		this.txt += "cw: " + e['spoiler_text'] + "\n";
 	}
 	this.txt += "@" + this.reply['account']['acct'] + " ";
+}
+
+Toot.prototype.TootTo = function (a) {
+	this.txt = "";
+	this.txt += "@" + a['acct'] + " ";
 }
 
 // export functions and version

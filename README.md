@@ -83,6 +83,7 @@ Just run `DOStodon`.
 
 ### Editor
 - `CTRL-ENTER`: Send toot in Toot editor
+- `CTRL-P`: Open account search, ENTER puts the selected account into the toot
 - `BACKSPACE`: delete character
 - `DEL`: delete toot composer text and reply-to toot
 
@@ -94,6 +95,7 @@ Just run `DOStodon`.
 - `B`: unblock
 - `m`: mute
 - `M`: unmute
+- `T`: Write toot to account
 
 ## General
 - DOStodon is busy while the Mastodon logo is displayed in middle of the screen. Don't hit keys like crazy, every keypress will be queued :)
@@ -176,6 +178,11 @@ ne2000 0x60 3 0x300
 # Changelog
 ## 14. jan 2023
 - Profile view now shows the header image as well
+- You can toot to the profile owner now by pressing `T`
+- DOStodon now returns to the calling screen after replying to a toot
+- CTRL-P in the editor lets you search for an account
+- Added "reply" marker `<`
+- Improved thread view and search dialog
 
 ## 13. jan 2023
 - Implemented indentation and lines for toot context view (threads)
