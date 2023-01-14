@@ -174,6 +174,9 @@ ne2000 0x60 3 0x300
 - Have fun
 
 # Changelog
+## 14. jan 2023
+- Profile view now shows the header image as well
+
 ## 13. jan 2023
 - Implemented indentation and lines for toot context view (threads)
 

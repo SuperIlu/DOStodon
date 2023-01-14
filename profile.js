@@ -19,69 +19,87 @@ SOFTWARE.
 */
 
 var TEXT_START_OFFSET = 10;
+var HEADER_WITH = 440;
+var HEADER_HEIGHT = 150;
 
 function Profile() {
 	this.profile = null;
-	this.image = null;
+	this.profile_image = null;
+	this.header_image = null;
 	this.note = null;
 	this.relation = null;
-	this.fetch_image = false;
 	this.textOverlay = null;
 }
 
 Profile.prototype.SetProfile = function (p) {
 	this.profile = p;
-	this.image = null;
+	this.profile_image = null;
+	this.header_image = null;
 	this.note = null;
 	this.relation = null;
 	if (p) {
-		this.fetch_image = true;
+		var outer = this;
+		var chain = new EvalChain();
+
+		// add fetch steps to chain
+		chain.Add(function () {
+			outer.profile_image = dstdn.cache.FetchProfileImage(outer.profile['avatar_static']);
+		});
+		chain.Add(function () {
+			var header = dstdn.cache.FetchLargeImage(outer.profile['header_static']);
+
+			// calculate resized dimensions for 440x150
+			var factor = header.width / HEADER_WITH;
+			var w = HEADER_WITH;
+			var h = header.height / factor;
+
+			// image is higher than 150px, we need to crop parts of it when rendering
+			var cropY = 0;
+			if (h > HEADER_HEIGHT) {
+				var orig_max_y = 150 * factor;
+				cropY = orig_max_y / 2;
+			}
+
+			outer.header_image = {
+				"img": header,
+				"width": w,
+				"height": HEADER_HEIGHT,
+				"cropY": cropY
+			};
+		});
+		chain.Add(function () {
+			outer.relation = dstdn.m.GetRelationships([outer.profile['id']]);
+			if (outer.relation && outer.relation[0]) {
+				outer.relation = outer.relation[0];
+			}
+		});
+
+		// run the steps in the NetOp
+		this.netop = new NetworkOperation(function () {
+			while (chain.Step()) {
+				;
+			}
+		});
 	}
 }
 
-Profile.prototype.Draw = function () {
-	var txtStartX = PROFILE_IMG_SIZE + TEXT_START_OFFSET;
-	// skip profile if none
-	if (!this.profile) {
-		return false;
-	}
-
+Profile.prototype.drawLeft = function () {
 	// draw info
-	if (this.image) {
-		this.image.Draw(0, 0);
+	if (this.profile_image) {
+		this.profile_image.Draw(0, 0);
 	} else {
 		FilledBox(0, 0, PROFILE_IMG_SIZE, PROFILE_IMG_SIZE, EGA.LIGHT_GREY);
 		Box(0, 0, PROFILE_IMG_SIZE, PROFILE_IMG_SIZE, EGA.GREY);
 	}
 
-	var yPos = TEXT_START_OFFSET;
-	var header;
+	var txtStartX = TEXT_START_OFFSET;
+	var yPos = TEXT_START_OFFSET + PROFILE_IMG_SIZE;
 
-	if (this.profile['display_name']) {
-		header = this.profile['display_name'] + " (@" + this.profile['acct'] + ")";
-	} else {
-		header = this.profile['acct'];
-	}
-	yPos = DisplayText(txtStartX, yPos, EGA.YELLOW, header, dstdn.lfont);
-	yPos += dstdn.sfont.height;
-
-	if (!this.note) {
-		this.note = RemoveHTML(this.profile['note'])
-	}
-	yPos = DisplayMultilineToot(txtStartX, yPos, EGA.WHITE, this.note, false, 48);
-	yPos += dstdn.sfont.height;
-	yPos += dstdn.sfont.height;
-
-	var joined = "Joined: " + new Date(this.profile['created_at']).toLocaleString("de-DE");
-
-	yPos = DisplayText(txtStartX, yPos, EGA.WHITE, joined, dstdn.sfont);
-	yPos += dstdn.lfont.height;
-
-	var stats = "Followers <F1 for list> : " + this.profile['followers_count'];
+	var stats = "Followers <F1> : " + this.profile['followers_count'];
 	yPos = DisplayText(txtStartX, yPos, EGA.WHITE, stats, dstdn.sfont);
-	stats = "Following <F2 for list> : " + this.profile['following_count'];
+	stats = "Following <F2> : " + this.profile['following_count'];
 	yPos = DisplayText(txtStartX, yPos, EGA.WHITE, stats, dstdn.sfont);
-	stats = "Posts                   : " + this.profile['statuses_count'];
+	stats = "Posts          : " + this.profile['statuses_count'];
 	yPos = DisplayText(txtStartX, yPos, EGA.WHITE, stats, dstdn.sfont);
 	yPos += dstdn.lfont.height;
 
@@ -124,20 +142,57 @@ Profile.prototype.Draw = function () {
 	}
 	yPos = DisplayMultilineText(txtStartX, yPos, EGA.YELLOW, rel, false, 48);
 
-	DisplayText(txtStartX, yPos, EGA.LIGHT_BLUE, "<Press ENTER KEY to exit>", dstdn.lfont);
+	return yPos;
+}
 
-	// fetch image if possible, but try only once
-	if (this.fetch_image) {
-		this.fetch_image = false;
-		var outer = this;
-		this.netop = new NetworkOperation(function () {
-			outer.image = dstdn.cache.FetchProfileImage(outer.profile['avatar_static']);
-			outer.relation = dstdn.m.GetRelationships([outer.profile['id']]);
-			if (outer.relation && outer.relation[0]) {
-				outer.relation = outer.relation[0];
-			}
-		});
+Profile.prototype.drawRight = function () {
+	if (this.header_image) {
+		this.header_image.img.DrawAdvanced(
+			0, this.header_image.cropY,
+			this.header_image.img.width, this.header_image.img.height - this.header_image.cropY,
+			PROFILE_IMG_SIZE, 0,
+			this.header_image.width, this.header_image.height);
 	}
+
+	var yPos = TEXT_START_OFFSET + HEADER_HEIGHT;
+	var txtStartX = PROFILE_IMG_SIZE + TEXT_START_OFFSET;
+
+	var header;
+	if (this.profile['display_name']) {
+		header = this.profile['display_name'] + " (@" + this.profile['acct'] + ")";
+	} else {
+		header = this.profile['acct'];
+	}
+	yPos = DisplayText(txtStartX, yPos, EGA.YELLOW, header, dstdn.lfont);
+	yPos += dstdn.sfont.height;
+
+	if (!this.note) {
+		this.note = RemoveHTML(this.profile['note'])
+	}
+	yPos = DisplayMultilineToot(txtStartX, yPos, EGA.WHITE, this.note, false, 48);
+	yPos += dstdn.sfont.height;
+	yPos += dstdn.sfont.height;
+
+	var joined = "Joined: " + new Date(this.profile['created_at']).toLocaleString("de-DE");
+
+	yPos = DisplayText(txtStartX, yPos, EGA.WHITE, joined, dstdn.sfont);
+	yPos += dstdn.lfont.height;
+
+	return yPos;
+}
+
+Profile.prototype.Draw = function () {
+	// skip profile if none
+	if (!this.profile) {
+		return false;
+	}
+
+	var bothY = 0;
+	bothY = Math.max(bothY, this.drawLeft());
+	bothY = Math.max(bothY, this.drawRight());
+
+	DisplayText(TEXT_START_OFFSET, bothY, EGA.LIGHT_BLUE, "<Press ENTER KEY to exit>", dstdn.lfont);
+
 	if (this.netop && this.netop.Process()) {
 		this.netop = null;
 	}
