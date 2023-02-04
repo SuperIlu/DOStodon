@@ -189,6 +189,7 @@ ne2000 0x60 3 0x300
 - You can now press `RETURN` in thread view to see details of displayed children.
 - Added configuration dialog (press `CTRL-C`) and config saving to `CFG.JSN`.
 - Changed some colors
+- `CTRL-L` and `CTRL-W` to load/save the timeline position is still work in progress!
 
 ## 14. jan 2023
 - Profile view now shows the header image as well
