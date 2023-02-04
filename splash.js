@@ -25,6 +25,9 @@ function Splash() {
 
 	var outer = this;
 
+	this.chain.Add(function () { outer.txt = "Loading Config..."; });
+	this.chain.Add(function () { dstdn.c = new Config(); });
+
 	this.chain.Add(function () { outer.txt = "Loading Logo..."; });
 	this.chain.Add(function () { dstdn.logo = new Bitmap(MASTODON_LOGO); });
 
@@ -68,25 +71,11 @@ function Splash() {
 				if (outer.tag) {
 					if (outer.tag.length > 0) {
 						return dstdn.m.TimelineTag(outer.tag, max, id, older);
-					} else {
-						return [];
 					}
 				} else {
-					if (!dstdn.dialog) {
-						dstdn.dialog = new EnterText("Enter hashtag", outer.tag ? "#" + outer.tag : "#", function (txt) {
-							if (txt) {
-								if (txt.startsWith("#")) {
-									outer.tag = txt.substring(1);
-								} else {
-									outer.tag = txt;
-								}
-								outer.last_poll = null;
-							}
-							dstdn.dialog = null;
-						});
-						return [];
-					}
+					HashTagDialog(outer);
 				}
+				return [];
 			}, HOME_TAG);
 	});
 
@@ -177,11 +166,37 @@ Splash.prototype.login = function () {
 		Println("No credentials");
 		Stop();
 	}
+
+	// Println(JSON.stringify(dstdn.m.GetMarker(true)));
+	// Println(JSON.stringify(dstdn.m.GetMarker(false)));
 }
 
 Splash.prototype.Input = function (key, keyCode, char, eventKey) {
 	return false;
 }
+
+var messages = [
+	"grooming the unicorns",
+	"licking the tootsie roll",
+	"pedicuring the mastodon",
+	"blowing out the trunk",
+	"brushing the fur",
+	"sharpening tusks",
+	"staring into the void",
+	"hunting cave men",
+	"memorising random facts",
+	"considering the history of proboscideans",
+	"tooting into the void",
+	"avoiding the monolith",
+	"bathing in mud",
+	"following the herd",
+	"regaling the young",
+	"patrolling the jungle",
+	"grazing the field of toots",
+	"greeting joane mastodon",
+	"checking for quote toots",
+	"thanking the moderators"
+];
 
 // export functions and version
 exports.__VERSION__ = 1;

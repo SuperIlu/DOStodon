@@ -790,7 +790,71 @@ Mastodon.prototype.GetFollow = function (id, following) {
 	}
 }
 
+/**
+ * Save timeline position.
+ * 
+ * @param {string} id the last-id to save
+ * @param {*} home true for home timeline, false for notifications
+ * 
+ * @returns see https://docs.joinmastodon.org/methods/markers/#create
+ */
+Mastodon.prototype.SetMarker = function (id, home) {
+	if (!this.token) {
+		throw new Error("No credential set");
+	}
 
+	var headers = [
+		['Authorization: Bearer ' + this.token]
+	];
+
+	var postdata = [];
+	if (home) {
+		postdata.push(['home[last_read_id]', id]);
+	} else {
+		postdata.push(['notifications[last_read_id]', id]);
+	}
+
+	var resp = this.DoPost(headers, postdata, this.base_url + "/api/v1/markers");
+
+	if (resp[2] === 200) {
+		return JSON.parse(resp[0].ToString());
+	} else {
+		throw new Error("SetMarkers failed: " + resp[2] + ": " + resp[0].ToString());
+	}
+}
+
+/**
+ * Get timeline marker.
+ * 
+ * @param {bool} home true to get the home marker, false for the notification marker
+ * 
+ * @returns see https://docs.joinmastodon.org/methods/markers/#get
+ */
+Mastodon.prototype.GetMarker = function (home) {
+	if (!this.token) {
+		throw new Error("No credential set");
+	}
+
+	var url = this.base_url + "/api/v1/markers?timeline[]=";
+
+	if (home) {
+		url += 'home';
+	} else {
+		url += 'notifications';
+	}
+
+	var headers = [
+		['Authorization: Bearer ' + this.token]
+	];
+
+	var resp = this.DoGet(headers, url);
+
+	if (resp[2] === 200) {
+		return JSON.parse(resp[0].ToString());
+	} else {
+		throw new Error("GetMarkers failed: " + resp[2] + ": " + resp[0].ToString());
+	}
+}
 
 // export functions and version
 exports.__VERSION__ = 1;

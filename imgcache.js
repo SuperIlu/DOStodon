@@ -20,14 +20,15 @@ SOFTWARE.
 
 // caches
 function ImageCache() {
-	this.small = new LRUCache(50);
-	this.profile = new LRUCache(10);
-	this.large = new LRUCache(10);
+	this.small = new LRUCache(dstdn.c.Get("smallCacheSize"));
+	this.profile = new LRUCache(dstdn.c.Get("profileCacheSize"));
+	this.large = new LRUCache(dstdn.c.Get("largeCacheSize"));
 
 	// create disk cache and delete entries older than 4w
 	this.sqlite = new SQLite("CACHE.DB");
+	this.sqlite.Exec("PRAGMA auto_vacuum = FULL;");
 	this.sqlite.Exec("CREATE TABLE IF NOT EXISTS images (key TEXT PRIMARY KEY, timestamp INTEGER, data BLOB);");
-	this.sqlite.Exec("DELETE FROM images WHERE timestamp <= DATE('now','-28 day');");
+	this.sqlite.Exec("DELETE FROM images WHERE timestamp <= DATE('now','-" + dstdn.c.Get("diskCacheMaxAge") + " day');");
 }
 
 ImageCache.prototype.GetHashedImage = function (hash) {

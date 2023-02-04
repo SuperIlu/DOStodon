@@ -39,6 +39,7 @@ Include("info.js");
 Include("lrucache.js");
 Include("imgcache.js");
 Include("dialogs.js");
+Include("config.js");
 
 var CREDS_FILE = "CREDS.JSN";
 var TMP_FILE = "TMPIMG";
@@ -49,14 +50,14 @@ var MAX_TOOTS_IN_LIST = 50;
 var TXT_SIZE = 9;		// text height
 var TXT_MAX = 500;		// max length of function
 var TXT_LINE_LENGTH = 73; // max length of a line on screen
-var POLL_DELAY = (5 * 60 * 1000)
 var LIST_IMG_SIZE = 32;
 var PROFILE_IMG_SIZE = 200;
 var CONTENT_WIDTH = 600;
-var MAX_POLL = 30;
 var PROGRESS_HEIGHT = 10;
 
 var LIST_IMAGE_SPACING = LIST_IMG_SIZE + LIST_IMG_SIZE / 2 + 8;
+
+var INDENT_CHARS = 1;
 
 var SCR_HOME = 0;
 var SCR_NOTI = 1;
@@ -83,10 +84,14 @@ var KEY_CTRL_4 = 7938;
 
 var KEY_CTRL_S = 4883;
 var KEY_CTRL_P = 4112;
+var KEY_CTRL_W = 5911;
+var KEY_CTRL_L = 3084;
+var KEY_CTRL_C = 771;
 
 // contains all instance data
 var dstdn = {
 	m: null,
+	c: null,
 	creds: null,
 	logo: null,
 	tfont: null,
@@ -165,6 +170,9 @@ function Input(e) {
 		if (e.key == KEY_CTRL_S) {
 			SavePngImage(dstdn.screenshot_count + ".PNG");
 			dstdn.screenshot_count++;
+		} else if (e.key == KEY_CTRL_C) {
+			// TODO: show config
+			dstdn.dialog = new Settings();
 		} else if (e.key == KEY_CTRL_P) {
 			if (!dstdn.dialog) {
 				var outer = this;

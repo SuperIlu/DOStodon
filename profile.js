@@ -316,6 +316,7 @@ Profile.prototype.Input = function (key, keyCode, char, eventKey) {
 							break;
 						case "h":
 						case "H":
+						case "?":
 							this.textOverlay = "Profile screen HELP\n\n";
 							this.textOverlay += "- `F1`           : Show followers\n";
 							this.textOverlay += "- `F2`           : Show following\n";

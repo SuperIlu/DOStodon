@@ -14,6 +14,7 @@ ZIP_FILES = \
 	jpeg.DXE \
 	png.DXE \
 	sqlite.DXE \
+	config.js \
 	dialogs.js \
 	dstdn.js \
 	home.js \

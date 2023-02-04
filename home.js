@@ -27,13 +27,15 @@ function Home(poll_func, type) {
 	this.doPoll = false;		// poll for new entries next call
 	this.poll_func = poll_func; // function to use to poll new entries
 	this.type = type;			// what kind of timeline is this
-	this.tag = null;			// current tag
+	this.tag = dstdn.c.Get('lastTag');	// current tag
 	this.textOverlay = null;	// text overlay
 	this.ntp = null;			// ntp date tuple
 	this.tree = null;
+	this.highlight = null;		// highlighted entry for thread view
+	this.return_to = null;		// return to this screen after thread-view
 }
 
-Home.prototype.lazyDrawImage = function (url, bhash, x, y) {
+Home.prototype.lazyDrawImage = function (url, bhash, x, y, hl) {
 	var img = dstdn.cache.GetCachedImage(url);
 	if (img) {
 		img.Draw(x, y);
@@ -48,10 +50,13 @@ Home.prototype.lazyDrawImage = function (url, bhash, x, y) {
 			dstdn.cache.GetHashedImage(bhash).Draw(x, y);
 		}
 	}
-	Box(x, y, x + LIST_IMG_SIZE, y + LIST_IMG_SIZE, EGA.LIGHT_GREY);
+	Box(x, y, x + LIST_IMG_SIZE, y + LIST_IMG_SIZE, hl ? EGA.MAGENTA : EGA.LIGHT_GREY);
 }
 
 Home.prototype.drawEntries = function () {
+	var indent_pixels = 8 * INDENT_CHARS;
+	var indent_pixels_2 = indent_pixels / 2;
+
 	var yPos = 0;
 	var current = this.current_top;
 	var indentationEnds = {};
@@ -80,14 +85,14 @@ Home.prototype.drawEntries = function () {
 		var xPos = 0;
 		var charLength = 68;
 		if (t.indentLevel) {
-			xPos = t.indentLevel * 16;
-			charLength -= 2 * t.indentLevel;
+			xPos = t.indentLevel * indent_pixels;
+			charLength -= t.indentLevel * INDENT_CHARS;
 			indentationEnds[t.indentLevel] = yStart + LIST_IMG_SIZE;
 		}
 
-		this.lazyDrawImage(t['account']['avatar_static'], null, xPos, yPos);
+		this.lazyDrawImage(t['account']['avatar_static'], null, xPos, yPos, e['id'] === this.highlight);
 		if (t['reblog']) {
-			this.lazyDrawImage(e['account']['avatar_static'], null, xPos + (LIST_IMG_SIZE / 2), yPos);
+			this.lazyDrawImage(e['account']['avatar_static'], null, xPos + (LIST_IMG_SIZE / 2), yPos, false);
 		}
 
 		// filter all displayed strings only once and store them in 'dostodon' key
@@ -119,6 +124,8 @@ Home.prototype.drawEntries = function () {
 		var col;
 		if (current === this.selected) {
 			col = EGA.LIGHT_RED;
+		} else if (e['id'] === this.highlight) {
+			col = EGA.MAGENTA;
 		} else {
 			col = EGA.CYAN;
 		}
@@ -134,12 +141,12 @@ Home.prototype.drawEntries = function () {
 		if (!t.dostodon.sensitive_indicator) {
 			if (media && media.length > 0) {
 				var media_rendered = false;
-				var imgX = LIST_IMG_SIZE * 2;
+				var imgX = xPos + LIST_IMG_SIZE * 2;
 				var media_str = "";
 				for (var i = 0; i < media.length; i++) {
 					var m = media[i];
 					if (m['type'] === "image") {
-						this.lazyDrawImage(m['preview_url'], m['blurhash'], imgX, yPos);
+						this.lazyDrawImage(m['preview_url'], m['blurhash'], imgX, yPos, false);
 						imgX += LIST_IMG_SIZE * 2;
 						media_rendered = true;
 					} else {
@@ -151,16 +158,17 @@ Home.prototype.drawEntries = function () {
 				}
 				if (media_str.length > 0) {
 					// render media indicator for non-pictures
-					yPos = DisplayMultilineToot(LIST_IMAGE_SPACING, yPos, EGA.LIGHT_GREY, media_str, false, 68);
+					yPos = DisplayMultilineToot(xPos + LIST_IMAGE_SPACING, yPos, EGA.LIGHT_GREY, media_str, false, 68);
 				}
 			}
 		}
 
 		// draw thread view lines
 		if (t.indentLevel) {
+			var indentColor = HSBColor(255 / this.tree.maxindent * t.indentLevel, 255, 255, 255);
 			var linePos = yStart + (LIST_IMG_SIZE / 2);
-			Line(xPos - 8, linePos, xPos, linePos, EGA.LIGHT_GREY);
-			Line(xPos - 8, linePos, xPos - 8, indentationEnds[t.indentLevel - 1], EGA.LIGHT_GREY);
+			Line(xPos - indent_pixels_2, linePos, xPos, linePos, indentColor);
+			Line(xPos - indent_pixels_2, linePos, xPos - indent_pixels_2, indentationEnds[t.indentLevel - 1], indentColor);
 		}
 
 		var statusY = minY > yPos ? minY : yPos;
@@ -198,7 +206,7 @@ Home.prototype.drawEntries = function () {
 			yPos = minY;
 		}
 
-		Line(0, yPos, CONTENT_WIDTH, yPos, EGA.YELLOW);
+		Line(0, yPos, CONTENT_WIDTH, yPos, EGA.DARK_GREY);
 		yPos += 4;
 		this.current_bottom = current;
 		current++;
@@ -218,7 +226,7 @@ Home.prototype.pollData = function (older) {
 	}
 
 	// poll toots
-	var toots = this.poll_func(this, MAX_POLL, poll_id, older);
+	var toots = this.poll_func(this, dstdn.c.Get("maxPoll"), poll_id, older);
 
 	// and NTP date
 	this.ntp = NtpDate();
@@ -272,7 +280,9 @@ Home.prototype.Draw = function () {
 		this.netop = null;
 	}
 
-	if (!this.last_poll || (new Date() - this.last_poll > POLL_DELAY)) {
+	var pollDelay = dstdn.c.Get("autoReloadDelay") * 1000;
+
+	if (!this.last_poll || (new Date() - this.last_poll > pollDelay)) {
 		DrawLogo();
 		this.doPoll = true;
 	}
@@ -287,7 +297,7 @@ Home.prototype.Draw = function () {
 	}
 
 	if (this.last_poll) {
-		var delta = Math.floor((POLL_DELAY - (new Date() - this.last_poll)) / 1000);
+		var delta = Math.floor((pollDelay - (new Date() - this.last_poll)) / 1000);
 		var deltaWidth = dstdn.sfont.StringWidth("0000");
 		FilledBox(CONTENT_WIDTH - deltaWidth, Height - dstdn.sfont.height, CONTENT_WIDTH - 1, Height, Color(64, 32, 32));
 		dstdn.sfont.DrawStringRight(CONTENT_WIDTH - 1, Height - dstdn.sfont.height, delta, EGA.LIGHT_GREEN, NO_COLOR);
@@ -395,6 +405,13 @@ Home.prototype.Input = function (key, keyCode, char, eventKey) {
 			} else if (eventKey == KEY_CTRL_4) {
 				this.setDescription(e, 3);
 				return false;
+			} else if (eventKey == KEY_CTRL_W) {
+				this.netop = new NetworkOperation(function () {
+					Println(JSON.stringify(dstdn.m.SetMarker(t['id'], true)));
+				});
+				return false;
+			} else if (eventKey == KEY_CTRL_L) {
+				return false;
 			} else {
 				switch (keyCode) {
 					case KEY.Code.KEY_DOWN:
@@ -419,37 +436,34 @@ Home.prototype.Input = function (key, keyCode, char, eventKey) {
 						this.last_poll = 0;
 						break;
 					case KEY.Code.KEY_DEL:
+					case KEY.Code.KEY_BACKSPACE:
 						if (this.type == HOME_CONTEXT) {
 							dstdn.current_screen = this.return_to;
 						}
 						break;
 					case KEY.Code.KEY_ENTER:
-						if (this.type !== HOME_CONTEXT) {
-							dstdn.current_screen = new Home(
-								function (outer, max, id, older) {
-									var ctx = dstdn.m.Context(e['id']);
+						dstdn.current_screen = new Home(
+							function (outer, max, id, older) {
+								var ctx = dstdn.m.Context(e['id']);
 
-									// append ancestors
-									var ret = ctx['ancestors'];
+								// append ancestors
+								var ret = ctx['ancestors'];
 
-									// append selected entry and mark as current entry
-									outer.selected = ret.length;
-									outer.current_top = ret.length - 3;
-									if (outer.current_top < 0) {
-										outer.current_top = 0;
-									}
-									ret.push(Clone(e));
+								// append selected entry and mark as current entry
+								outer.selected = ret.length;
+								outer.current_top = ret.length - 3;
+								if (outer.current_top < 0) {
+									outer.current_top = 0;
+								}
+								ret.push(Clone(e));
 
-									// append descendants
-									ret = AppendArray(ret, ctx['descendants']);
+								// append descendants
+								AppendArray(ret, ctx['descendants']);
 
-									Println("outer.current_top = " + outer.current_top);
-									return ret;
-								}, HOME_CONTEXT);
-							dstdn.current_screen.return_to = this;
-						} else {
-							dstdn.current_screen = this.return_to;
-						}
+								return ret;
+							}, HOME_CONTEXT);
+						dstdn.current_screen.return_to = this;
+						dstdn.current_screen.highlight = e['id'];
 						break;
 					default:
 						switch (char) {
@@ -506,27 +520,12 @@ Home.prototype.Input = function (key, keyCode, char, eventKey) {
 								break;
 							case "T":
 								if (this.type === HOME_TAG) {
-									if (!dstdn.dialog) {
-										var outer = this;
-										dstdn.dialog = new EnterText("Enter hashtag", outer.tag ? "#" + outer.tag : "#", function (txt) {
-											if (txt) {
-												if (txt.startsWith("#")) {
-													txt = txt.substring(1);
-												}
-
-												if (outer.tag !== txt) {
-													outer.last_poll = null;
-													outer.tag = txt;
-													outer.current_list = [];
-												}
-											}
-											dstdn.dialog = null;
-										});
-									}
+									HashTagDialog(this);
 								}
 								break;
 							case "h":
 							case "H":
+							case "?":
 								this.textOverlay = "Timeline screen HELP\n\n";
 								this.textOverlay += "- `1..4`         : Show media attachment 1 to 4. Any key to close\n";
 								this.textOverlay += "- `CTRL-1..4`    : Image description of media. Any key to close\n";
@@ -544,6 +543,9 @@ Home.prototype.Input = function (key, keyCode, char, eventKey) {
 								this.textOverlay += "- `t`            : Select tag from current toot\n";
 								this.textOverlay += "- `CTRL-P`       : Search user\n";
 								this.textOverlay += "- `STRL-S`       : Save screenshot\n";
+								this.textOverlay += "- `CTRL-W`       : Save timeline position to server\n";
+								this.textOverlay += "- `CTRL-L`       : Load marked timeline position from server\n";
+								this.textOverlay += "- `CTRL-C`       : Show settings dialog\n";
 								this.textOverlay += "- `UP/DOWN`      : scroll entries\n";
 								this.textOverlay += "- `Page UP/DOWN` : scroll entries page wise\n";
 								this.textOverlay += "- `HOME/END`     : got to first/last entry\n";
@@ -670,9 +672,11 @@ Home.prototype.setDescription = function (e, idx) {
 
 Home.prototype.calculateIndentation = function (node, lvl) {
 	node['indentLevel'] = lvl;
+	var ret = lvl;
 	for (var i = 0; i < node.replies.length; i++) {
-		this.calculateIndentation(node.replies[i], lvl + 1);
+		ret = Math.max(ret, this.calculateIndentation(node.replies[i], lvl + 1));
 	}
+	return ret;
 }
 
 Home.prototype.toTree = function () {
@@ -699,7 +703,7 @@ Home.prototype.toTree = function () {
 	}
 
 	this.tree = root;
-	this.calculateIndentation(this.tree, 0);
+	root['maxindent'] = this.calculateIndentation(this.tree, 0);
 }
 
 // export functions and version

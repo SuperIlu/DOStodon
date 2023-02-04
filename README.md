@@ -37,6 +37,7 @@ Just run `DOStodon`.
 ## Keys
 ### Common
 - `ESC`: Quit DOStodon
+- `h/H/?`: Help screen
 - `F1`: Switch to home timeline
 - `F2`: Switch to notifications
 - `F3`: Switch to hashtag timeline
@@ -52,6 +53,7 @@ Just run `DOStodon`.
 - `P`: Show profile of currently selected entry (for boosts the original profile)
 - `CTRL-S`: Save screenshot as PNG. Screenshots are numbered, starting with `1.PNG`.
 - `CTRL-P`: Search for a user/profile. The profile is displayed when pressing `ENTER`.
+- `CTRL-C`: Show config dialog
 - `DEL`: close dialog
 
 ### Timelines
@@ -66,7 +68,9 @@ Just run `DOStodon`.
 - `C`/`c`: Toggle toots with content warning
 - `1..4`: show media attachment 1 to 4. Any key to close.
 - `CTRL-1..4`: show image description of media attachment 1 to 4. Any key to close.
-- `ENTER`: show thread view of current entry, `ENTER` or `BACKSPACE` to return to timeline.
+- `ENTER`: show thread view of current entry, `DEL` or `BACKSPACE` to return to timeline.
+- `CTRL-W`: Save timeline position to server
+- `CTRL-L`: Load marked timeline position from server
 
 ### Tag timeline
 - `T`/`t`: change tag
@@ -176,6 +180,16 @@ ne2000 0x60 3 0x300
 - Have fun
 
 # Changelog
+## 4. feb 2023
+- Help pages will now also be displayed when pressing `?`.
+- Enabled auto_vacuum for SQLite image cache.
+- Added rainbow colors to the thread view.
+- Reduced indentation in thread view.
+- Added highligting of "root" entry in thread view.
+- You can now press `RETURN` in thread view to see details of displayed children.
+- Added configuration dialog (press `CTRL-C`) and config saving to `CFG.JSN`.
+- Changed some colors
+
 ## 14. jan 2023
 - Profile view now shows the header image as well
 - You can toot to the profile owner now by pressing `T`

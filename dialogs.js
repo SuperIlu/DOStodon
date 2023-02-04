@@ -411,10 +411,190 @@ ListField.prototype.pageUp = function () {
 	}
 }
 
+function HashTagDialog(outer) {
+	if (!dstdn.dialog) {
+		dstdn.dialog = new EnterText("Enter hashtag", outer.tag ? "#" + outer.tag : "#", function (txt) {
+			if (txt) {
+				if (txt.startsWith("#")) {
+					txt = txt.substring(1);
+				}
 
+				if (outer.tag !== txt) {
+					outer.last_poll = null;
+					outer.tag = txt;
+					outer.current_list = [];
+
+					dstdn.c.Set("lastTag", txt);
+					dstdn.c.Save();
+				}
+			}
+			dstdn.dialog = null;
+		});
+	}
+}
+
+////////
+// bool field
+function BoolField(x, y, txt, field) {
+	this.x = x;
+	this.y = y;
+	this.txt = txt;
+	this.field = field;
+
+	this.active = false;
+	this.value = dstdn.c.Get(this.field);
+}
+BoolField.prototype.Draw = function () {
+	var txt = this.txt;
+	if (this.value) {
+		txt += "[X]";
+	} else {
+		txt += "[ ]";
+	}
+	dstdn.sfont.DrawStringLeft(this.x, this.y, txt, this.active ? EGA.RED : EGA.WHITE, NO_COLOR);
+
+	if (this.active) {
+		dstdn.sfont.DrawStringRight(this.x + 75 * 8, this.y, "<SPACE to change>", EGA.YELLOW, NO_COLOR);
+	}
+}
+BoolField.prototype.Input = function (key, keyCode, char, eventKey) {
+	if (char === ' ') {
+		this.value = !this.value;
+	}
+}
+BoolField.prototype.Store = function () {
+	dstdn.c.Set(this.field, this.value);
+}
+
+////////
+// int field
+function NumField(x, y, txt, field, minimum, maximum, step) {
+	this.x = x;
+	this.y = y;
+	this.txt = txt;
+	this.field = field;
+	this.min = minimum;
+	this.max = maximum;
+	this.step = step;
+
+	this.active = false;
+	this.value = dstdn.c.Get(field);
+}
+NumField.prototype.Draw = function () {
+	dstdn.sfont.DrawStringLeft(this.x, this.y, this.txt + this.value, this.active ? EGA.RED : EGA.WHITE, NO_COLOR);
+
+	if (this.active) {
+		dstdn.sfont.DrawStringRight(this.x + 75 * 8, this.y, "<PAGE UP/DOWN to change>", EGA.YELLOW, NO_COLOR);
+	}
+}
+NumField.prototype.Input = function (key, keyCode, char, eventKey) {
+	switch (keyCode) {
+		case KEY.Code.KEY_PGDN:
+			this.value -= this.step;
+			if (this.value < this.min) {
+				this.value = this.min;
+			}
+			break;
+		case KEY.Code.KEY_PGUP:
+			this.value += this.step;
+			if (this.value > this.max) {
+				this.value = this.max;
+			}
+			break;
+	}
+}
+NumField.prototype.Store = function () {
+	dstdn.c.Set(this.field, this.value);
+}
+
+////////
+// settings dialog
+function Settings() {
+	this.fntSize = dstdn.sfont.height;
+
+	this.xStart = this.fntSize;
+	this.yStart = this.fntSize;
+	this.xEnd = Width - 2 * this.fntSize;
+	this.yEnd = Height - 2 * this.fntSize;
+
+	this.widgets = [];
+	this.active = 0;
+	this.yPos = this.yStart + this.fntSize;
+
+	this.widgets.push(new NumField(this.xStart + this.fntSize, this.yPos, "Auto reload delay [s]  : ", "autoReloadDelay", 5, 600, 5));
+	this.yPos += this.fntSize;
+	this.widgets.push(new NumField(this.xStart + this.fntSize, this.yPos, "Fetch size             : ", "maxPoll", 1, 30, 1));
+	this.yPos += this.fntSize;
+	this.widgets.push(new NumField(this.xStart + this.fntSize, this.yPos, "Small img cache size   : ", "smallCacheSize", 2, 150, 2));
+	this.yPos += this.fntSize;
+	this.widgets.push(new NumField(this.xStart + this.fntSize, this.yPos, "Profile img cache size : ", "profileCacheSize", 2, 150, 2));
+	this.yPos += this.fntSize;
+	this.widgets.push(new NumField(this.xStart + this.fntSize, this.yPos, "Large img cache size   : ", "largeCacheSize", 2, 150, 2));
+	this.yPos += this.fntSize;
+	this.widgets.push(new NumField(this.xStart + this.fntSize, this.yPos, "Disk cache max age [d] : ", "diskCacheMaxAge", 2, 150, 2));
+	this.yPos += this.fntSize;
+	this.widgets.push(new BoolField(this.xStart + this.fntSize, this.yPos, "Autosave timeline pos  : ", "autoSaveTimelinePos"));
+	this.yPos += this.fntSize;
+	this.widgets.push(new BoolField(this.xStart + this.fntSize, this.yPos, "Autoload timeline pos  : ", "autoLoadTimelinePos"));
+	this.yPos += this.fntSize * 3;
+
+	this.widgets[this.active].active = true;
+}
+
+Settings.prototype.Draw = function () {
+	FilledBox(this.xStart, this.yStart, this.xEnd, this.yEnd, Color(32));
+	Box(this.xStart, this.yStart, this.xEnd, this.yEnd, EGA.LIGHT_BLUE);
+
+	for (var i = 0; i < this.widgets.length; i++) {
+		this.widgets[i].Draw();
+	}
+
+	dstdn.sfont.DrawStringCenter(Width / 2, this.yPos, "<ENTER to save&exit, DEL to exit&discard, UP/DOWN to select>", EGA.YELLOW, NO_COLOR);
+}
+
+Settings.prototype.Input = function (key, keyCode, char, eventKey) {
+	switch (keyCode) {
+		case KEY.Code.KEY_DOWN:
+			this.active++;
+			if (this.active >= this.widgets.length) {
+				this.active = 0;
+			}
+			break;
+		case KEY.Code.KEY_UP:
+			this.active--;
+			if (this.active < 0) {
+				this.active = this.widgets.length - 1;
+			}
+			break;
+		case KEY.Code.KEY_DEL:
+			// leave
+			dstdn.dialog = null;
+			break;
+		case KEY.Code.KEY_ENTER:
+			// store and leave
+			for (var i = 0; i < this.widgets.length; i++) {
+				this.widgets[i].Store();
+			}
+			dstdn.c.Save();
+			dstdn.dialog = null;
+			break;
+		default:
+			this.widgets[this.active].Input(key, keyCode, char, eventKey);
+			break;
+	}
+
+
+	// make sure the right one is considered 'active'
+	for (var i = 0; i < this.widgets.length; i++) {
+		this.widgets[i].active = false;
+	}
+	this.widgets[this.active].active = true;
+}
 
 // export functions and version
 exports.__VERSION__ = 1;
 exports.SearchField = SearchField;
 exports.EnterText = EnterText;
 exports.ListField = ListField;
+exports.Settings = Settings;
+exports.HashTagDialog = HashTagDialog;

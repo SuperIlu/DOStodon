@@ -333,15 +333,26 @@ function DisplaySidebar(contextView) {
 			yPos += ySpace;
 		}
 	} else {
-		DisplayMultilineText(xStartTxt, yPos, EGA.YELLOW, " <\nCTX\nVIEW\n\n P\n R\n E\n S\n S\n\n R\n E\n T\n U\n R\n N", false, 10);
+		DisplayMultilineText(xStartTxt, yPos, EGA.YELLOW, " <\nCTX\nVIEW\n\n P\n R\n E\n S\n S\n\n D\n E\n L", false, 10);
 	}
 	// draw vertical divider
 	Line(xStart, 0, xStart, Height, EGA.LIGHT_BLUE);
 	Line(xStart + 1, 0, xStart + 1, Height, EGA.BLUE);
 }
 
+/**
+ * append a to b (changing a in the process), return a.
+ * 
+ * @param {object[]} a array to append to.
+ * @param {object[]} b array to append.
+ * 
+ * @returns returns a for convenience.
+ */
 function AppendArray(a, b) {
-	a.push.apply(a, b);
+	for (var i = 0; i < b.length; i++) {
+		a.push(b[i]);
+	}
+
 	return a;
 }
 

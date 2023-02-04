@@ -124,7 +124,7 @@ Notifications.prototype.drawEntries = function () {
 		if (yPos < minY) {
 			yPos = minY;
 		}
-		Line(0, yPos, CONTENT_WIDTH, yPos, EGA.YELLOW);
+		Line(0, yPos, CONTENT_WIDTH, yPos, EGA.DARK_GREY);
 		yPos += 4;
 		this.current_bottom = current;
 		current++;
@@ -144,7 +144,7 @@ Notifications.prototype.pollData = function (older) {
 	}
 
 	// poll notification
-	var toots = dstdn.m.Notifications(MAX_POLL, poll_id, older);
+	var toots = dstdn.m.Notifications(dstdn.c.Get("maxPoll"), poll_id, older);
 
 	// and NTP date
 	this.ntp = NtpDate();
@@ -186,7 +186,9 @@ Notifications.prototype.Draw = function () {
 			this.netop = null;
 		}
 
-		if (!this.last_poll || (new Date() - this.last_poll > POLL_DELAY)) {
+		var pollDelay = dstdn.c.Get("autoReloadDelay") * 1000;
+
+		if (!this.last_poll || (new Date() - this.last_poll > pollDelay)) {
 			DrawLogo();
 			this.doPoll = true;
 		}
@@ -201,7 +203,7 @@ Notifications.prototype.Draw = function () {
 		}
 
 		if (this.last_poll) {
-			var delta = Math.floor((POLL_DELAY - (new Date() - this.last_poll)) / 1000);
+			var delta = Math.floor((pollDelay - (new Date() - this.last_poll)) / 1000);
 			var deltaWidth = dstdn.sfont.StringWidth("0000");
 			FilledBox(CONTENT_WIDTH - deltaWidth, Height - dstdn.sfont.height, CONTENT_WIDTH - 1, Height, Color(64, 32, 32));
 			dstdn.sfont.DrawStringRight(CONTENT_WIDTH - 1, Height - dstdn.sfont.height, delta, EGA.LIGHT_GREEN, NO_COLOR);
@@ -344,120 +346,133 @@ Notifications.prototype.Input = function (key, keyCode, char, eventKey) {
 		}
 	} else {
 		var e = this.current_list[this.selected];
-		switch (keyCode) {
-			case KEY.Code.KEY_DOWN:
-				this.buttonDown();
-				break;
-			case KEY.Code.KEY_UP:
-				this.buttonUp();
-				break;
-			case KEY.Code.KEY_PGDN:
-				this.pageDown();
-				break;
-			case KEY.Code.KEY_PGUP:
-				this.pageUp();
-				break;
-			case KEY.Code.KEY_HOME:
-				this.home();
-				break;
-			case KEY.Code.KEY_END:
-				this.end();
-				break;
-			case KEY.Code.KEY_F12:
-				this.last_poll = 0;
-				break;
-			case KEY.Code.KEY_ENTER:
-				if (e['status']) {
-					e = e['status'];
-					this.context = new Home(
-						function (outer, max, id, older) {
-							var ctx = dstdn.m.Context(e['id']);
+		if (eventKey == KEY_CTRL_W) {
+			this.netop = new NetworkOperation(function () {
+				Println(JSON.stringify(dstdn.m.SetMarker(e['id'], false)));
+			});
+			return false;
+		} else if (eventKey == KEY_CTRL_L) {
+			return false;
+		} else {
+			switch (keyCode) {
+				case KEY.Code.KEY_DOWN:
+					this.buttonDown();
+					break;
+				case KEY.Code.KEY_UP:
+					this.buttonUp();
+					break;
+				case KEY.Code.KEY_PGDN:
+					this.pageDown();
+					break;
+				case KEY.Code.KEY_PGUP:
+					this.pageUp();
+					break;
+				case KEY.Code.KEY_HOME:
+					this.home();
+					break;
+				case KEY.Code.KEY_END:
+					this.end();
+					break;
+				case KEY.Code.KEY_F12:
+					this.last_poll = 0;
+					break;
+				case KEY.Code.KEY_ENTER:
+					if (e['status']) {
+						e = e['status'];
+						this.context = new Home(
+							function (outer, max, id, older) {
+								var ctx = dstdn.m.Context(e['id']);
 
-							// append ancestors
-							var ret = ctx['ancestors'];
+								// append ancestors
+								var ret = ctx['ancestors'];
 
-							// append selected entry and mark as current entry
-							outer.selected = ret.length;
-							outer.current_top = ret.length - 3;
-							if (outer.current_top < 0) {
-								outer.current_top = 0;
+								// append selected entry and mark as current entry
+								outer.selected = ret.length;
+								outer.current_top = ret.length - 3;
+								if (outer.current_top < 0) {
+									outer.current_top = 0;
+								}
+								ret.push(e);
+
+								// append descendants
+								ret = AppendArray(ret, ctx['descendants']);
+
+								return ret;
+							}, HOME_CONTEXT);
+					}
+					break;
+				default:
+					switch (char) {
+						case "P":
+						case "p":
+							dstdn.profile.SetProfile(e['account']);
+							break;
+						case "r":
+						case "R":
+							if (e['status']) {
+								dstdn.all_screens[SCR_TOOT].Reply(e['status']);
 							}
-							ret.push(e);
-
-							// append descendants
-							ret = AppendArray(ret, ctx['descendants']);
-
-							return ret;
-						}, HOME_CONTEXT);
-				}
-				break;
-			default:
-				switch (char) {
-					case "P":
-					case "p":
-						dstdn.profile.SetProfile(e['account']);
-						break;
-					case "r":
-					case "R":
-						if (e['status']) {
-							dstdn.all_screens[SCR_TOOT].Reply(e['status']);
-						}
-						break;
-					case "l":
-					case "L":
-						this.showLikes = !this.showLikes;
-						this.reFilter(true);
-						break;
-					case "b":
-					case "B":
-						this.showBoosts = !this.showBoosts;
-						this.reFilter(true);
-						break;
-					case "f":
-					case "F":
-						this.showFollows = !this.showFollows;
-						this.reFilter(true);
-						break;
-					case "m":
-					case "M":
-						this.showMentions = !this.showMentions;
-						this.reFilter(true);
-						break;
-					case "o":
-					case "O":
-						this.showOthers = !this.showOthers;
-						this.reFilter(true);
-						break;
-					case " ":
-						// default filter settings
-						this.showLikes = true;
-						this.showBoosts = true;
-						this.showFollows = true;
-						this.showMentions = true;
-						this.showOthers = true;
-						this.reFilter(true);
-						break;
-					case "h":
-					case "H":
-						this.textOverlay = "Notification screen HELP\n\n";
-						this.textOverlay += "- `p`            : Profile of current entry (the boosters profile)\n";
-						this.textOverlay += "- `P`            : Profile of current entry (the original profile)\n";
-						this.textOverlay += "- `L`/`l`        : Toggle showing of favorites\n";
-						this.textOverlay += "- `B`/`b`        : Toggle showing of boosts\n";
-						this.textOverlay += "- `F`/`f`        : Toggle showing of follows\n";
-						this.textOverlay += "- `M`/`m`        : Toggle showing of mentions\n";
-						this.textOverlay += "- `O`/`o`        : Toggle showing of other notifications\n";
-						this.textOverlay += "- `SPACE`        : Reset all filters\n";
-						this.textOverlay += "- `CTRL-P`       : Search user\n";
-						this.textOverlay += "- `CTRL-S`       : Save screenshot\n";
-						this.textOverlay += "- `UP/DOWN`      : scroll entries\n";
-						this.textOverlay += "- `Page UP/DOWN` : scroll entries page wise\n";
-						this.textOverlay += "- `HOME/END`     : got to first/last entry\n";
-						this.textOverlay += "- `DEL`          : close/cancel dialog\n";
-						this.textOverlay += "- `ENTER`        : Thread view of current entry, `ENTER` to exit\n";
-						break;
-				}
-				break;
+							break;
+						case "l":
+						case "L":
+							this.showLikes = !this.showLikes;
+							this.reFilter(true);
+							break;
+						case "b":
+						case "B":
+							this.showBoosts = !this.showBoosts;
+							this.reFilter(true);
+							break;
+						case "f":
+						case "F":
+							this.showFollows = !this.showFollows;
+							this.reFilter(true);
+							break;
+						case "m":
+						case "M":
+							this.showMentions = !this.showMentions;
+							this.reFilter(true);
+							break;
+						case "o":
+						case "O":
+							this.showOthers = !this.showOthers;
+							this.reFilter(true);
+							break;
+						case " ":
+							// default filter settings
+							this.showLikes = true;
+							this.showBoosts = true;
+							this.showFollows = true;
+							this.showMentions = true;
+							this.showOthers = true;
+							this.reFilter(true);
+							break;
+						case "h":
+						case "H":
+						case "?":
+							this.textOverlay = "Notification screen HELP\n\n";
+							this.textOverlay += "- `p`            : Profile of current entry (the boosters profile)\n";
+							this.textOverlay += "- `P`            : Profile of current entry (the original profile)\n";
+							this.textOverlay += "- `L`/`l`        : Toggle showing of favorites\n";
+							this.textOverlay += "- `B`/`b`        : Toggle showing of boosts\n";
+							this.textOverlay += "- `F`/`f`        : Toggle showing of follows\n";
+							this.textOverlay += "- `M`/`m`        : Toggle showing of mentions\n";
+							this.textOverlay += "- `O`/`o`        : Toggle showing of other notifications\n";
+							this.textOverlay += "- `SPACE`        : Reset all filters\n";
+							this.textOverlay += "- `CTRL-P`       : Search user\n";
+							this.textOverlay += "- `CTRL-S`       : Save screenshot\n";
+							this.textOverlay += "- `CTRL-W`       : Save timeline position to server\n";
+							this.textOverlay += "- `CTRL-L`       : Load marked timeline position from server\n";
+							this.textOverlay += "- `CTRL-C`       : Show settings dialog\n";
+							this.textOverlay += "- `UP/DOWN`      : scroll entries\n";
+							this.textOverlay += "- `Page UP/DOWN` : scroll entries page wise\n";
+							this.textOverlay += "- `HOME/END`     : got to first/last entry\n";
+							this.textOverlay += "- `DEL`          : close/cancel dialog\n";
+							this.textOverlay += "- `ENTER`        : Thread view of current entry, `ENTER` to exit\n";
+							break;
+					}
+					break;
+			}
 		}
 	}
 	return false;
