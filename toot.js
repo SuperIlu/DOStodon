@@ -103,7 +103,7 @@ Toot.prototype.Draw = function () {
 	if (this.netop && this.netop.Process()) {
 		this.netop = null;
 	}
-	DisplaySidebar(false);
+	DisplaySidebar(null);
 }
 
 Toot.prototype.Input = function (key, keyCode, char, eventKey) {

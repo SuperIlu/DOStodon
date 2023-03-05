@@ -174,12 +174,15 @@ ne2000 0x60 3 0x300
 - Add image-upload
 - Look into character-encoding again
 - Busy indicator is missing for some network operations
-- CTRL-P to insert mentions into toots in editor
 - Color themes?
 - Config dialog?
 - Have fun
 
 # Changelog
+## 4. mar 2023
+- view the timeline of an account by pressing `F3` on the profile screen
+- updated DOjS, now using mbedTLS 2.28.2
+
 ## 4. feb 2023
 - Help pages will now also be displayed when pressing `?`.
 - Enabled auto_vacuum for SQLite image cache.

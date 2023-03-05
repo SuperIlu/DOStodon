@@ -76,6 +76,7 @@ var HOME_TAG = 4;
 var HOME_BMARK = 5;
 var HOME_FAV = 6;
 var HOME_CONTEXT = 7;
+var HOME_ACCOUNT = 8;
 
 var KEY_CTRL_1 = 7170;
 var KEY_CTRL_2 = 7426;

@@ -291,7 +291,7 @@ function unescapeHTML(str) {
 /**
  * draw the sidebar
  */
-function DisplaySidebar(contextView) {
+function DisplaySidebar(txt) {
 	var col;
 
 	var fKeys = [
@@ -314,7 +314,7 @@ function DisplaySidebar(contextView) {
 	var ySpace_2 = ySpace / 2;
 	yPos = ySpace / 2;
 
-	if (!contextView) {
+	if (!txt) {
 		for (var i = 0; i < fKeys.length; i++) {
 			var k = fKeys[i];
 
@@ -333,7 +333,7 @@ function DisplaySidebar(contextView) {
 			yPos += ySpace;
 		}
 	} else {
-		DisplayMultilineText(xStartTxt, yPos, EGA.YELLOW, " <\nCTX\nVIEW\n\n P\n R\n E\n S\n S\n\n D\n E\n L", false, 10);
+		DisplayMultilineText(xStartTxt, yPos, EGA.YELLOW, " <\n" + txt + "\nVIEW\n\n P\n R\n E\n S\n S\n\n D\n E\n L", false, 10);
 	}
 	// draw vertical divider
 	Line(xStart, 0, xStart, Height, EGA.LIGHT_BLUE);

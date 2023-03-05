@@ -70,7 +70,7 @@ Info.prototype.Draw = function () {
 	Line(TEXT_START_OFFSET, yPos + TEXT_START_OFFSET, TEXT_START_OFFSET, Height - TEXT_START_OFFSET, EGA.LIGHT_RED); // y-axis
 	Line(TEXT_START_OFFSET, Height - TEXT_START_OFFSET, CONTENT_WIDTH - TEXT_START_OFFSET, Height - TEXT_START_OFFSET, EGA.LIGHT_RED); // x-axis
 
-	DisplaySidebar(false);
+	DisplaySidebar(null);
 
 	return true;
 }

@@ -416,6 +416,48 @@ Mastodon.prototype.TimelineTag = function (tag, limit, id, older) {
 }
 
 /**
+ * get toots from server: account
+ * @see https://docs.joinmastodon.org/methods/accounts/#statuses
+ * 
+ * @param {string} account the account id to fetch statuses from
+ * @param {number} [limit] max number of entries to fetch, default: 10
+ * @param {number} [id] last fetched id, if set only never entries will be fetched
+ * @param {bool} [older] if true, entries older than id are fetched, if false entries newer than id.
+ * 
+ * @returns an array of https://docs.joinmastodon.org/entities/status/, an exception is thrown for an error
+ */
+Mastodon.prototype.TimelineAccount = function (account, limit, id, older) {
+	if (!this.token) {
+		throw new Error("No credential set");
+	}
+
+	limit = limit || 10;
+
+	var headers = [
+		['Authorization: Bearer ' + this.token]
+	];
+
+	// build URL
+	var url = this.base_url + "/api/v1/accounts/" + account + "/statuses?limit=" + limit;
+	if (id) {
+		if (older) {
+			url += "&max_id=" + id;
+		} else {
+			url += "&since_id=" + id;
+		}
+	}
+
+	var resp = this.DoGet(headers, url);
+
+	if (resp[2] === 200) {
+		var res = JSON.parse(resp[0].ToString());
+		return res
+	} else {
+		throw new Error("Account timeline failed: " + resp[2] + ": " + resp[0].ToString());
+	}
+}
+
+/**
  * get toots from server: public
  * @see https://docs.joinmastodon.org/methods/timelines/
  * 

@@ -286,7 +286,14 @@ Home.prototype.Draw = function () {
 		DrawLogo();
 		this.doPoll = true;
 	}
-	DisplaySidebar(this.type === HOME_CONTEXT);
+
+	if (this.type === HOME_CONTEXT) {
+		DisplaySidebar("CTX");
+	} else if (this.type === HOME_ACCOUNT) {
+		DisplaySidebar("PROF");
+	} else {
+		DisplaySidebar(null);
+	}
 
 	// draw list indicators
 	if (this.current_top != 0) {
@@ -439,6 +446,9 @@ Home.prototype.Input = function (key, keyCode, char, eventKey) {
 					case KEY.Code.KEY_BACKSPACE:
 						if (this.type == HOME_CONTEXT) {
 							dstdn.current_screen = this.return_to;
+						} else if (this.type == HOME_ACCOUNT) {
+							dstdn.current_screen = this.return_to;
+							dstdn.profile.SetProfile(this.profile);
 						}
 						break;
 					case KEY.Code.KEY_ENTER:

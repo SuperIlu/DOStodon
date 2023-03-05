@@ -192,7 +192,7 @@ Notifications.prototype.Draw = function () {
 			DrawLogo();
 			this.doPoll = true;
 		}
-		DisplaySidebar(false);
+		DisplaySidebar(null);
 
 		// draw list indicators
 		if (this.current_top != 0) {

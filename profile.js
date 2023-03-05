@@ -99,7 +99,7 @@ Profile.prototype.drawLeft = function () {
 	yPos = DisplayText(txtStartX, yPos, EGA.WHITE, stats, dstdn.sfont);
 	stats = "Following <F2> : " + this.profile['following_count'];
 	yPos = DisplayText(txtStartX, yPos, EGA.WHITE, stats, dstdn.sfont);
-	stats = "Posts          : " + this.profile['statuses_count'];
+	stats = "Posts     <F3> : " + this.profile['statuses_count'];
 	yPos = DisplayText(txtStartX, yPos, EGA.WHITE, stats, dstdn.sfont);
 	yPos += dstdn.lfont.height;
 
@@ -247,6 +247,14 @@ Profile.prototype.Input = function (key, keyCode, char, eventKey) {
 							});
 					});
 					return true;
+				case KEY.Code.KEY_F3:
+					var prof = this.profile;
+					var return_to = dstdn.current_screen;
+					dstdn.current_screen = new Home(function (outer, max, id, older) { return dstdn.m.TimelineAccount(prof['id'], max, id, older); }, HOME_ACCOUNT);
+					dstdn.current_screen.profile = prof;
+					dstdn.current_screen.return_to = return_to;
+					this.SetProfile(null);
+					return true;
 				case KEY.Code.KEY_ENTER:
 					this.SetProfile(null);
 					return true;
@@ -320,6 +328,7 @@ Profile.prototype.Input = function (key, keyCode, char, eventKey) {
 							this.textOverlay = "Profile screen HELP\n\n";
 							this.textOverlay += "- `F1`           : Show followers\n";
 							this.textOverlay += "- `F2`           : Show following\n";
+							this.textOverlay += "- `F3`           : Show timeline\n";
 							this.textOverlay += "- `b`            : block\n";
 							this.textOverlay += "- `B`            : unblock\n";
 							this.textOverlay += "- `f`            : follow\n";
