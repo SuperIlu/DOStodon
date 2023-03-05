@@ -532,10 +532,6 @@ function Settings() {
 	this.widgets.push(new NumField(this.xStart + this.fntSize, this.yPos, "Large img cache size   : ", "largeCacheSize", 2, 150, 2));
 	this.yPos += this.fntSize;
 	this.widgets.push(new NumField(this.xStart + this.fntSize, this.yPos, "Disk cache max age [d] : ", "diskCacheMaxAge", 2, 150, 2));
-	this.yPos += this.fntSize;
-	this.widgets.push(new BoolField(this.xStart + this.fntSize, this.yPos, "Autosave timeline pos  : ", "autoSaveTimelinePos"));
-	this.yPos += this.fntSize;
-	this.widgets.push(new BoolField(this.xStart + this.fntSize, this.yPos, "Autoload timeline pos  : ", "autoLoadTimelinePos"));
 	this.yPos += this.fntSize * 3;
 
 	this.widgets[this.active].active = true;

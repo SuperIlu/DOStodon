@@ -221,6 +221,12 @@ Home.prototype.pollData = function (older) {
 		if (this.current_list.length > 0) {
 			poll_id = this.current_list[0]['id'];
 		} else {
+			// var marker = dstdn.m.GetMarker(true);
+			// if (marker && marker['home'] && marker['home']['last_read_id']) {
+			// 	poll_id = marker['home']['last_read_id'];
+			// } else {
+			// 	poll_id = null;
+			// }
 			poll_id = null;
 		}
 	}
@@ -418,6 +424,9 @@ Home.prototype.Input = function (key, keyCode, char, eventKey) {
 				});
 				return false;
 			} else if (eventKey == KEY_CTRL_L) {
+				this.netop = new NetworkOperation(function () {
+					Println(JSON.stringify(dstdn.m.GetMarker(true)));
+				});
 				return false;
 			} else {
 				switch (keyCode) {
@@ -553,8 +562,6 @@ Home.prototype.Input = function (key, keyCode, char, eventKey) {
 								this.textOverlay += "- `t`            : Select tag from current toot\n";
 								this.textOverlay += "- `CTRL-P`       : Search user\n";
 								this.textOverlay += "- `STRL-S`       : Save screenshot\n";
-								this.textOverlay += "- `CTRL-W`       : Save timeline position to server\n";
-								this.textOverlay += "- `CTRL-L`       : Load marked timeline position from server\n";
 								this.textOverlay += "- `CTRL-C`       : Show settings dialog\n";
 								this.textOverlay += "- `UP/DOWN`      : scroll entries\n";
 								this.textOverlay += "- `Page UP/DOWN` : scroll entries page wise\n";

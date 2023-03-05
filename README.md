@@ -69,8 +69,6 @@ Just run `DOStodon`.
 - `1..4`: show media attachment 1 to 4. Any key to close.
 - `CTRL-1..4`: show image description of media attachment 1 to 4. Any key to close.
 - `ENTER`: show thread view of current entry, `DEL` or `BACKSPACE` to return to timeline.
-- `CTRL-W`: Save timeline position to server
-- `CTRL-L`: Load marked timeline position from server
 
 ### Tag timeline
 - `T`/`t`: change tag

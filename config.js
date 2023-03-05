@@ -5,8 +5,6 @@ function Config() {
 		"lastTag": null,
 
 		"autoReloadDelay": 300,
-		"autoSaveTimelinePos": true,
-		"autoLoadTimelinePos": true,
 		"maxPoll": 30,
 
 		"smallCacheSize": 50,
