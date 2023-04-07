@@ -177,6 +177,9 @@ ne2000 0x60 3 0x300
 - Have fun
 
 # Changelog
+## 7. apr 2023
+- Updated to DOjS 1.11alpha with mbedTLS 2.28.3 and curl 8.0.1
+
 ## 4. mar 2023
 - view the timeline of an account by pressing `F3` on the profile screen
 - updated DOjS, now using mbedTLS 2.28.2
