@@ -89,6 +89,10 @@ var KEY_CTRL_W = 5911;
 var KEY_CTRL_L = 3084;
 var KEY_CTRL_C = 771;
 
+var KEY_CTRL_M = 3341;
+var KEY_CTRL_B = 514;
+var KEY_CTRL_T = 5140;
+
 // contains all instance data
 var dstdn = {
 	m: null,

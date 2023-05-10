@@ -69,6 +69,8 @@ Just run `DOStodon`.
 - `1..4`: show media attachment 1 to 4. Any key to close.
 - `CTRL-1..4`: show image description of media attachment 1 to 4. Any key to close.
 - `ENTER`: show thread view of current entry, `DEL` or `BACKSPACE` to return to timeline.
+- `CTRL-B`: Toggle toots&boosts, boosts only, toots only
+- `CTRL-M`: Toggle showing posts with media only
 
 ### Tag timeline
 - `T`/`t`: change tag
@@ -177,6 +179,11 @@ ne2000 0x60 3 0x300
 - Have fun
 
 # Changelog
+## 10. may 2023
+- Fixed a bug with displaying boosted toots when they had a content warning
+- Moved filter display in notifications to lower left
+- Added filtering of Toot-types to timelines: boosts, original toots and media attachments
+
 ## 7. apr 2023
 - Updated to DOjS 1.11alpha with mbedTLS 2.28.3 and curl 8.0.1
 

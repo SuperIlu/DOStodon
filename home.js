@@ -33,6 +33,10 @@ function Home(poll_func, type) {
 	this.tree = null;
 	this.highlight = null;		// highlighted entry for thread view
 	this.return_to = null;		// return to this screen after thread-view
+
+	this.showBoosts = true;
+	this.showToots = true;
+	this.onlyMedia = false;
 }
 
 Home.prototype.lazyDrawImage = function (url, bhash, x, y, hl) {
@@ -90,13 +94,8 @@ Home.prototype.drawEntries = function () {
 			indentationEnds[t.indentLevel] = yStart + LIST_IMG_SIZE;
 		}
 
-		this.lazyDrawImage(t['account']['avatar_static'], null, xPos, yPos, e['id'] === this.highlight);
-		if (t['reblog']) {
-			this.lazyDrawImage(e['account']['avatar_static'], null, xPos + (LIST_IMG_SIZE / 2), yPos, false);
-		}
-
 		// filter all displayed strings only once and store them in 'dostodon' key
-		if (!t.dostodon) {
+		if (!e.dostodon) {
 			var header = "";
 			var content = "";
 			if (t['reblog']) {
@@ -112,7 +111,7 @@ Home.prototype.drawEntries = function () {
 			sens_indi = e['sensitive'];
 			sens_txt = RemoveHTML(e['spoiler_text']);
 			stats = "boosts:" + e['reblogs_count'] + ", favs:" + e['favourites_count'] + ", replies:" + e['replies_count'];
-			t.dostodon = {
+			e.dostodon = {
 				"header": header,
 				"content": content,
 				"sensitive_txt": sens_txt,
@@ -120,95 +119,103 @@ Home.prototype.drawEntries = function () {
 				"stats": stats
 			};
 		}
-		// render toot header and text
-		var col;
-		if (current === this.selected) {
-			col = EGA.LIGHT_RED;
-		} else if (e['id'] === this.highlight) {
-			col = EGA.MAGENTA;
-		} else {
-			col = EGA.CYAN;
-		}
-		yPos = DisplayMultilineToot(xPos + LIST_IMAGE_SPACING, yPos, col, t.dostodon.header, false, charLength);
-		if (t.dostodon.sensitive_indicator) {
-			yPos = DisplayMultilineToot(xPos + LIST_IMAGE_SPACING, yPos, EGA.LIGHT_BLUE, "<CW> " + t.dostodon.sensitive_txt, false, charLength);
-		} else {
-			yPos = DisplayMultilineToot(xPos + LIST_IMAGE_SPACING, yPos, EGA.WHITE, t.dostodon.content, false, charLength);
-		}
 
-		// render media images
-		var media = e['media_attachments'];;
-		if (!t.dostodon.sensitive_indicator) {
-			if (media && media.length > 0) {
-				var media_rendered = false;
-				var imgX = xPos + LIST_IMG_SIZE * 2;
-				var media_str = "";
-				for (var i = 0; i < media.length; i++) {
-					var m = media[i];
-					if (m['type'] === "image") {
-						this.lazyDrawImage(m['preview_url'], m['blurhash'], imgX, yPos, false);
-						imgX += LIST_IMG_SIZE * 2;
-						media_rendered = true;
-					} else {
-						media_str += "<" + m['type'] + "> "
+		if (((t['reblog'] && this.showBoosts) || (!t['reblog'] && this.showToots)) && (!this.onlyMedia || (this.onlyMedia && e['media_attachments'] && (e['media_attachments'].length > 0)))) {
+			this.lazyDrawImage(t['account']['avatar_static'], null, xPos, yPos, e['id'] === this.highlight);
+			if (t['reblog']) {
+				this.lazyDrawImage(e['account']['avatar_static'], null, xPos + (LIST_IMG_SIZE / 2), yPos, false);
+			}
+
+			// render toot header and text
+			var col;
+			if (current === this.selected) {
+				col = EGA.LIGHT_RED;
+			} else if (e['id'] === this.highlight) {
+				col = EGA.MAGENTA;
+			} else {
+				col = EGA.CYAN;
+			}
+			yPos = DisplayMultilineToot(xPos + LIST_IMAGE_SPACING, yPos, col, e.dostodon.header, false, charLength);
+			if (e.dostodon.sensitive_indicator) {
+				yPos = DisplayMultilineToot(xPos + LIST_IMAGE_SPACING, yPos, EGA.LIGHT_BLUE, "<CW> " + e.dostodon.sensitive_txt, false, charLength);
+			} else {
+				yPos = DisplayMultilineToot(xPos + LIST_IMAGE_SPACING, yPos, EGA.WHITE, e.dostodon.content, false, charLength);
+			}
+
+			// render media images
+			var media = e['media_attachments'];
+			if (!e.dostodon.sensitive_indicator) {
+				if (media && media.length > 0) {
+					var media_rendered = false;
+					var imgX = xPos + LIST_IMG_SIZE * 2;
+					var media_str = "";
+					for (var i = 0; i < media.length; i++) {
+						var m = media[i];
+						if (m['type'] === "image") {
+							this.lazyDrawImage(m['preview_url'], m['blurhash'], imgX, yPos, false);
+							imgX += LIST_IMG_SIZE * 2;
+							media_rendered = true;
+						} else {
+							media_str += "<" + m['type'] + "> "
+						}
+					}
+					if (media_rendered) {
+						yPos += LIST_IMG_SIZE + 2;
+					}
+					if (media_str.length > 0) {
+						// render media indicator for non-pictures
+						yPos = DisplayMultilineToot(xPos + LIST_IMAGE_SPACING, yPos, EGA.LIGHT_GREY, media_str, false, 68);
 					}
 				}
-				if (media_rendered) {
-					yPos += LIST_IMG_SIZE + 2;
-				}
-				if (media_str.length > 0) {
-					// render media indicator for non-pictures
-					yPos = DisplayMultilineToot(xPos + LIST_IMAGE_SPACING, yPos, EGA.LIGHT_GREY, media_str, false, 68);
-				}
 			}
-		}
 
-		// draw thread view lines
-		if (t.indentLevel) {
-			var indentColor = HSBColor(255 / this.tree.maxindent * t.indentLevel, 255, 255, 255);
-			var linePos = yStart + (LIST_IMG_SIZE / 2);
-			Line(xPos - indent_pixels_2, linePos, xPos, linePos, indentColor);
-			Line(xPos - indent_pixels_2, linePos, xPos - indent_pixels_2, indentationEnds[t.indentLevel - 1], indentColor);
-		}
+			// draw thread view lines
+			if (t.indentLevel) {
+				var indentColor = HSBColor(255 / this.tree.maxindent * t.indentLevel, 255, 255, 255);
+				var linePos = yStart + (LIST_IMG_SIZE / 2);
+				Line(xPos - indent_pixels_2, linePos, xPos, linePos, indentColor);
+				Line(xPos - indent_pixels_2, linePos, xPos - indent_pixels_2, indentationEnds[t.indentLevel - 1], indentColor);
+			}
 
-		var statusY = minY > yPos ? minY : yPos;
+			var statusY = minY > yPos ? minY : yPos;
 
-		// display fav/boost/bookmark state
-		var fstate = "";
-		if (t['in_reply_to_id']) {
-			fstate += "<[";
-		} else {
-			fstate += " [";
-		}
-		if (e['favourited']) {
-			fstate += "F";
-		} else {
-			fstate += " ";
-		}
-		if (e['reblogged']) {
-			fstate += "B";
-		} else {
-			fstate += " ";
-		}
-		if (e['bookmarked']) {
-			fstate += "M";
-		} else {
-			fstate += " ";
-		}
-		fstate += "]";
-		DisplayText(xPos, statusY, EGA.YELLOW, fstate, dstdn.tfont);
+			// display fav/boost/bookmark state
+			var fstate = "";
+			if (t['in_reply_to_id']) {
+				fstate += "<[";
+			} else {
+				fstate += " [";
+			}
+			if (e['favourited']) {
+				fstate += "F";
+			} else {
+				fstate += " ";
+			}
+			if (e['reblogged']) {
+				fstate += "B";
+			} else {
+				fstate += " ";
+			}
+			if (e['bookmarked']) {
+				fstate += "M";
+			} else {
+				fstate += " ";
+			}
+			fstate += "]";
+			DisplayText(xPos, statusY, EGA.YELLOW, fstate, dstdn.tfont);
 
-		DisplayText(xPos + LIST_IMAGE_SPACING, statusY, EGA.LIGHT_GREY, FormatTime(e['created_at'], this.ntp), dstdn.tfont);	// display timestamp
-		yPos = DisplayText(350, statusY, EGA.LIGHT_GREY, t.dostodon.stats, dstdn.tfont);			// display toot stats
+			DisplayText(xPos + LIST_IMAGE_SPACING, statusY, EGA.LIGHT_GREY, FormatTime(e['created_at'], this.ntp), dstdn.tfont);	// display timestamp
+			yPos = DisplayText(350, statusY, EGA.LIGHT_GREY, e.dostodon.stats, dstdn.tfont);			// display toot stats
 
-		// increase yPos to minimum height and draw line
-		if (yPos < minY) {
-			yPos = minY;
+			// increase yPos to minimum height and draw line
+			if (yPos < minY) {
+				yPos = minY;
+			}
+
+			Line(0, yPos, CONTENT_WIDTH, yPos, EGA.DARK_GREY);
+			yPos += 4;
+			this.current_bottom = current;
 		}
-
-		Line(0, yPos, CONTENT_WIDTH, yPos, EGA.DARK_GREY);
-		yPos += 4;
-		this.current_bottom = current;
 		current++;
 	}
 }
@@ -316,12 +323,28 @@ Home.prototype.Draw = function () {
 		dstdn.sfont.DrawStringRight(CONTENT_WIDTH - 1, Height - dstdn.sfont.height, delta, EGA.LIGHT_GREEN, NO_COLOR);
 	}
 
+	// draw TAG or NAME
 	if (this.type === HOME_TAG && this.tag) {
 		var tag = "#" + this.tag;
 		var tagWidth = dstdn.sfont.StringWidth(tag);
 		FilledBox(CONTENT_WIDTH - tagWidth, 0, CONTENT_WIDTH - 1, dstdn.sfont.height, Color(64, 32, 32));
 		dstdn.sfont.DrawStringRight(CONTENT_WIDTH - 1, 0, tag, EGA.YELLOW, NO_COLOR);
+	} else if (this.type === HOME_ACCOUNT && this.profile) {
+		var name = "@" + this.profile['acct'];
+		var nameWidth = dstdn.sfont.StringWidth(name);
+		FilledBox(CONTENT_WIDTH - nameWidth, 0, CONTENT_WIDTH - 1, dstdn.sfont.height, Color(64, 32, 32));
+		dstdn.sfont.DrawStringRight(CONTENT_WIDTH - 1, 0, name, EGA.YELLOW, NO_COLOR);
 	}
+
+	// draw filter string
+	var filters = "[";
+	filters += this.showBoosts ? "B" : " ";
+	filters += this.showToots ? "T" : " ";
+	filters += this.onlyMedia ? "M" : " ";
+	filters += "]";
+	var filterWidth = dstdn.sfont.StringWidth(filters);
+	FilledBox(0, Height - dstdn.sfont.height, filterWidth, Height, Color(64, 32, 32));
+	dstdn.sfont.DrawStringLeft(0, Height - dstdn.sfont.height, filters, EGA.YELLOW, NO_COLOR);
 
 	if (this.textOverlay) {
 		TextOverlay(this.textOverlay, EGA.WHITE);
@@ -418,6 +441,19 @@ Home.prototype.Input = function (key, keyCode, char, eventKey) {
 			} else if (eventKey == KEY_CTRL_4) {
 				this.setDescription(e, 3);
 				return false;
+			} else if (eventKey == KEY_CTRL_B) {
+				if (this.showBoosts && this.showToots) {
+					this.showBoosts = true;
+					this.showToots = false;
+				} else if (this.showBoosts && !this.showToots) {
+					this.showBoosts = false;
+					this.showToots = true;
+				} else {
+					this.showBoosts = true;
+					this.showToots = true;
+				}
+			} else if (eventKey == KEY_CTRL_M) {
+				this.onlyMedia = !this.onlyMedia;
 			} else if (eventKey == KEY_CTRL_W) {
 				this.netop = new NetworkOperation(function () {
 					Println(JSON.stringify(dstdn.m.SetMarker(t['id'], true)));
@@ -504,7 +540,7 @@ Home.prototype.Input = function (key, keyCode, char, eventKey) {
 							case 'c':
 							case 'C':
 								if (e['sensitive']) {
-									t['dostodon']['sensitive_indicator'] = !e['dostodon']['sensitive_indicator'];
+									e['dostodon']['sensitive_indicator'] = !e['dostodon']['sensitive_indicator'];
 								}
 								break
 							case "p":
@@ -563,6 +599,8 @@ Home.prototype.Input = function (key, keyCode, char, eventKey) {
 								this.textOverlay += "- `CTRL-P`       : Search user\n";
 								this.textOverlay += "- `STRL-S`       : Save screenshot\n";
 								this.textOverlay += "- `CTRL-C`       : Show settings dialog\n";
+								this.textOverlay += "- `CTRL-B`       : Toggle toots&boosts, boosts only, toots only\n";
+								this.textOverlay += "- `CTRL-M`       : Toggle showing posts with media only\n";
 								this.textOverlay += "- `UP/DOWN`      : scroll entries\n";
 								this.textOverlay += "- `Page UP/DOWN` : scroll entries page wise\n";
 								this.textOverlay += "- `HOME/END`     : got to first/last entry\n";

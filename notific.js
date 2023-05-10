@@ -218,8 +218,8 @@ Notifications.prototype.Draw = function () {
 		filters += this.showOthers ? "O" : " ";
 		filters += "]";
 		var filterWidth = dstdn.sfont.StringWidth(filters);
-		FilledBox(CONTENT_WIDTH - filterWidth, 0, CONTENT_WIDTH - 1, dstdn.sfont.height, Color(64, 32, 32));
-		dstdn.sfont.DrawStringRight(CONTENT_WIDTH - 1, 0, filters, EGA.YELLOW, NO_COLOR);
+		FilledBox(0, Height - dstdn.sfont.height, filterWidth, Height, Color(64, 32, 32));
+		dstdn.sfont.DrawStringLeft(0, Height - dstdn.sfont.height, filters, EGA.YELLOW, NO_COLOR);
 
 		if (this.textOverlay) {
 			TextOverlay(this.textOverlay, EGA.WHITE);
