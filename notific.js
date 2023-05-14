@@ -28,6 +28,7 @@ function Notifications() {
 	this.doPoll = false;		// poll for new entries next call
 	this.context = null;		// thread context
 	this.textOverlay = null;	// text overlay
+	this.lastPoll = 0;			// poll identifier
 
 	// default filter settings
 	this.showLikes = true;
@@ -114,17 +115,24 @@ Notifications.prototype.drawEntries = function () {
 			col = EGA.MAGENTA;
 		}
 
+		var highlight_color;
+		if (n.pollId == this.lastPoll) {
+			highlight_color = EGA.LIGHT_RED;
+		} else {
+			highlight_color = EGA.DARK_GREY;
+		}
+
 		yPos = DisplayMultilineToot(40, yPos, col, n.dostodon.header, false, 70);
 		if (n.dostodon.content.length > 0) {
 			yPos = DisplayMultilineToot(40, yPos, EGA.WHITE, n.dostodon.content, false, 70);
 		}
 
-		yPos = DisplayText(LIST_IMAGE_SPACING, yPos, EGA.LIGHT_GREY, FormatTime(n['created_at'], this.ntp), dstdn.tfont);	// display timestamp
+		yPos = DisplayText(LIST_IMAGE_SPACING, yPos, highlight_color, FormatTime(n['created_at'], this.ntp), dstdn.tfont);	// display timestamp
 
 		if (yPos < minY) {
 			yPos = minY;
 		}
-		Line(0, yPos, CONTENT_WIDTH, yPos, EGA.DARK_GREY);
+		Line(0, yPos, CONTENT_WIDTH, yPos, highlight_color);
 		yPos += 4;
 		this.current_bottom = current;
 		current++;
@@ -133,6 +141,9 @@ Notifications.prototype.drawEntries = function () {
 
 Notifications.prototype.pollData = function (older) {
 	var poll_id;
+
+	this.lastPoll++;
+
 	if (older) {
 		poll_id = this.full_list[this.full_list.length - 1]['id'];
 	} else {
@@ -145,6 +156,9 @@ Notifications.prototype.pollData = function (older) {
 
 	// poll notification
 	var toots = dstdn.m.Notifications(dstdn.c.Get("maxPoll"), poll_id, older);
+
+	var lastPoll = this.lastPoll;
+	toots.forEach(function (e) { e['pollId'] = lastPoll; })
 
 	// and NTP date
 	this.ntp = NtpDate();
@@ -406,6 +420,10 @@ Notifications.prototype.Input = function (key, keyCode, char, eventKey) {
 					break;
 				default:
 					switch (char) {
+						case "d":
+						case "D":
+							Println(JSON.stringify(e));
+							break;
 						case "P":
 						case "p":
 							dstdn.profile.SetProfile(e['account']);

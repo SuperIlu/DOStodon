@@ -33,6 +33,7 @@ function Home(poll_func, type) {
 	this.tree = null;
 	this.highlight = null;		// highlighted entry for thread view
 	this.return_to = null;		// return to this screen after thread-view
+	this.lastPoll = 0;			// poll identifier
 
 	this.showBoosts = true;
 	this.showToots = true;
@@ -204,15 +205,22 @@ Home.prototype.drawEntries = function () {
 			fstate += "]";
 			DisplayText(xPos, statusY, EGA.YELLOW, fstate, dstdn.tfont);
 
-			DisplayText(xPos + LIST_IMAGE_SPACING, statusY, EGA.LIGHT_GREY, FormatTime(e['created_at'], this.ntp), dstdn.tfont);	// display timestamp
-			yPos = DisplayText(350, statusY, EGA.LIGHT_GREY, e.dostodon.stats, dstdn.tfont);			// display toot stats
+			var highlight_color;
+			if (t.pollId == this.lastPoll) {
+				highlight_color = EGA.LIGHT_RED;
+			} else {
+				highlight_color = EGA.DARK_GREY;
+			}
+
+			DisplayText(xPos + LIST_IMAGE_SPACING, statusY, highlight_color, FormatTime(e['created_at'], this.ntp), dstdn.tfont);	// display timestamp
+			yPos = DisplayText(350, statusY, highlight_color, e.dostodon.stats, dstdn.tfont);			// display toot stats
 
 			// increase yPos to minimum height and draw line
 			if (yPos < minY) {
 				yPos = minY;
 			}
 
-			Line(0, yPos, CONTENT_WIDTH, yPos, EGA.DARK_GREY);
+			Line(0, yPos, CONTENT_WIDTH, yPos, highlight_color);
 			yPos += 4;
 			this.current_bottom = current;
 		}
@@ -222,6 +230,9 @@ Home.prototype.drawEntries = function () {
 
 Home.prototype.pollData = function (older) {
 	var poll_id;
+
+	this.lastPoll++;
+
 	if (older) {
 		poll_id = this.current_list[this.current_list.length - 1]['id'];
 	} else {
@@ -240,6 +251,9 @@ Home.prototype.pollData = function (older) {
 
 	// poll toots
 	var toots = this.poll_func(this, dstdn.c.Get("maxPoll"), poll_id, older);
+
+	var lastPoll = this.lastPoll;
+	toots.forEach(function (e) { e['pollId'] = lastPoll; })
 
 	// and NTP date
 	this.ntp = NtpDate();

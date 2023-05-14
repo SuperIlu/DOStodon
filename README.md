@@ -179,6 +179,9 @@ ne2000 0x60 3 0x300
 - Have fun
 
 # Changelog
+## 14. may 2023
+- newly polled entries in home and notifications screens are now highlighted red
+
 ## 10. may 2023
 - Fixed a bug with displaying boosted toots when they had a content warning
 - Moved filter display in notifications to lower left
