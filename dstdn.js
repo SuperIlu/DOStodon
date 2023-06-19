@@ -40,6 +40,7 @@ Include("lrucache.js");
 Include("imgcache.js");
 Include("dialogs.js");
 Include("config.js");
+Include("filesel.js");
 
 var CREDS_FILE = "CREDS.JSN";
 var TMP_FILE = "TMPIMG";
@@ -105,6 +106,7 @@ var dstdn = {
 	profile: null,
 	current_screen: null,
 	dialog: null,
+	file_sel: null,
 	all_screens: [],
 	screenshot_count: 1,
 	return_to: null

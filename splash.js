@@ -55,6 +55,9 @@ function Splash() {
 	this.chain.Add(function () { outer.txt = "Loading fav sound..."; });
 	this.chain.Add(function () { dstdn.fav_snd = new Sample("fav.wav"); });
 
+	this.chain.Add(function () { outer.txt = "Creating file selector..."; });
+	this.chain.Add(function () { dstdn.file_sel = new FileSelector(); });
+
 	this.chain.Add(function () { outer.txt = "Creating HOME screen..."; });
 	this.chain.Add(function () { dstdn.all_screens[SCR_HOME] = new Home(function (outer, max, id, older) { return dstdn.m.TimelineHome(max, id, older); }, HOME_HOME); });
 
