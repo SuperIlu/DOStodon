@@ -58,7 +58,12 @@ Mastodon.prototype.DoPost = function (header, postdata, url) {
 
 	this.post.ClearPostData();
 	for (var i = 0; i < postdata.length; i++) {
-		this.post.AddPostData(postdata[i][0], postdata[i][1]);
+		if (postdata[i].length === 4) {
+			Println(JSON.stringify(postdata[i]));
+			this.post.AddPostData(postdata[i][0], postdata[i][1], postdata[i][2], postdata[i][3]);	// add with MIME type and name
+		} else {
+			this.post.AddPostData(postdata[i][0], postdata[i][1]);					// add w/o extra fields
+		}
 	}
 
 	// do request and track numbers/time
@@ -68,7 +73,7 @@ Mastodon.prototype.DoPost = function (header, postdata, url) {
 	var end = new Date();
 	this.num_requests++;
 	this.req_time += (end - start);
-	if (resp[2] !== 200) {
+	if ((resp[2] !== 200) || (resp[2] !== 202)) {
 		this.failed_requests++;
 	}
 	// Println("POST:" + resp[0].ToString());
@@ -188,16 +193,61 @@ Mastodon.prototype.Login = function (user, pw) {
 }
 
 /**
+ * Upload a media attachment (PNG and JPEG are supported) to the server.
+ * 
+ * @param {string} filename the name of a PNG or JPEG file.
+ *  
+ * @returns a https://docs.joinmastodon.org/entities/MediaAttachment/, an exception is thrown for an error.
+ */
+Mastodon.prototype.Media = function (filename) {
+	var mime_type;
+	if (filename.toLowerCase().endsWith(".jpg")) {
+		mime_type = "image/jpeg";
+	} else if (filename.toLowerCase().endsWith(".png")) {
+		mime_type = "image/png";
+	} else {
+		throw new Error("Unsuported file type: " + filename);
+	}
+
+	if (!this.token) {
+		throw new Error("No credential set");
+	}
+
+	var headers = [
+		['Authorization: Bearer ' + this.token]
+	];
+
+	// read all data as ByteArray object
+	var f = new File(filename, FILE.READ);
+	var data = f.ReadInts();
+	f.Close();
+
+	// add POSTdata
+	var postdata = [
+		['file', data, filename, mime_type]
+	];
+
+	var resp = this.DoPost(headers, postdata, this.base_url + "/api/v2/media");
+
+	if ((resp[2] === 200) || (resp[2] === 202)) {
+		return JSON.parse(resp[0].ToString());
+	} else {
+		throw new Error("Media failed: " + resp[2] + ": " + resp[0].ToString());
+	}
+}
+
+/**
  * post a toot (status).
  * @see https://docs.joinmastodon.org/methods/statuses/
  * 
  * @param {string} txt the text to toot.
- * @param {string} [reply_id] id of a toot to reply to.
- * @param {string} [spoiler] a spoiler text. Sets this status to 'sensitive=true'.
+ * @param {string[]} [media] array of media attachments or null.
+ * @param {string} [reply_id] id of a toot to reply to or null.
+ * @param {string} [spoiler] a spoiler text or null. Sets this status to 'sensitive=true'.
  * 
  * @returns a https://docs.joinmastodon.org/entities/status/, an exception is thrown for an error
  */
-Mastodon.prototype.Toot = function (txt, reply_id, spoiler) {
+Mastodon.prototype.Toot = function (txt, media, reply_id, spoiler) {
 	if (!this.token) {
 		throw new Error("No credential set");
 	}
@@ -208,6 +258,12 @@ Mastodon.prototype.Toot = function (txt, reply_id, spoiler) {
 	var postdata = [
 		['status', txt]
 	];
+
+	if (media && media.length > 0) {
+		for (var i = 0; i < media.length; i++) {
+			postdata.push(['media_ids[]', media[i]]);
+		}
+	}
 
 	// append reply id (if any)
 	if (reply_id) {

@@ -9,9 +9,12 @@ var MSG_BORDER = 3;
 var FONT_SPACING = 1;
 var PREVIEW_WIDTH = 210;
 
+/**
+ * create new FileSelector. Start directory is 'current dir'.
+ */
 function FileSelector() {
 	this.drives = [];
-
+	this.onClose = null;
 	this.dirFont = new Font(JSBOOTPATH + "fonts/cour16b.fnt");
 	this.msgBoxHeight = this.dirFont.height + 2 * MSG_BORDER;
 
@@ -24,7 +27,7 @@ function FileSelector() {
 			this.drives.push(drives[i]);
 		} catch (e) { }
 	}
-	this.currentDir = this.initDirInfo("./images/");
+	this.currentDir = this.initDirInfo("./");
 }
 
 /**
@@ -48,7 +51,6 @@ FileSelector.prototype.initDirInfo = function (dir) {
 	// fill 'list' and 'info' properties
 	ret.list = List(ret.path);
 	ret.list.sort();
-	Println(JSON.stringify(ret));
 	var self = ret.list.indexOf(".");
 	ret.list.splice(self, 1);
 	for (var l = 0; l < ret.list.length; l++) {
@@ -79,61 +81,89 @@ FileSelector.prototype.concatPath = function (orig, sub) {
 	}
 }
 
+/**
+ * draw a preview of the currently selected file.
+ */
 FileSelector.prototype.drawPreview = function () {
-	var idx = this.currentDir.top + this.currentDir.cursor;
-	var name = this.currentDir.list[idx];
-	var filename = null;
+	if (!this.preview) {
+		var idx = this.currentDir.top + this.currentDir.cursor;
+		var name = this.currentDir.list[idx];
+		var filename = null;
 
-	if (name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".png")) {
-		filename = this.currentDir.path + name;
+		if (name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".png")) {
+			filename = this.currentDir.path + name;
+		}
+
+		try {
+			if (!filename) {
+				throw "";
+			}
+			var dl = new Bitmap(filename);
+			var previewWidth = PREVIEW_WIDTH;
+			var previewHeight = Height / 2;
+
+			var w = dl.width;
+			var h = dl.height;
+
+			if (w > previewWidth) {
+				var factor = w / previewWidth;
+				w = previewWidth;
+				h = h / factor;
+			}
+			if (h > previewHeight) {
+				var factor = h / previewHeight;
+				h = previewHeight;
+				w = w / factor;
+			}
+
+			this.preview = new Bitmap(w, h);
+			SetRenderBitmap(this.preview);
+			dl.DrawAdvanced(
+				0, 0, dl.width, dl.height,
+				0, 0, this.preview.width, this.preview.height
+			);
+		} catch (e) {
+			this.preview = new Bitmap(PREVIEW_WIDTH, PREVIEW_WIDTH);
+			SetRenderBitmap(this.preview);
+			ClearScreen(EGA.BLACK);
+			Line(0, 0, this.preview.width, this.preview.height, EGA.RED);
+			Line(this.preview.width, 0, 0, this.preview.height, EGA.RED);
+			Box(0, 0, this.preview.width - 1, this.preview.height - 1, EGA.RED);
+		}
+		SetRenderBitmap(null);
 	}
-
-	try {
-		if (!filename) {
-			throw "";
-		}
-		var dl = new Bitmap(filename);
-		var previewWidth = PREVIEW_WIDTH;
-		var previewHeight = Height / 2;
-
-		var w = dl.width;
-		var h = dl.height;
-
-		if (w > previewWidth) {
-			var factor = w / previewWidth;
-			w = previewWidth;
-			h = h / factor;
-		}
-		if (h > previewHeight) {
-			var factor = h / previewHeight;
-			h = previewHeight;
-			w = w / factor;
-		}
-
-		this.preview = new Bitmap(w, h);
-		SetRenderBitmap(this.preview);
-		dl.DrawAdvanced(
-			0, 0, dl.width, dl.height,
-			0, 0, this.preview.width, this.preview.height
-		);
-	} catch (e) {
-		Println(e);
-		this.preview = new Bitmap(PREVIEW_WIDTH, PREVIEW_WIDTH);
-		SetRenderBitmap(this.preview);
-		ClearScreen(EGA.BLACK);
-		Line(0, 0, this.preview.width, this.preview.height, EGA.RED);
-		Line(this.preview.width, 0, 0, this.preview.height, EGA.RED);
-		Box(0, 0, this.preview.width - 1, this.preview.height - 1, EGA.RED);
-	}
-	SetRenderBitmap(null);
 
 	this.preview.Draw(this.selWidth + 1, 0);
 }
 
+/**
+ * draw file description. NYI
+ */
 FileSelector.prototype.drawImgDesc = function () {
 }
 
+/**
+ * store the selected file (if any) in the value attribute and hide the selector.
+ * 
+ * @param {string} file the file name to store or null for no file.
+ */
 FileSelector.prototype.selectFile = function (file) {
+	dstdn.dialog = null;
+	this.value = file;
+	if (this.onClose) {
+		this.onClose(file);
+	}
+}
+
+/**
+ * display the selector.
+ * 
+ * @param onClose function to call when the selector closes.
+ */
+FileSelector.prototype.Activate = function (onClose) {
+	this.onClose = onClose;
+	this.value = null;
+	dstdn.dialog = dstdn.file_sel;
 }
 
 /**
@@ -177,7 +207,7 @@ FileSelector.prototype.drawMsgBox = function () {
 }
 
 /**
- * move one page up in MIDI file list.
+ * move one page up in file list.
  */
 FileSelector.prototype.cursorPageUp = function () {
 	if (this.currentDir.top > this.currentDir.rows) {
@@ -191,7 +221,7 @@ FileSelector.prototype.cursorPageUp = function () {
 }
 
 /**
- * move one page down in MIDI file list.
+ * move one page down in file list.
  */
 FileSelector.prototype.cursorPageDown = function () {
 	if (this.currentDir.list.length < this.currentDir.rows) {
@@ -206,7 +236,7 @@ FileSelector.prototype.cursorPageDown = function () {
 }
 
 /**
- * move one file up in MIDI file list.
+ * move one file up in file list.
  */
 FileSelector.prototype.cursorUp = function () {
 	if (this.currentDir.cursor > 0) {
@@ -220,7 +250,7 @@ FileSelector.prototype.cursorUp = function () {
 }
 
 /**
- * move one file down in MIDI file list.
+ * move one file down in file list.
  */
 FileSelector.prototype.cursorDown = function () {
 	if ((this.currentDir.cursor < this.currentDir.rows - 1) && (this.currentDir.cursor < this.currentDir.list.length - 1)) {
@@ -247,6 +277,9 @@ FileSelector.prototype.onEnter = function () {
 	}
 }
 
+/**
+ * render file selector.
+ */
 FileSelector.prototype.Draw = function () {
 	ClearScreen(EGA.BLACK);
 	this.drawFileBox();
@@ -262,6 +295,9 @@ FileSelector.prototype.Input = function (key, keyCode, char, eventKey) {
 	switch (keyCode) {
 		case KEY.Code.KEY_ENTER:
 			this.onEnter();
+			break;
+		case KEY.Code.KEY_DEL:
+			this.selectFile(null);
 			break;
 		case KEY.Code.KEY_UP:
 			this.cursorUp();

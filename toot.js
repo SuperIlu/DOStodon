@@ -98,6 +98,14 @@ Toot.prototype.Draw = function () {
 		yPos += TEXT_START_OFFSET;
 	}
 
+	if (this.images.length > 0) {
+		for (var i = 0; i < this.images.length; i++) {
+			yPos = DisplayMultilineToot(TEXT_START_OFFSET, yPos, EGA.LIGHT_GREY, this.images[i], false, TXT_LINE_LENGTH);
+		}
+		Line(0, yPos, CONTENT_WIDTH, yPos, EGA.BLUE);
+		yPos += TEXT_START_OFFSET;
+	}
+
 	DisplayMultilineToot(TEXT_START_OFFSET, yPos, EGA.GREEN, this.txt, true, TXT_LINE_LENGTH);
 
 	if (this.netop && this.netop.Process()) {
@@ -114,7 +122,18 @@ Toot.prototype.Input = function (key, keyCode, char, eventKey) {
 		// undo 'reply to' and all text
 		this.txt = "";
 		this.reply = null;
+		this.images = [];
 		this.previousScreen();
+	} else if (keyCode == KEY.Code.KEY_INSERT) {
+		// open image selector if there are less than 4 images
+		if (this.images.length < 4) {
+			var outer = this;
+			dstdn.file_sel.Activate(function (fname) {
+				if (fname) {
+					outer.images.push(fname);
+				}
+			});
+		}
 	} else if (keyCode == KEY.Code.KEY_ENTER) {
 		if (key === 13) {
 			// Println("ENTER");
@@ -122,7 +141,6 @@ Toot.prototype.Input = function (key, keyCode, char, eventKey) {
 		} else if (key === 10) {
 			//Println("CTRL ENTER");
 			this.toot();
-			this.previousScreen();
 		}
 	} else {
 		if (key >= CharCode(" ") && (this.txt.length < TXT_MAX)) {
@@ -155,10 +173,24 @@ Toot.prototype.toot = function () {
 	}
 
 	if (txt.length > 0) {
-		dstdn.m.Toot(txt, replyId, spoiler);
-		dstdn.toot_snd.Play(255, 128, false);
-		this.txt = "";
-		this.reply = null;
+		var outer = this;
+		this.netop = new NetworkOperation(function () {
+			var mediaIds = [];
+			if (outer.images.length > 0) {
+				for (var i = 0; i < outer.images.length; i++) {
+					var media = dstdn.m.Media(outer.images[i]);	// upload image
+					Println(JSON.stringify(media));
+					mediaIds.push(media.id);
+				}
+			}
+
+			dstdn.m.Toot(txt, mediaIds, replyId, spoiler);
+			dstdn.toot_snd.Play(255, 128, false);
+			outer.txt = "";
+			outer.reply = null;
+			outer.images = [];
+			outer.previousScreen();
+		});
 	}
 }
 
