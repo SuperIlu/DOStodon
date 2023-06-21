@@ -58,6 +58,11 @@ FileSelector.prototype.initDirInfo = function (dir) {
 		ret.info[name] = Stat(ret.path + "/" + name);
 	}
 
+	for (var i = 0; i < this.drives.length; i++) {
+		ret.list.splice(i, 0, this.drives[i]);
+		ret.info[this.drives[i]] = { "is_drive": true };
+	}
+
 	return ret;
 }
 
@@ -96,7 +101,7 @@ FileSelector.prototype.drawPreview = function () {
 
 		try {
 			if (!filename) {
-				throw "";
+				throw "No filename";
 			}
 			var dl = new Bitmap(filename);
 			var previewWidth = PREVIEW_WIDTH;
@@ -123,6 +128,7 @@ FileSelector.prototype.drawPreview = function () {
 				0, 0, this.preview.width, this.preview.height
 			);
 		} catch (e) {
+			Println(e);
 			this.preview = new Bitmap(PREVIEW_WIDTH, PREVIEW_WIDTH);
 			SetRenderBitmap(this.preview);
 			ClearScreen(EGA.BLACK);
@@ -179,11 +185,14 @@ FileSelector.prototype.drawFileBox = function () {
 		}
 		var name = this.currentDir.list[idx];
 		var filCol = EGA.DARK_GRAY;
-		if (name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".png")) {
-			filCol = EGA.LIGHT_GRAY;
+		if (this.currentDir.info[name]["is_drive"]) {
+			name += ":/";
+			filCol = EGA.GREEN;
 		} else if (this.currentDir.info[name]["is_directory"]) {
 			name += "/";
 			filCol = EGA.WHITE;
+		} else if (name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".png")) {
+			filCol = EGA.LIGHT_GRAY;
 		}
 
 		var yPos = r * (this.dirFont.height + FONT_SPACING);
@@ -214,10 +223,10 @@ FileSelector.prototype.cursorPageUp = function () {
 		this.currentDir.top -= this.currentDir.rows;
 	} else if (this.currentDir.top == 0) {
 		this.currentDir.cursor = 0;
-		this.preview = null;
 	} else {
 		this.currentDir.top = 0;
 	}
+	this.preview = null;
 }
 
 /**
@@ -226,13 +235,12 @@ FileSelector.prototype.cursorPageUp = function () {
 FileSelector.prototype.cursorPageDown = function () {
 	if (this.currentDir.list.length < this.currentDir.rows) {
 		this.currentDir.cursor = this.currentDir.list.length - 1;
-		this.preview = null;
 	} else if (this.currentDir.top == this.currentDir.list.length - this.currentDir.rows) {
 		this.currentDir.cursor = this.currentDir.rows - 1;
-		this.preview = null;
 	} else {
 		this.currentDir.top = Math.min(this.currentDir.top + this.currentDir.rows, this.currentDir.list.length - this.currentDir.rows);
 	}
+	this.preview = null;
 }
 
 /**
@@ -241,12 +249,12 @@ FileSelector.prototype.cursorPageDown = function () {
 FileSelector.prototype.cursorUp = function () {
 	if (this.currentDir.cursor > 0) {
 		this.currentDir.cursor--;
-		this.preview = null;
 	} else {
 		if (this.currentDir.top > 0) {
 			this.currentDir.top--;
 		}
 	}
+	this.preview = null;
 }
 
 /**
@@ -255,12 +263,12 @@ FileSelector.prototype.cursorUp = function () {
 FileSelector.prototype.cursorDown = function () {
 	if ((this.currentDir.cursor < this.currentDir.rows - 1) && (this.currentDir.cursor < this.currentDir.list.length - 1)) {
 		this.currentDir.cursor++;
-		this.preview = null;
 	} else {
 		if (this.currentDir.top + this.currentDir.rows < this.currentDir.list.length) {
 			this.currentDir.top++;
 		}
 	}
+	this.preview = null;
 }
 
 /**
@@ -270,7 +278,9 @@ FileSelector.prototype.onEnter = function () {
 	var idx = this.currentDir.top + this.currentDir.cursor;
 	var name = this.currentDir.list[idx];
 
-	if (this.currentDir.info[name]["is_directory"]) {
+	if (this.currentDir.info[name]["is_drive"]) {
+		this.currentDir = this.initDirInfo(name + ":/");
+	} else if (this.currentDir.info[name]["is_directory"]) {
 		this.currentDir = this.initDirInfo(this.concatPath(this.currentDir.path, name));
 	} else if (name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".png")) {
 		this.selectFile(this.currentDir.path + name);

@@ -179,7 +179,6 @@ Toot.prototype.toot = function () {
 			if (outer.images.length > 0) {
 				for (var i = 0; i < outer.images.length; i++) {
 					var media = dstdn.m.Media(outer.images[i]);	// upload image
-					Println(JSON.stringify(media));
 					mediaIds.push(media.id);
 				}
 			}

@@ -59,7 +59,6 @@ Mastodon.prototype.DoPost = function (header, postdata, url) {
 	this.post.ClearPostData();
 	for (var i = 0; i < postdata.length; i++) {
 		if (postdata[i].length === 4) {
-			Println(JSON.stringify(postdata[i]));
 			this.post.AddPostData(postdata[i][0], postdata[i][1], postdata[i][2], postdata[i][3]);	// add with MIME type and name
 		} else {
 			this.post.AddPostData(postdata[i][0], postdata[i][1]);					// add w/o extra fields

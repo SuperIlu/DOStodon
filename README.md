@@ -90,6 +90,7 @@ Just run `DOStodon`.
 - `CTRL-P`: Open account search, ENTER puts the selected account into the toot
 - `BACKSPACE`: delete character
 - `DEL`: delete toot composer text and reply-to toot
+- `INSERT`: Image selector for image attachments to the toot.
 
 ### Profile screen
 - `ENTER`: close profile
@@ -136,6 +137,7 @@ The source is split into several files right now:
 - `toot.js` toot creation
 - `util.js` support code
 - `dialogs.js` all input fields
+- `filsel.js` image file selector
 
 DOStodon is implemented using DOjS native API (no p5js emulation). Network operations block the input processing/rendering.
 
@@ -179,6 +181,9 @@ ne2000 0x60 3 0x300
 - Have fun
 
 # Changelog
+## 21. june 2023
+- added image upload/attachment to toots
+
 ## 14. may 2023
 - newly polled entries in home and notifications screens are now highlighted red
 
