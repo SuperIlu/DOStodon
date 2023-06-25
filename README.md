@@ -67,6 +67,7 @@ Just run `DOStodon`.
 - `D`/`d`: Print JSON of selected toot in home screen to logfile
 - `C`/`c`: Toggle toots with content warning
 - `1..4`: show media attachment 1 to 4. Any key to close.
+- `5`: show show YouTube preview image. Any key to close.
 - `CTRL-1..4`: show image description of media attachment 1 to 4. Any key to close.
 - `ENTER`: show thread view of current entry, `DEL` or `BACKSPACE` to return to timeline.
 - `CTRL-B`: Toggle toots&boosts, boosts only, toots only
@@ -181,6 +182,10 @@ ne2000 0x60 3 0x300
 - Have fun
 
 # Changelog
+## 25. june 2023
+- recompiled DOjS with GCC 12.2 and DJGPP CVS (fixes SSL/date bug _AGAIN_)
+- added YouTube video preview
+
 ## 21. june 2023
 - added image upload/attachment to toots
 

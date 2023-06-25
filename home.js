@@ -58,6 +58,24 @@ Home.prototype.lazyDrawImage = function (url, bhash, x, y, hl) {
 	Box(x, y, x + LIST_IMG_SIZE, y + LIST_IMG_SIZE, hl ? EGA.MAGENTA : EGA.LIGHT_GREY);
 }
 
+/**
+ * try to fetch YT info data once.
+ * @param {object} yt yt object in a toot
+ */
+Home.prototype.lazyFetchYoutube = function (yt) {
+	if (!yt.info) {
+		if (!this.netop) {
+			var yt_copy = yt;
+			this.netop = new NetworkOperation(function () {
+				yt_copy.info = {};
+				yt.info = dstdn.m.FetchYtInfo(yt_copy.id);
+				yt.title = RemoveHTML(yt.info.title);
+				yt.author_name = RemoveHTML(yt.info.author_name);
+			});
+		}
+	}
+}
+
 Home.prototype.drawEntries = function () {
 	var indent_pixels = 8 * INDENT_CHARS;
 	var indent_pixels_2 = indent_pixels / 2;
@@ -109,12 +127,18 @@ Home.prototype.drawEntries = function () {
 				}
 			}
 			content = RemoveHTML(e['content']);
+			var youTube = null;
+			var youTubeId = ExtractYtUrl(content);
+			if (youTubeId) {
+				youTube = { "id": youTubeId, "preview": CreateYtThumbnail(youTubeId), "info": null };
+			}
 			sens_indi = e['sensitive'];
 			sens_txt = RemoveHTML(e['spoiler_text']);
 			stats = "boosts:" + e['reblogs_count'] + ", favs:" + e['favourites_count'] + ", replies:" + e['replies_count'];
 			e.dostodon = {
 				"header": header,
 				"content": content,
+				"youTube": youTube,
 				"sensitive_txt": sens_txt,
 				"sensitive_indicator": sens_indi,
 				"stats": stats
@@ -168,6 +192,24 @@ Home.prototype.drawEntries = function () {
 						yPos = DisplayMultilineToot(xPos + LIST_IMAGE_SPACING, yPos, EGA.LIGHT_GREY, media_str, false, 68);
 					}
 				}
+			}
+
+			// render YT preview
+			var yt = e.dostodon.youTube;
+			if (yt) {
+				var ytX = xPos + LIST_IMG_SIZE * 2;
+				this.lazyFetchYoutube(yt);
+
+				var author_name = "Author: ";
+				var title = "Title: ";
+				if (yt.author_name && yt.title) {
+					author_name += yt.author_name;
+					title += yt.title;
+				}
+				yPos = DisplayText(ytX, yPos, EGA.LIGHT_GREY, author_name, dstdn.tfont);
+				yPos = DisplayText(ytX, yPos, EGA.LIGHT_GREY, title, dstdn.tfont);
+				this.lazyDrawImage(yt.preview, null, ytX, yPos, false);
+				yPos += LIST_IMG_SIZE + 2;
 			}
 
 			// draw thread view lines
@@ -548,6 +590,9 @@ Home.prototype.Input = function (key, keyCode, char, eventKey) {
 							case "4":
 								this.setPreview(e, 3);
 								break;
+							case "5":
+								this.setPreview(e, 4);
+								break;
 							case "P":
 								dstdn.profile.SetProfile(e['account']);
 								break;
@@ -597,6 +642,7 @@ Home.prototype.Input = function (key, keyCode, char, eventKey) {
 							case "?":
 								this.textOverlay = "Timeline screen HELP\n\n";
 								this.textOverlay += "- `1..4`         : Show media attachment 1 to 4. Any key to close\n";
+								this.textOverlay += "- `5`            : Show YouTube preview image. Any key to close\n";
 								this.textOverlay += "- `CTRL-1..4`    : Image description of media. Any key to close\n";
 								this.textOverlay += "- `b`            : Boost selected toot\n";
 								this.textOverlay += "- `B`            : UN-Boost selected toot\n";
@@ -689,9 +735,19 @@ Home.prototype.setPreview = function (e, idx) {
 	if (e['reblog']) {
 		e = e['reblog'];
 	}
-	if (e['media_attachments'] && e['media_attachments'][idx] && e['media_attachments'][idx]['type'] === "image") {
+	var outer = this;
+	if (e.dostodon.youTube && idx === 4) {
+		// fetch YT image
+		this.netop = new NetworkOperation(function () {
+			outer.image_preview = {
+				"img": dstdn.cache.FetchLargeImage(e.dostodon.youTube.preview),
+				"width": 640,
+				"height": 480
+			};
+		});
+	} else if (e['media_attachments'] && e['media_attachments'][idx] && e['media_attachments'][idx]['type'] === "image") {
+		// fetch media image
 		var media = e['media_attachments'][idx];
-		var outer = this;
 
 		var w = media['meta']['small']['width'];
 		var h = media['meta']['small']['height'];

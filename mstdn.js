@@ -90,6 +90,7 @@ Mastodon.prototype.DoPost = function (header, postdata, url) {
  * @returns the https-response like Curl.DoRequest()
  */
 Mastodon.prototype.DoGet = function (header, url) {
+	// Println("GET: " + new Date());
 	// Println("GET:" + url);
 	// this.get = new Curl();
 	this.get.ClearHeaders();
@@ -111,6 +112,26 @@ Mastodon.prototype.DoGet = function (header, url) {
 	// Println("GET:" + resp[1].ToString());
 	// Println("GET:" + resp[2]);
 	return resp;
+}
+
+/**
+ * fetch infos about a YT video.
+ * 
+ * @see https://stackoverflow.com/questions/1216029/get-title-from-youtube-videos
+ * 
+ * @param {string} id video id.
+ * 
+ * @return YT JSON info.
+ */
+Mastodon.prototype.FetchYtInfo = function (id) {
+	var resp = this.DoGet([], "https://www.youtube.com/oembed?format=json&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D" + id);
+
+	if (resp[2] === 200) {
+		var res = JSON.parse(resp[0].ToString());
+		return res
+	} else {
+		throw new Error("YT info failed: " + resp[2] + ": " + resp[0].ToString());
+	}
 }
 
 /**

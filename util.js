@@ -401,8 +401,46 @@ function NtpDate() {
 	}
 }
 
+/**
+ * deep clone a JS object.
+ * 
+ * @param {object} o the object to clone
+ * 
+ * @returns a deep clone of the object
+ */
 function Clone(o) {
 	return JSON.parse(JSON.stringify(o));
+}
+
+/**
+ * check if txt caontains a YT URL.
+ * 
+ * @param {string} txt the text to parse.
+ * 
+ * @returns the first YT URL found in txt or null. 
+ */
+function ExtractYtUrl(txt) {
+	var re = /https?:\/\/(?:[0-9A-Z-]+\.)?(?:youtu\.be\/|youtube(?:-nocookie)?\.com\S*?[^\w\s-])([\w-]{11})(?=[^\w-]|$)(?![?=&+%\w.-]*(?:['"][^<>]*>|<\/a>))[?=&+%\w.-]*/ig;
+
+	var m = re.exec(txt);
+	if (m) {
+		return m[1];
+	} else {
+		return null;
+	}
+}
+
+/**
+ * create thumbnail ID.
+ * 
+ * @see https://stackoverflow.com/questions/2068344/how-do-i-get-a-youtube-video-thumbnail-from-the-youtube-api
+ * 
+ * @param {string} id video id
+ * 
+ * @returns thumbnail URL.
+ */
+function CreateYtThumbnail(id) {
+	return "https://img.youtube.com/vi/" + id + "/sddefault.jpg";
 }
 
 // export functions and version
@@ -420,3 +458,5 @@ exports.TextOverlay = TextOverlay;
 exports.DisplayText = DisplayText;
 exports.NtpDate = NtpDate;
 exports.Clone = Clone;
+exports.ExtractYtUrl = ExtractYtUrl;
+exports.CreateYtThumbnail = CreateYtThumbnail;
