@@ -441,7 +441,7 @@ Mastodon.prototype.TimelineHome = function (limit, id, older) {
 
 	var resp = this.DoGet(headers, url);
 
-	if (resp[2] === 200) {
+	if (resp[2] === 200 || resp[2] === 206) {
 		var res = JSON.parse(resp[0].ToString());
 		return res
 	} else {

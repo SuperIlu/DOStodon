@@ -20,13 +20,15 @@ function FileSelector() {
 
 	this.selWidth = SizeX() - PREVIEW_WIDTH;
 
-	// create list of possible drive letters (hack)
+	// create list of possible drive letters
+	var currentDrive = GetDrive(); // get current drive
 	for (var i = 0; i < drives.length; i++) {
-		try {
-			List(drives[i] + ":\\");
+		SetDrive(i + 1);
+		if (GetDrive() == i + 1) {
 			this.drives.push(drives[i]);
-		} catch (e) { }
+		}
 	}
+	SetDrive(currentDrive); // return old state
 	this.currentDir = this.initDirInfo("./");
 }
 
@@ -38,11 +40,12 @@ function FileSelector() {
  * @returns {*} 'dir info' object.
  */
 FileSelector.prototype.initDirInfo = function (dir) {
+	Println("InitDir:" + dir);
 	// create directory object
 	var ret = {
 		path: dir,
 		top: 0,
-		cursor: 0,
+		cursor: this.drives.length,
 		rows: Math.floor((SizeY() - this.msgBoxHeight) / (this.dirFont.height + FONT_SPACING)),
 		list: [],
 		info: {}
@@ -73,13 +76,17 @@ FileSelector.prototype.initDirInfo = function (dir) {
  * @param {*} sub directory to concatenate or ".." for parent.
  */
 FileSelector.prototype.concatPath = function (orig, sub) {
-	if (sub == "..") {
-		var parts = orig.split("/");
-		if (parts.length >= 2) {
-			parts.splice(-2, 1);
-			return parts.join("/");
+	if (sub === '..') {
+		if (orig.endsWith(":/") || orig === './') {
+			return orig;	// this is just a drive letter or current dir
 		} else {
-			return orig;	// this is just a drive letter
+			var parts = orig.split("/");
+			if (parts.length >= 2) {
+				parts.splice(-2, 1);
+				return parts.join("/");
+			} else {
+				return orig;	// split failed, just keep the dir
+			}
 		}
 	} else {
 		return orig + sub + "/";
@@ -128,7 +135,7 @@ FileSelector.prototype.drawPreview = function () {
 				0, 0, this.preview.width, this.preview.height
 			);
 		} catch (e) {
-			Println(e);
+			// Println(e);
 			this.preview = new Bitmap(PREVIEW_WIDTH, PREVIEW_WIDTH);
 			SetRenderBitmap(this.preview);
 			ClearScreen(EGA.BLACK);

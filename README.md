@@ -182,6 +182,12 @@ ne2000 0x60 3 0x300
 - Have fun
 
 # Changelog
+## 8. july 2023
+- fixed drive letter detection in the file selector
+- file selector cursor start position is between drives and files now
+- fixed 'parent' handling in file selector
+- accept HTTP status 206 for home timeline
+
 ## 25. june 2023
 - recompiled DOjS with GCC 12.2 and DJGPP CVS (fixes SSL/date bug _AGAIN_)
 - added YouTube video preview
