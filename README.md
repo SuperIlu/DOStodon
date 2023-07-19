@@ -182,6 +182,9 @@ ne2000 0x60 3 0x300
 - Have fun
 
 # Changelog
+## 19. july 2023
+- Updated DOjS to curl-8.2.0
+
 ## 8. july 2023
 - fixed drive letter detection in the file selector
 - file selector cursor start position is between drives and files now
