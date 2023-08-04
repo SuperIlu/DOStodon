@@ -130,7 +130,7 @@ Splash.prototype.Draw = function () {
 }
 
 Splash.prototype.login = function () {
-	Print("Logging in...");
+	Println("Logging in...");
 	if (FileExists(CREDS_FILE)) {
 		// read config, re-use login
 		dstdn.creds = JSON.parse(Read(CREDS_FILE));

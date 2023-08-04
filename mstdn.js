@@ -35,8 +35,30 @@ function Mastodon(url) {
 	this.failed_requests = 0;
 
 	this.get = new Curl();
-
 	this.post = new Curl();
+
+	var proxy_host = GetEnv("PROXY_HOST");
+	var proxy_port = GetEnv("PROXY_PORT");
+	var proxy_type = GetEnv("PROXY_TYPE");
+	if (proxy_host) {
+		Println("Using PROXY:" + proxy_host);
+		this.get.SetProxy(proxy_host);
+		this.post.SetProxy(proxy_host);
+		if (proxy_port) {
+			Println("Using PROXY PORT:" + proxy_port);
+			this.get.SetProxyPort(proxy_port);
+			this.post.SetProxyPort(proxy_port);
+		}
+		if (proxy_type && (proxy_type.toLowerCase() === "socks")) {
+			Println("Using PROXY TYPE set to SOCKS");
+			this.get.SetSocksProxy(true);
+			this.post.SetSocksProxy(true);
+		} else {
+			Println("Using PROXY TYPE set to HTTP");
+			this.get.SetSocksProxy(false);
+			this.post.SetSocksProxy(false);
+		}
+	}
 }
 
 /**

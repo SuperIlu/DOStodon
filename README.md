@@ -34,6 +34,12 @@ The access tokens are stored in `CREDS.JSN` if the login is successful.
 ## subsequent starts
 Just run `DOStodon`.
 
+## Proxy support
+If you want DOStodon to use a proxy you have to set the following ENV variables:
+- `PROXY_HOST`: HTTP proxy to use. The parameter should be a string holding the host name or dotted IP address. To specify port number in this string, append :[port] to the end of the host name. The proxy string may be prefixed with [protocol]:// since any such prefix will be ignored. The proxy's port number may optionally be specified with the separate function SetProxyPort().
+- `PROXY_PORT`: Pass a port number with this option to set the proxy port to connect to unless it is specified in the proxy string using PROXY_HOST.
+- `PROXY_TYPE`: set this to `SOCKS` to use a SOCKS proxy. If unset or set to anything else a HTTP proxy is asumed.
+
 ## Keys
 ### Common
 - `ESC`: Quit DOStodon
@@ -182,6 +188,9 @@ ne2000 0x60 3 0x300
 - Have fun
 
 # Changelog
+## 05. august 2023
+- Added proxy support through ENV variables
+
 ## 19. july 2023
 - Updated DOjS to curl-8.2.0
 
