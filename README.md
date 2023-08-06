@@ -7,8 +7,9 @@ DOStodon is implemented in Javascript and relies on a yet unreleased version of 
 - **You need a VM, real HW or DOSBox-staging with a network card and a matching packet driver to use it.**
 - **A Pentium 133 or faster with at least 32MiB of RAM is recommended.**
 - **Packet drivers can e.g. be found on [packetdriversdos.net](http://packetdriversdos.net/) (make sure to download the driver from the "PC/TCP PACKET DRIVERS" section) or on [crynwr.com](http://crynwr.com/drivers/) or [www.georgpotthast.de](http://www.georgpotthast.de/sioux/packet.htm)**
+- **You don't need any TCP/IP stack, [Watt32](https://www.watt-32.net/) is compiled into the program and directly uses the packet driver**
 - **Make sure you read the section about the limitations!**
-- **see "DOSBox-staging config" for an example config that works (for me) with DOSBox-staging**
+- **see "DOSBox-staging config" below for an example config that works (for me) with DOSBox-staging**
 
 Just [download](https://github.com/SuperIlu/DOStodon/archive/refs/heads/main.zip) the whole repository.
 
