@@ -182,11 +182,13 @@ ne2000 0x60 3 0x300
 ```
 
 # TODO
-- Add image-upload
 - Look into character-encoding again
 - Busy indicator is missing for some network operations
 - Color themes?
-- Config dialog?
+- invert timeline (oldest post on top)
+- mark private messages
+- add privacy options to toot editor
+- ALT text for image uploads
 - Have fun
 
 # Changelog
