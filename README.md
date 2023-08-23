@@ -184,11 +184,11 @@ ne2000 0x60 3 0x300
 # TODO
 - Look into character-encoding again
 - Busy indicator is missing for some network operations
+- Same network errors lead to an endless loop
 - Color themes?
 - invert timeline (oldest post on top)
-- mark private messages
-- add privacy options to toot editor
 - ALT text for image uploads
+- Fix bugs
 - Have fun
 
 # Changelog
