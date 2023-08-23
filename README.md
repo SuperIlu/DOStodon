@@ -98,6 +98,7 @@ If you want DOStodon to use a proxy you have to set the following ENV variables:
 - `CTRL-P`: Open account search, ENTER puts the selected account into the toot
 - `BACKSPACE`: delete character
 - `DEL`: delete toot composer text and reply-to toot
+- `TAB`: switch toot visibility between `public`, `unlisted`, `private` and `direct`.
 - `INSERT`: Image selector for image attachments to the toot.
 
 ### Profile screen
@@ -189,6 +190,11 @@ ne2000 0x60 3 0x300
 - Have fun
 
 # Changelog
+## 23. august 2023
+- highlight DMs in timeline and notifications
+- added visibility options to toot editor
+- added visibility to toot display
+
 ## 05. august 2023
 - Added proxy support through ENV variables
 

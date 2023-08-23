@@ -134,7 +134,7 @@ Home.prototype.drawEntries = function () {
 			}
 			sens_indi = e['sensitive'];
 			sens_txt = RemoveHTML(e['spoiler_text']);
-			stats = "boosts:" + e['reblogs_count'] + ", favs:" + e['favourites_count'] + ", replies:" + e['replies_count'];
+			stats = "boosts:" + e['reblogs_count'] + ", favs:" + e['favourites_count'] + ", replies:" + e['replies_count'] + ", visibility:" + e['visibility'].toUpperCase().substring(0, 3);
 			e.dostodon = {
 				"header": header,
 				"content": content,
@@ -160,11 +160,18 @@ Home.prototype.drawEntries = function () {
 			} else {
 				col = EGA.CYAN;
 			}
+
+			// highlight DMs
+			var textColor = EGA.WHITE;
+			if (e.visibility == 'direct') {
+				textColor = EGA.YELLOW;
+			}
+
 			yPos = DisplayMultilineToot(xPos + LIST_IMAGE_SPACING, yPos, col, e.dostodon.header, false, charLength);
 			if (e.dostodon.sensitive_indicator) {
 				yPos = DisplayMultilineToot(xPos + LIST_IMAGE_SPACING, yPos, EGA.LIGHT_BLUE, "<CW> " + e.dostodon.sensitive_txt, false, charLength);
 			} else {
-				yPos = DisplayMultilineToot(xPos + LIST_IMAGE_SPACING, yPos, EGA.WHITE, e.dostodon.content, false, charLength);
+				yPos = DisplayMultilineToot(xPos + LIST_IMAGE_SPACING, yPos, textColor, e.dostodon.content, false, charLength);
 			}
 
 			// render media images
@@ -255,7 +262,7 @@ Home.prototype.drawEntries = function () {
 			}
 
 			DisplayText(xPos + LIST_IMAGE_SPACING, statusY, highlight_color, FormatTime(e['created_at'], this.ntp), dstdn.tfont);	// display timestamp
-			yPos = DisplayText(350, statusY, highlight_color, e.dostodon.stats, dstdn.tfont);			// display toot stats
+			yPos = DisplayText(300, statusY, highlight_color, e.dostodon.stats, dstdn.tfont);			// display toot stats
 
 			// increase yPos to minimum height and draw line
 			if (yPos < minY) {

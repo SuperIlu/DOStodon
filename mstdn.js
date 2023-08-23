@@ -283,13 +283,14 @@ Mastodon.prototype.Media = function (filename) {
  * @see https://docs.joinmastodon.org/methods/statuses/
  * 
  * @param {string} txt the text to toot.
+ * @param {string} visibility 'public', 'unlisted', 'private' or 'direct'.
  * @param {string[]} [media] array of media attachments or null.
  * @param {string} [reply_id] id of a toot to reply to or null.
  * @param {string} [spoiler] a spoiler text or null. Sets this status to 'sensitive=true'.
  * 
  * @returns a https://docs.joinmastodon.org/entities/status/, an exception is thrown for an error
  */
-Mastodon.prototype.Toot = function (txt, media, reply_id, spoiler) {
+Mastodon.prototype.Toot = function (txt, visibility, media, reply_id, spoiler) {
 	if (!this.token) {
 		throw new Error("No credential set");
 	}
@@ -298,7 +299,8 @@ Mastodon.prototype.Toot = function (txt, media, reply_id, spoiler) {
 		['Authorization: Bearer ' + this.token]
 	];
 	var postdata = [
-		['status', txt]
+		['status', txt],
+		['visibility', visibility]
 	];
 
 	if (media && media.length > 0) {

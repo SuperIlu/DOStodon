@@ -24,6 +24,7 @@ function Toot() {
 	this.txt = "";
 	this.images = [];
 	this.reply = null;
+	this.visibility = "public"; // public, unlisted, private, direct
 }
 
 Toot.prototype.lazyDrawImage = function (url, bhash, x, y) {
@@ -48,6 +49,11 @@ Toot.prototype.lazyDrawImage = function (url, bhash, x, y) {
 
 Toot.prototype.Draw = function () {
 	var yPos = TEXT_START_OFFSET;
+
+	yPos = DisplayMultilineToot(TEXT_START_OFFSET, yPos, EGA.LIGHT_RED, "Visibility: " + this.visibility, false, TXT_LINE_LENGTH);
+	Line(0, yPos, CONTENT_WIDTH, yPos, EGA.RED);
+	yPos += TEXT_START_OFFSET;
+
 
 	if (this.reply) {
 		var minY = yPos + LIST_IMG_SIZE + TEXT_START_OFFSET;
@@ -124,6 +130,21 @@ Toot.prototype.Input = function (key, keyCode, char, eventKey) {
 		this.reply = null;
 		this.images = [];
 		this.previousScreen();
+	} else if (keyCode == KEY.Code.KEY_TAB) {
+		switch (this.visibility) {
+			case 'public':
+				this.visibility = "unlisted";
+				break;
+			case 'unlisted':
+				this.visibility = "private";
+				break;
+			case 'private':
+				this.visibility = "direct";
+				break;
+			default:
+				this.visibility = "public";
+				break;
+		}
 	} else if (keyCode == KEY.Code.KEY_INSERT) {
 		// open image selector if there are less than 4 images
 		if (this.images.length < 4) {
@@ -183,7 +204,7 @@ Toot.prototype.toot = function () {
 				}
 			}
 
-			dstdn.m.Toot(txt, mediaIds, replyId, spoiler);
+			dstdn.m.Toot(txt, outer.visibility, mediaIds, replyId, spoiler);
 			dstdn.toot_snd.Play(255, 128, false);
 			outer.txt = "";
 			outer.reply = null;

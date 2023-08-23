@@ -122,9 +122,15 @@ Notifications.prototype.drawEntries = function () {
 			highlight_color = EGA.DARK_GREY;
 		}
 
+		// highlight DMs
+		var textColor = EGA.WHITE;
+		if (n.visibility == 'direct') {
+			textColor = EGA.YELLOW;
+		}
+
 		yPos = DisplayMultilineToot(40, yPos, col, n.dostodon.header, false, 70);
 		if (n.dostodon.content.length > 0) {
-			yPos = DisplayMultilineToot(40, yPos, EGA.WHITE, n.dostodon.content, false, 70);
+			yPos = DisplayMultilineToot(40, yPos, textColor, n.dostodon.content, false, 70);
 		}
 
 		yPos = DisplayText(LIST_IMAGE_SPACING, yPos, highlight_color, FormatTime(n['created_at'], this.ntp), dstdn.tfont);	// display timestamp
