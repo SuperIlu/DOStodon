@@ -192,6 +192,9 @@ ne2000 0x60 3 0x300
 - Have fun
 
 # Changelog
+## 11. Oktober 2023
+- Security update to curl 8.4.0 and mbedTLS 2.28.5
+
 ## 23. august 2023
 - highlight DMs in timeline and notifications
 - added visibility options to toot editor
