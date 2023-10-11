@@ -632,7 +632,12 @@ Home.prototype.Input = function (key, keyCode, char, eventKey) {
 											if (e) {
 												var txt = e['name'];
 												var tagScreen = dstdn.all_screens[SCR_TAG];
+												tagScreen.last_poll = null;
 												tagScreen.tag = txt;
+												tagScreen.current_list = [];
+
+												dstdn.c.Set("lastTag", txt);
+												dstdn.c.Save();
 												dstdn.current_screen = tagScreen;
 											}
 											dstdn.dialog = null;
