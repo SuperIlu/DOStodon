@@ -25,6 +25,7 @@ LoadLibrary("curl");
 LoadLibrary("jpeg");
 LoadLibrary("png");
 LoadLibrary("sqlite");
+LoadLibrary("webp");
 
 Include("evchain");
 

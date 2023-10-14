@@ -102,7 +102,7 @@ FileSelector.prototype.drawPreview = function () {
 		var name = this.currentDir.list[idx];
 		var filename = null;
 
-		if (name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".png")) {
+		if (this.supportedImage(name)) {
 			filename = this.currentDir.path + name;
 		}
 
@@ -135,7 +135,7 @@ FileSelector.prototype.drawPreview = function () {
 				0, 0, this.preview.width, this.preview.height
 			);
 		} catch (e) {
-			// Println(e);
+			Println(e);
 			this.preview = new Bitmap(PREVIEW_WIDTH, PREVIEW_WIDTH);
 			SetRenderBitmap(this.preview);
 			ClearScreen(EGA.BLACK);
@@ -180,6 +180,17 @@ FileSelector.prototype.Activate = function (onClose) {
 }
 
 /**
+ * check by extension if this image type is supported
+ * 
+ * @param {string} name 
+ * 
+ * @returns true if this is a supported image type
+ */
+FileSelector.prototype.supportedImage = function (name) {
+	return name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".png") || name.toLowerCase().endsWith(".web") || name.toLowerCase().endsWith(".webp");
+}
+
+/**
  * draw file selector box.
  */
 FileSelector.prototype.drawFileBox = function () {
@@ -198,7 +209,7 @@ FileSelector.prototype.drawFileBox = function () {
 		} else if (this.currentDir.info[name]["is_directory"]) {
 			name += "/";
 			filCol = EGA.WHITE;
-		} else if (name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".png")) {
+		} else if (this.supportedImage(name)) {
 			filCol = EGA.LIGHT_GRAY;
 		}
 
@@ -289,7 +300,7 @@ FileSelector.prototype.onEnter = function () {
 		this.currentDir = this.initDirInfo(name + ":/");
 	} else if (this.currentDir.info[name]["is_directory"]) {
 		this.currentDir = this.initDirInfo(this.concatPath(this.currentDir.path, name));
-	} else if (name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".png")) {
+	} else if (this.supportedImage(name)) {
 		this.selectFile(this.currentDir.path + name);
 	}
 }

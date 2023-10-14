@@ -189,11 +189,13 @@ ne2000 0x60 3 0x300
 - invert timeline (oldest post on top)
 - ALT text for image uploads
 - Implement setting for CW toots (default collapsed or visible)
-- Add webp image format
 - Fix bugs
 - Have fun
 
 # Changelog
+## 14. Oktober 2023
+- Added webp image format
+
 ## 11. Oktober 2023
 - Security update to curl 8.4.0 and mbedTLS 2.28.5
 - Fixed tag selection in tag screen display

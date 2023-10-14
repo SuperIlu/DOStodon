@@ -247,6 +247,8 @@ Mastodon.prototype.Media = function (filename) {
 		mime_type = "image/jpeg";
 	} else if (filename.toLowerCase().endsWith(".png")) {
 		mime_type = "image/png";
+	} else if (filename.toLowerCase().endsWith(".web") || filename.toLowerCase().endsWith(".wep") || filename.toLowerCase().endsWith(".webp")) {
+		mime_type = "image/webp";
 	} else {
 		throw new Error("Unsuported file type: " + filename);
 	}
