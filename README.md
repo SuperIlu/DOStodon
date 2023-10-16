@@ -193,6 +193,9 @@ ne2000 0x60 3 0x300
 - Have fun
 
 # Changelog
+## 16. Oktober 2023
+- Some tiny fixes after helpful comments from @colin_mcmillen@piaille.fr 
+
 ## 14. Oktober 2023
 - Added webp image format
 

@@ -135,7 +135,7 @@ FileSelector.prototype.drawPreview = function () {
 				0, 0, this.preview.width, this.preview.height
 			);
 		} catch (e) {
-			Println(e);
+			// Println(e);
 			this.preview = new Bitmap(PREVIEW_WIDTH, PREVIEW_WIDTH);
 			SetRenderBitmap(this.preview);
 			ClearScreen(EGA.BLACK);
@@ -187,7 +187,8 @@ FileSelector.prototype.Activate = function (onClose) {
  * @returns true if this is a supported image type
  */
 FileSelector.prototype.supportedImage = function (name) {
-	return name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".png") || name.toLowerCase().endsWith(".web") || name.toLowerCase().endsWith(".webp");
+	var lowerName = name.toLowerCase();
+	return lowerName.endsWith(".jpg") || lowerName.endsWith(".png") || lowerName.endsWith(".web") || lowerName.endsWith(".webp");
 }
 
 /**
