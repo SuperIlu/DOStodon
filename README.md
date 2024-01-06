@@ -193,6 +193,12 @@ ne2000 0x60 3 0x300
 - Have fun
 
 # Changelog
+## 06. January 2024
+- Updated curl to 8.5.0
+- Updated mbedTLS to 2.28.6
+- Updated zip to 0.3.1
+- Added example proxy config to `DOSTODON.BAT``
+
 ## 16. Oktober 2023
 - Some tiny fixes after helpful comments from @colin_mcmillen@piaille.fr 
 
