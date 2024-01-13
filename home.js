@@ -684,7 +684,7 @@ Home.prototype.Input = function (key, keyCode, char, eventKey) {
 										function (le) {
 											if (le) {
 												outer.netop = new NetworkOperation(function () {
-													dstdn.m.Vote(e.poll.id, le.idx);
+													dstdn.m.Vote(e.poll.id, [le.idx]);
 													e.poll.voted = true;
 													e.poll.own_votes = [le.idx];
 													e.poll.options[le.idx].votes_count++;
