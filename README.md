@@ -193,6 +193,11 @@ ne2000 0x60 3 0x300
 - Have fun
 
 # Changelog
+## 13. January 2024
+- Improved handling of Unicode characters (displaying German Umlauts and other diacritic characters)
+- Finally display votes in the timeline
+- Enable voting in single-choice votes (sorry, no multiple choice votes yet)
+
 ## 06. January 2024
 - Updated curl to 8.5.0
 - Updated mbedTLS to 2.28.6

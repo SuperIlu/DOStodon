@@ -106,6 +106,7 @@ Home.prototype.drawEntries = function () {
 		}
 
 		var xPos = 0;
+		var txtPos = xPos + LIST_IMAGE_SPACING;
 		var charLength = 68;
 		if (t.indentLevel) {
 			xPos = t.indentLevel * indent_pixels;
@@ -167,11 +168,11 @@ Home.prototype.drawEntries = function () {
 				textColor = EGA.YELLOW;
 			}
 
-			yPos = DisplayMultilineToot(xPos + LIST_IMAGE_SPACING, yPos, col, e.dostodon.header, false, charLength);
+			yPos = DisplayMultilineToot(txtPos, yPos, col, e.dostodon.header, false, charLength);
 			if (e.dostodon.sensitive_indicator) {
-				yPos = DisplayMultilineToot(xPos + LIST_IMAGE_SPACING, yPos, EGA.LIGHT_BLUE, "<CW> " + e.dostodon.sensitive_txt, false, charLength);
+				yPos = DisplayMultilineToot(txtPos, yPos, EGA.LIGHT_BLUE, "<CW> " + e.dostodon.sensitive_txt, false, charLength);
 			} else {
-				yPos = DisplayMultilineToot(xPos + LIST_IMAGE_SPACING, yPos, textColor, e.dostodon.content, false, charLength);
+				yPos = DisplayMultilineToot(txtPos, yPos, textColor, e.dostodon.content, false, charLength);
 			}
 
 			// render media images
@@ -196,7 +197,7 @@ Home.prototype.drawEntries = function () {
 					}
 					if (media_str.length > 0) {
 						// render media indicator for non-pictures
-						yPos = DisplayMultilineToot(xPos + LIST_IMAGE_SPACING, yPos, EGA.LIGHT_GREY, media_str, false, 68);
+						yPos = DisplayMultilineToot(txtPos, yPos, EGA.LIGHT_GREY, media_str, false, 68);
 					}
 				}
 			}
@@ -227,9 +228,29 @@ Home.prototype.drawEntries = function () {
 				Line(xPos - indent_pixels_2, linePos, xPos - indent_pixels_2, indentationEnds[t.indentLevel - 1], indentColor);
 			}
 
-			var statusY = minY > yPos ? minY : yPos;
+			// render poll info (no multiple choice polls are supported)
+			var highlight_color;
+			if (e.poll) {
+				for (var p = 0; p < e.poll.options.length; p++) {
+					var current_vote = e.poll.options[p];
+					var vote_option = "";
+					if (e.poll.voted && e.poll.own_votes.indexOf(p) != -1) {
+						highlight_color = EGA.YELLOW;
+						vote_option += "[X] ";
+					} else {
+						highlight_color = EGA.LIGHT_GREY;
+						vote_option += "[ ] ";
+					}
+					vote_option += current_vote.title + " " + (100 * current_vote.votes_count / e.poll.voters_count).toFixed(2) + "% (" + current_vote.votes_count + ")";
+					yPos = DisplayText(txtPos, yPos, highlight_color, vote_option, dstdn.tfont);			// vote option
+				}
+
+				var vote_sumary = e.poll.voters_count + " voters, " + (e.poll.expired ? "ended " : "") + FormatTime(e.poll.expires_at, this.ntp);
+				yPos = DisplayText(txtPos, yPos, EGA.DARK_GREY, vote_sumary, dstdn.tfont);			// vote sumary
+			}
 
 			// display fav/boost/bookmark state
+			var statusY = minY > yPos ? minY : yPos;
 			var fstate = "";
 			if (t['in_reply_to_id']) {
 				fstate += "<[";
@@ -254,14 +275,13 @@ Home.prototype.drawEntries = function () {
 			fstate += "]";
 			DisplayText(xPos, statusY, EGA.YELLOW, fstate, dstdn.tfont);
 
-			var highlight_color;
 			if (t.pollId == this.lastPoll) {
 				highlight_color = EGA.LIGHT_RED;
 			} else {
 				highlight_color = EGA.DARK_GREY;
 			}
 
-			DisplayText(xPos + LIST_IMAGE_SPACING, statusY, highlight_color, FormatTime(e['created_at'], this.ntp), dstdn.tfont);	// display timestamp
+			DisplayText(txtPos, statusY, highlight_color, FormatTime(e['created_at'], this.ntp), dstdn.tfont);	// display timestamp
 			yPos = DisplayText(300, statusY, highlight_color, e.dostodon.stats, dstdn.tfont);			// display toot stats
 
 			// increase yPos to minimum height and draw line
@@ -624,7 +644,7 @@ Home.prototype.Input = function (key, keyCode, char, eventKey) {
 								break;
 							case "t":
 								if (e['tags'].length) {
-									dstdn.dialog = new ListField("Select tag", e['tags'],
+									dstdn.dialog = new ListField("Select tag (ENTER=OK, DEL=Cancel)", e['tags'],
 										function (e) {
 											return "#" + e['name'];
 										},
@@ -649,6 +669,33 @@ Home.prototype.Input = function (key, keyCode, char, eventKey) {
 									HashTagDialog(this);
 								}
 								break;
+							case "v":
+							case "V":
+								if (e.poll && !e.poll.voted && !e.poll.multiple) {
+									var outer = this;
+									var options = [];
+									for (var p = 0; p < e.poll.options.length; p++) {
+										options.push({ title: e.poll.options[p].title, idx: p });
+									}
+									dstdn.dialog = new ListField("Select vote (ENTER=OK, DEL=Cancel)", options,
+										function (le) {
+											return le.title;
+										},
+										function (le) {
+											if (le) {
+												outer.netop = new NetworkOperation(function () {
+													dstdn.m.Vote(e.poll.id, le.idx);
+													e.poll.voted = true;
+													e.poll.own_votes = [le.idx];
+													e.poll.options[le.idx].votes_count++;
+													e.poll.voters_count++;
+													e.poll.votes_count++;
+												});
+											}
+											dstdn.dialog = null;
+										});
+								}
+								break;
 							case "h":
 							case "H":
 							case "?":
@@ -668,6 +715,7 @@ Home.prototype.Input = function (key, keyCode, char, eventKey) {
 								this.textOverlay += "- `P`            : Profile of current entry (the original profile)\n";
 								this.textOverlay += "- `R`/`r`        : Reply to selected toot\n";
 								this.textOverlay += "- `t`            : Select tag from current toot\n";
+								this.textOverlay += "- `v / V`        : Vote\n";
 								this.textOverlay += "- `CTRL-P`       : Search user\n";
 								this.textOverlay += "- `STRL-S`       : Save screenshot\n";
 								this.textOverlay += "- `CTRL-C`       : Show settings dialog\n";

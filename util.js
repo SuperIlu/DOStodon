@@ -65,18 +65,25 @@ function FormatTime(tstr, ntp) {
 		var now = ntp.ntp.getTime() + (new Date() - ntp.local);
 
 		var seconds = Math.floor((now - ts) / 1000);
+		if (seconds > 0) {
+			word = " ago";
+		} else {
+			word = " left";
+			seconds *= -1;
+		}
+
 		var minutes = Math.floor(seconds / 60);
 		var hours = Math.floor(minutes / 60);
 		var days = Math.floor(hours / 24);
 
 		if (seconds < 120) {
-			return seconds + "s ago";
+			return seconds + "s" + word;
 		} else if (minutes < 120) {
-			return minutes + "m ago";
+			return minutes + "m" + word;
 		} else if (hours < 48) {
-			return hours + "h ago";
+			return hours + "h" + word;
 		} else if (days < 7) {
-			return days + "d ago";
+			return days + "d" + word;
 		}
 	}
 
@@ -231,7 +238,7 @@ function DrawLogo() {
 function RemoveHTML(html) {
 	var noTags = StripTags(html);
 	var unEsc = unescapeHTML(noTags);
-	var uniFree = unEsc.replace(/[^\x20-\xFF]/g, " ");
+	var uniFree = unEsc.replace(/[^\x20-\xFFFF]/g, " ");
 	return uniFree;
 }
 

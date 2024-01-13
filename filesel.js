@@ -15,7 +15,7 @@ var PREVIEW_WIDTH = 210;
 function FileSelector() {
 	this.drives = [];
 	this.onClose = null;
-	this.dirFont = new Font(JSBOOTPATH + "fonts/cour16b.fnt");
+	this.dirFont = new Font();
 	this.msgBoxHeight = this.dirFont.height + 2 * MSG_BORDER;
 
 	this.selWidth = SizeX() - PREVIEW_WIDTH;

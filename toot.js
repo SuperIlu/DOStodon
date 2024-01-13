@@ -204,7 +204,7 @@ Toot.prototype.toot = function () {
 				}
 			}
 
-			dstdn.m.Toot(txt, outer.visibility, mediaIds, replyId, spoiler);
+			dstdn.m.Toot(ToUTF8(txt), outer.visibility, mediaIds, replyId, spoiler);
 			dstdn.toot_snd.Play(255, 128, false);
 			outer.txt = "";
 			outer.reply = null;

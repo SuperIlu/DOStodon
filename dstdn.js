@@ -142,6 +142,9 @@ function Setup() {
 	// sslTest("https://www.shdon.com/");
 	// sslTest("https://www.heise.de");
 
+	Println("DOJS_ENCODING=" + DOJS_ENCODING);
+	SetMissingCharacter(" ");
+
 	MouseShowCursor(false);
 	dstdn.current_screen = new Splash();
 }

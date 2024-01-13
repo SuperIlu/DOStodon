@@ -35,10 +35,10 @@ function Splash() {
 	this.chain.Add(function () { dstdn.tfont = new Font(JSBOOTPATH + "fonts/pc6x8.fnt"); });
 
 	this.chain.Add(function () { outer.txt = "Loading small font..."; });
-	this.chain.Add(function () { dstdn.sfont = new Font(JSBOOTPATH + "fonts/pc8x8.fnt"); });
+	this.chain.Add(function () { dstdn.sfont = new Font(); });
 
 	this.chain.Add(function () { outer.txt = "Loading large font..."; });
-	this.chain.Add(function () { dstdn.lfont = new Font(JSBOOTPATH + "fonts/pc8x16.fnt"); });
+	this.chain.Add(function () { dstdn.lfont = new Font(JSBOOTPATH + "fonts/univ14.fnt"); });
 
 	this.chain.Add(function () { outer.txt = "Loading home sound..."; });
 	this.chain.Add(function () { dstdn.home_snd = new Sample("invplop.wav"); });

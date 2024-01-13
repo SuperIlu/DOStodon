@@ -1000,6 +1000,37 @@ Mastodon.prototype.GetMarker = function (home) {
 	}
 }
 
+/**
+ * Vote in poll
+ * 
+ * @param {string} id the poll-id
+ * @param {number[]} idx 0 based entries to vote for
+ * 
+ * @returns see https://docs.joinmastodon.org/methods/polls/#vote
+ */
+Mastodon.prototype.Vote = function (id, idx) {
+	if (!this.token) {
+		throw new Error("No credential set");
+	}
+
+	var headers = [
+		['Authorization: Bearer ' + this.token]
+	];
+
+	var postdata = [];
+	for (var i = 0; i < idx.length; i++) {
+		postdata.push(['choices[]', idx[i]]);
+	}
+
+	var resp = this.DoPost(headers, postdata, this.base_url + "/api/v1/polls/" + id + "/votes");
+
+	if (resp[2] === 200) {
+		return JSON.parse(resp[0].ToString());
+	} else {
+		throw new Error("Vote failed: " + resp[2] + ": " + resp[0].ToString());
+	}
+}
+
 // export functions and version
 exports.__VERSION__ = 1;
 exports.Mastodon = Mastodon;
