@@ -685,7 +685,7 @@ Home.prototype.Input = function (key, keyCode, char, eventKey) {
 									for (var p = 0; p < e.poll.options.length; p++) {
 										options.push({ title: e.poll.options[p].title, idx: p });
 									}
-									dstdn.dialog = new ListField("Select vote [ENTER=OK, DEL=Cancel]", options,
+									dstdn.dialog = new ListField(e.poll.multiple ? "Vote [INS=Select, ENTER=OK, DEL=Cancel]" : "Select vote [ENTER=OK, DEL=Cancel]", options,
 										function (le, sel) {
 											if (e.poll.multiple) {
 												if (sel) {
