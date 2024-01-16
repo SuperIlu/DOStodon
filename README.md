@@ -193,6 +193,11 @@ ne2000 0x60 3 0x300
 - Have fun
 
 # Changelog
+## 16. January 2024
+- Display votes with results in the notifications
+- Improve single choice voting dialog
+- Implemented multiple choice voting
+
 ## 13. January 2024
 - Improved handling of Unicode characters (displaying German Umlauts and other diacritic characters)
 - Finally display votes in the timeline

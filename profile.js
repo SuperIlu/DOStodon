@@ -217,7 +217,7 @@ Profile.prototype.Input = function (key, keyCode, char, eventKey) {
 						res.forEach(function (e) {
 							e['dstdn_list_name'] = RemoveHTML("@" + e['acct'] + " (" + e['display_name'] + ")").substring(0, 60);
 						});
-						dstdn.dialog = new ListField("Followers (locally known)", res,
+						dstdn.dialog = new ListField("Followers (locally known) [ENTER=VIEW, DEL=Close]", res,
 							function (e) {
 								return e['dstdn_list_name'];
 							},
@@ -235,7 +235,7 @@ Profile.prototype.Input = function (key, keyCode, char, eventKey) {
 						res.forEach(function (e) {
 							e['dstdn_list_name'] = RemoveHTML("@" + e['acct'] + " (" + e['display_name'] + ")").substring(0, 60);
 						});
-						dstdn.dialog = new ListField("Following (locally known)", res,
+						dstdn.dialog = new ListField("Following (locally known) [ENTER=VIEW, DEL=Close]", res,
 							function (e) {
 								return e['dstdn_list_name'];
 							},

@@ -35,6 +35,7 @@ function Notifications() {
 	this.showBoosts = true;
 	this.showFollows = true;
 	this.showMentions = true;
+	this.showVotes = true;
 	this.showOthers = true;
 }
 
@@ -93,6 +94,31 @@ Notifications.prototype.drawEntries = function () {
 				case 'favourite':
 					header += " favourited";
 					content = RemoveHTML(n['status']['content']);
+					break;
+				case 'poll':
+					header += " poll ended";
+					content = "";
+					for (var p = 0; p < n.status.poll.options.length; p++) {
+						var current_vote = n.status.poll.options[p];
+						var vote_option = "";
+						if (n.status.poll.voted && n.status.poll.own_votes.indexOf(p) != -1) {
+							if (n.status.poll.multiple) {
+								vote_option += "<X> ";
+							} else {
+								vote_option += "[X] ";
+							}
+						} else {
+							if (n.status.poll.multiple) {
+								vote_option += "< > ";
+							} else {
+								vote_option += "[ ] ";
+							}
+						}
+						vote_option += current_vote.title + " " + (100 * current_vote.votes_count / n.status.poll.voters_count).toFixed(2) + "% (" + current_vote.votes_count + ")";
+						content += vote_option + "\n";
+					}
+
+					content += n.status.poll.voters_count + " voters, " + (n.status.poll.expired ? "ended " : "") + FormatTime(n.status.poll.expires_at, this.ntp);
 					break;
 				default:
 					header += " " + n['type'];
@@ -235,6 +261,7 @@ Notifications.prototype.Draw = function () {
 		filters += this.showBoosts ? "B" : " ";
 		filters += this.showFollows ? "F" : " ";
 		filters += this.showMentions ? "M" : " ";
+		filters += this.showVotes ? "V" : " ";
 		filters += this.showOthers ? "O" : " ";
 		filters += "]";
 		var filterWidth = dstdn.sfont.StringWidth(filters);
@@ -336,6 +363,11 @@ Notifications.prototype.reFilter = function (changed) {
 				break;
 			case 'favourite':
 				if (this.showLikes) {
+					this.current_list.push(n);
+				}
+				break;
+			case 'poll':
+				if (this.showVotes) {
 					this.current_list.push(n);
 				}
 				break;
@@ -460,6 +492,11 @@ Notifications.prototype.Input = function (key, keyCode, char, eventKey) {
 							this.showMentions = !this.showMentions;
 							this.reFilter(true);
 							break;
+						case "v":
+						case "V":
+							this.showVotes = !this.showVotes;
+							this.reFilter(true);
+							break;
 						case "o":
 						case "O":
 							this.showOthers = !this.showOthers;
@@ -471,6 +508,7 @@ Notifications.prototype.Input = function (key, keyCode, char, eventKey) {
 							this.showBoosts = true;
 							this.showFollows = true;
 							this.showMentions = true;
+							this.showVotes = true;
 							this.showOthers = true;
 							this.reFilter(true);
 							break;
@@ -484,6 +522,7 @@ Notifications.prototype.Input = function (key, keyCode, char, eventKey) {
 							this.textOverlay += "- `B`/`b`        : Toggle showing of boosts\n";
 							this.textOverlay += "- `F`/`f`        : Toggle showing of follows\n";
 							this.textOverlay += "- `M`/`m`        : Toggle showing of mentions\n";
+							this.textOverlay += "- `V`/`v`        : Toggle showing of polls\n";
 							this.textOverlay += "- `O`/`o`        : Toggle showing of other notifications\n";
 							this.textOverlay += "- `SPACE`        : Reset all filters\n";
 							this.textOverlay += "- `CTRL-P`       : Search user\n";

@@ -236,10 +236,18 @@ Home.prototype.drawEntries = function () {
 					var vote_option = "";
 					if (e.poll.voted && e.poll.own_votes.indexOf(p) != -1) {
 						highlight_color = EGA.YELLOW;
-						vote_option += "[X] ";
+						if (e.poll.multiple) {
+							vote_option += "<X> ";
+						} else {
+							vote_option += "[X] ";
+						}
 					} else {
 						highlight_color = EGA.LIGHT_GREY;
-						vote_option += "[ ] ";
+						if (e.poll.multiple) {
+							vote_option += "< > ";
+						} else {
+							vote_option += "[ ] ";
+						}
 					}
 					vote_option += current_vote.title + " " + (100 * current_vote.votes_count / e.poll.voters_count).toFixed(2) + "% (" + current_vote.votes_count + ")";
 					yPos = DisplayText(txtPos, yPos, highlight_color, vote_option, dstdn.tfont);			// vote option
@@ -644,7 +652,7 @@ Home.prototype.Input = function (key, keyCode, char, eventKey) {
 								break;
 							case "t":
 								if (e['tags'].length) {
-									dstdn.dialog = new ListField("Select tag (ENTER=OK, DEL=Cancel)", e['tags'],
+									dstdn.dialog = new ListField("Select tag [ENTER=OK, DEL=Cancel]", e['tags'],
 										function (e) {
 											return "#" + e['name'];
 										},
@@ -671,29 +679,54 @@ Home.prototype.Input = function (key, keyCode, char, eventKey) {
 								break;
 							case "v":
 							case "V":
-								if (e.poll && !e.poll.voted && !e.poll.multiple) {
+								if (e.poll && !e.poll.voted) {
 									var outer = this;
 									var options = [];
 									for (var p = 0; p < e.poll.options.length; p++) {
 										options.push({ title: e.poll.options[p].title, idx: p });
 									}
-									dstdn.dialog = new ListField("Select vote (ENTER=OK, DEL=Cancel)", options,
-										function (le) {
-											return le.title;
+									dstdn.dialog = new ListField("Select vote [ENTER=OK, DEL=Cancel]", options,
+										function (le, sel) {
+											if (e.poll.multiple) {
+												if (sel) {
+													return "<X> " + le.title;
+												} else {
+													return "< > " + le.title;
+												}
+											} else {
+												if (sel) {
+													return "[X] " + le.title;
+												} else {
+													return "[ ] " + le.title;
+												}
+											}
 										},
 										function (le) {
 											if (le) {
-												outer.netop = new NetworkOperation(function () {
-													dstdn.m.Vote(e.poll.id, [le.idx]);
-													e.poll.voted = true;
-													e.poll.own_votes = [le.idx];
-													e.poll.options[le.idx].votes_count++;
-													e.poll.voters_count++;
-													e.poll.votes_count++;
-												});
+												if (e.poll.multiple) {
+													outer.netop = new NetworkOperation(function () {
+														dstdn.m.Vote(e.poll.id, le);
+														e.poll.voted = true;
+														e.poll.own_votes = le;
+														for (var i = 0; i < le.length; i++) {
+															e.poll.options[le[i]].votes_count++;
+														}
+														e.poll.voters_count++;
+														e.poll.votes_count++;
+													});
+												} else {
+													outer.netop = new NetworkOperation(function () {
+														dstdn.m.Vote(e.poll.id, [le.idx]);
+														e.poll.voted = true;
+														e.poll.own_votes = [le.idx];
+														e.poll.options[le.idx].votes_count++;
+														e.poll.voters_count++;
+														e.poll.votes_count++;
+													});
+												}
 											}
 											dstdn.dialog = null;
-										});
+										}, e.poll.multiple);
 								}
 								break;
 							case "h":

@@ -261,8 +261,9 @@ EnterText.prototype.Input = function (key, keyCode, char, eventKey) {
  * @param {string} title title
  * @param {function} onRender converts entry to text in list
  * @param {function} onClose callback for ENTER in list
+ * @param {boolean} multi true top allow selection of multiple entries (using INS)
  */
-function ListField(title, list, onRender, onClose) {
+function ListField(title, list, onRender, onClose, multi) {
 	this.title = title;
 	this.maxChars = 60;
 	this.yStart = 5 * dstdn.sfont.height;
@@ -278,6 +279,12 @@ function ListField(title, list, onRender, onClose) {
 	this.current_list = list;
 	this.current_top = 0;		// currently displayed entry on top of screen
 	this.current_bottom = 0;	// currently displayed entry on bottom of screen
+
+	if (multi) {
+		this.multi = [];			// all selected entries
+	} else {
+		this.multi = null;
+	}
 	this.selected = 0;			// currently selected entry
 }
 
@@ -310,8 +317,22 @@ ListField.prototype.Input = function (key, keyCode, char, eventKey) {
 		case KEY.Code.KEY_END:
 			this.end();
 			break;
+		case KEY.Code.KEY_INSERT:
+			if (this.multi) {
+				var index = this.multi.indexOf(this.selected);
+				if (index > -1) {
+					this.multi.splice(index, 1);
+				} else {
+					this.multi.push(this.selected);
+				}
+			}
+			break;
 		case KEY.Code.KEY_ENTER:
-			this.onClose(e);
+			if (this.multi) {
+				this.onClose(this.multi);
+			} else {
+				this.onClose(e);
+			}
 			break;
 		case KEY.Code.KEY_DEL:
 			this.onClose(null);
@@ -329,13 +350,18 @@ ListField.prototype.drawEntries = function (linePos) {
 			break;
 		}
 
-		var txt = this.onRender(this.current_list[current]);
+		var selected = false;
+		if ((!this.multi && (current === this.selected)) || (this.multi && (this.multi.indexOf(current) > -1))) {
+			selected = true;
+		}
 
 		if (current === this.selected) {
 			col = EGA.LIGHT_RED;
 		} else {
 			col = EGA.LIGHT_BLUE;
 		}
+
+		var txt = this.onRender(this.current_list[current], selected);
 
 		yPos = DisplayMultilineText(this.xStart + this.charWidth, yPos, col, txt, false, 70);
 		yPos += 4;
@@ -586,6 +612,8 @@ Settings.prototype.Input = function (key, keyCode, char, eventKey) {
 	}
 	this.widgets[this.active].active = true;
 }
+
+
 
 // export functions and version
 exports.__VERSION__ = 1;
