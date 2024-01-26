@@ -20,15 +20,19 @@ function FileSelector() {
 
 	this.selWidth = SizeX() - PREVIEW_WIDTH;
 
-	// create list of possible drive letters
-	var currentDrive = GetDrive(); // get current drive
-	for (var i = 0; i < drives.length; i++) {
-		SetDrive(i + 1);
-		if (GetDrive() == i + 1) {
-			this.drives.push(drives[i]);
+	if (LINUX) {
+		this.drives.push('/');
+	} else {
+		// create list of possible drive letters
+		var currentDrive = GetDrive(); // get current drive
+		for (var i = 0; i < drives.length; i++) {
+			SetDrive(i + 1);
+			if (GetDrive() == i + 1) {
+				this.drives.push(drives[i]);
+			}
 		}
+		SetDrive(currentDrive); // return old state
 	}
-	SetDrive(currentDrive); // return old state
 	this.currentDir = this.initDirInfo("./");
 }
 

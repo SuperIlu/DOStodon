@@ -31,8 +31,6 @@ Info.prototype.Draw = function () {
 	var mem_info = MemoryInfo();
 
 	var info = "";
-	info += "Local IP address      : " + JSON.stringify(GetLocalIpAddress()) + "\n";
-	info += "Network mask          : " + JSON.stringify(GetNetworkMask()) + "\n";
 	info += "Host name             : " + JSON.stringify(GetHostname()) + "\n";
 	info += "\n";
 	info += "Server name           : " + dstdn.creds.url + "\n";
