@@ -15,6 +15,9 @@ Just [download](https://github.com/SuperIlu/DOStodon/archive/refs/heads/main.zip
 
 Help on this project is very much appreciated, contact me on [Twitter](https://twitter.com/dec_hl), [Mastodon](https://mastodon.social/@dec_hl) or in the [DOjS Discord](https://discord.gg/J7MUTap9fM) if you want to help or have questions...
 
+## Linux version
+There is a highly experimental Linux version of DOStodon included. It is based on the unreleased DOjS v1.12 (therefore no source is available yet). You can try it at your own risk (please use a VM, do not run it on your main Linux box directly). Please copy either `dojs.ubuntu20.04` or `dojs.arch` to `dojs` and run `./dostodon.sh`. Fullscreen mode does not get keyboard input on WSL2, you can switch to windowed mode by removing the `-u` option in `dostodon.sh`.
+
 <img src="https://github.com/SuperIlu/DOStodon/raw/main/images/timeline.png" alt="DOStodon timeline" width="200">
 <img src="https://github.com/SuperIlu/DOStodon/raw/main/images/profile.png" alt="DOStodon profile" width="200">
 <img src="https://github.com/SuperIlu/DOStodon/raw/main/images/find_user.png" alt="DOStodon find user" width="200">
@@ -193,6 +196,9 @@ ne2000 0x60 3 0x300
 - Have fun
 
 # Changelog
+## 26. January 2024
+- Added Linux version for Ubuntu 20.04 and ArchLinux
+
 ## 16. January 2024
 - Display votes with results in the notifications
 - Improve single choice voting dialog
