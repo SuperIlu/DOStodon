@@ -196,6 +196,11 @@ ne2000 0x60 3 0x300
 - Have fun
 
 # Changelog
+## 5. April 2024
+- Updated curl to 8.7.1
+- Updated mbedTLS to 2.28.8
+- Updated zip to 0.3.2
+
 ## 26. January 2024
 - Added Linux version for Ubuntu 20.04 and ArchLinux
 
