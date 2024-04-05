@@ -201,6 +201,10 @@ ne2000 0x60 3 0x300
 - Updated mbedTLS to 2.28.8
 - Updated zip to 0.3.2
 
+## 01. February 2024
+- Updated mbedTLS and cURL for the DOS version
+- removed Linux binaries, added link to the compilation instructions of DOjS v1.12
+
 ## 26. January 2024
 - Added Linux version for Ubuntu 20.04 and ArchLinux
 
