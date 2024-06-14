@@ -44,6 +44,9 @@ If you want DOStodon to use a proxy you have to set the following ENV variables:
 - `PROXY_PORT`: Pass a port number with this option to set the proxy port to connect to unless it is specified in the proxy string using PROXY_HOST.
 - `PROXY_TYPE`: set this to `SOCKS` to use a SOCKS proxy. If unset or set to anything else a HTTP proxy is asumed.
 
+## NOISE.SYS
+DOStodon supports NOISE.SYS, a MS-DOS random number generator. It can be obtained here: https://github.com/robrwo/noise.sys
+
 ## Keys
 ### Common
 - `ESC`: Quit DOStodon
@@ -196,6 +199,11 @@ ne2000 0x60 3 0x300
 - Have fun
 
 # Changelog
+## 5. April 2024
+- Updated curl to 8.8.0
+- Updated mbedTLS to 3.6.0
+- Added [NOISE.SYS](https://github.com/robrwo/noise.sys) support
+
 ## 5. April 2024
 - Updated curl to 8.7.1
 - Updated mbedTLS to 2.28.8
