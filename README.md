@@ -196,6 +196,11 @@ ne2000 0x60 3 0x300
 - Have fun
 
 # Changelog
+## 14. June 2024
+- Updated curl to 8.8.0
+- Updated mbedTLS to 3.6.0
+- Added support for [NOISE.SYS](https://github.com/robrwo/noise.sys)
+
 ## 5. April 2024
 - Updated curl to 8.7.1
 - Updated mbedTLS to 2.28.8
