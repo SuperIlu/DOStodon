@@ -50,7 +50,7 @@ DOStodon supports NOISE.SYS, a MS-DOS random number generator. It can be obtaine
 ## Keys
 ### Common
 - `ESC`: Quit DOStodon
-- `h/H/?`: Help screen
+- `h/H/?/CTRL-H`: Help screen
 - `F1`: Switch to home timeline
 - `F2`: Switch to notifications
 - `F3`: Switch to hashtag timeline
@@ -136,6 +136,8 @@ DOStodon supports NOISE.SYS, a MS-DOS random number generator. It can be obtaine
 - No support for emojis (replaced by spaces)
 - No support for characters like umlauts, etc.
 - The toot composer only supports BACKSPACE, it is not a real text editor.
+- You can only remove the whole editor content. You can't undo adding an image.
+- You can only add ALT text for the last image added.
 - Bookmarks and favourites do not support pagination (yet).
 - **NO REAL TESTING/QUALITY ASSURANCE!** Folks, this is a **fun project**, if you need a production ready client contribute or use something real! If it works for you, it works, but don't blame me for broken commits or missing features...
 
@@ -188,26 +190,28 @@ ne2000 0x60 3 0x300
 ```
 
 # TODO
-- Look into character-encoding again
 - Busy indicator is missing for some network operations
-- Same network errors lead to an endless loop
+- Some network errors lead to an endless loop
 - Color themes?
 - invert timeline (oldest post on top)
-- ALT text for image uploads
-- Implement setting for CW toots (default collapsed or visible)
 - Fix bugs
 - Have fun
 
 # Changelog
+## 18. August 2024
+- Fixed a small bug when viewing threads in notification screem.
+- Implemented setting for CW toots (default collapsed or visible)
+- Fixed date calculation
+- Fixed an issue with image viewing
+- Added help screen to toot editor
+- Changed some colors for better contrast
+- Updated curl to 8.9.1
+- Added ALT text for image uploads
+
 ## 14. June 2024
 - Updated curl to 8.8.0
 - Updated mbedTLS to 3.6.0
 - Added support for [NOISE.SYS](https://github.com/robrwo/noise.sys)
-
-## 5. April 2024
-- Updated curl to 8.8.0
-- Updated mbedTLS to 3.6.0
-- Added [NOISE.SYS](https://github.com/robrwo/noise.sys) support
 
 ## 5. April 2024
 - Updated curl to 8.7.1

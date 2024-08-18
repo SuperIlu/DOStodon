@@ -204,145 +204,154 @@ Profile.prototype.Draw = function () {
 	return true;
 }
 
+Profile.prototype.Help = function () {
+	this.textOverlay = "Profile screen HELP\n\n";
+	this.textOverlay += "- `F1`           : Show followers\n";
+	this.textOverlay += "- `F2`           : Show following\n";
+	this.textOverlay += "- `F3`           : Show timeline\n";
+	this.textOverlay += "- `b`            : block\n";
+	this.textOverlay += "- `B`            : unblock\n";
+	this.textOverlay += "- `f`            : follow\n";
+	this.textOverlay += "- `F`            : unfollow\n";
+	this.textOverlay += "- `m`            : mute\n";
+	this.textOverlay += "- `M`            : unmute\n";
+	this.textOverlay += "- `T`/`t`        : toot to person\n";
+	this.textOverlay += "- `CTRL-P`       : Search user\n";
+	this.textOverlay += "- `CTRL-S`       : Save screenshot\n";
+	this.textOverlay += "- `DEL`          : close/cancel dialog\n";
+	this.textOverlay += "- `ENTER`        : close profile screen\n";
+}
+
 Profile.prototype.Input = function (key, keyCode, char, eventKey) {
 	if (this.profile != null) {
 		if (this.textOverlay) {
 			this.textOverlay = null;
 		} else {
-			var outer = this;
-			switch (keyCode) {
-				case KEY.Code.KEY_F1:
-					this.netop = new NetworkOperation(function () {
-						var res = dstdn.m.GetFollow(outer.profile['id'], false);
-						res.forEach(function (e) {
-							e['dstdn_list_name'] = RemoveHTML("@" + e['acct'] + " (" + e['display_name'] + ")").substring(0, 60);
-						});
-						dstdn.dialog = new ListField("Followers (locally known) [ENTER=VIEW, DEL=Close]", res,
-							function (e) {
-								return e['dstdn_list_name'];
-							},
-							function (e) {
-								if (e) {
-									outer.SetProfile(e);
-								}
-								dstdn.dialog = null;
+			if (eventKey == KEY_CTRL_H) {
+				this.Help();
+				return false;
+			} else {
+				var outer = this;
+				switch (keyCode) {
+					case KEY.Code.KEY_F1:
+						this.netop = new NetworkOperation(function () {
+							var res = dstdn.m.GetFollow(outer.profile['id'], false);
+							res.forEach(function (e) {
+								e['dstdn_list_name'] = RemoveHTML("@" + e['acct'] + " (" + e['display_name'] + ")").substring(0, 60);
 							});
-					});
-					return true;
-				case KEY.Code.KEY_F2:
-					this.netop = new NetworkOperation(function () {
-						var res = dstdn.m.GetFollow(outer.profile['id'], true);
-						res.forEach(function (e) {
-							e['dstdn_list_name'] = RemoveHTML("@" + e['acct'] + " (" + e['display_name'] + ")").substring(0, 60);
+							dstdn.dialog = new ListField("Followers (locally known) [ENTER=VIEW, DEL=Close]", res,
+								function (e) {
+									return e['dstdn_list_name'];
+								},
+								function (e) {
+									if (e) {
+										outer.SetProfile(e);
+									}
+									dstdn.dialog = null;
+								});
 						});
-						dstdn.dialog = new ListField("Following (locally known) [ENTER=VIEW, DEL=Close]", res,
-							function (e) {
-								return e['dstdn_list_name'];
-							},
-							function (e) {
-								if (e) {
-									outer.SetProfile(e);
-								}
-								dstdn.dialog = null;
+						return true;
+					case KEY.Code.KEY_F2:
+						this.netop = new NetworkOperation(function () {
+							var res = dstdn.m.GetFollow(outer.profile['id'], true);
+							res.forEach(function (e) {
+								e['dstdn_list_name'] = RemoveHTML("@" + e['acct'] + " (" + e['display_name'] + ")").substring(0, 60);
 							});
-					});
-					return true;
-				case KEY.Code.KEY_F3:
-					var prof = this.profile;
-					var return_to = dstdn.current_screen;
-					dstdn.current_screen = new Home(function (outer, max, id, older) { return dstdn.m.TimelineAccount(prof['id'], max, id, older); }, HOME_ACCOUNT);
-					dstdn.current_screen.profile = prof;
-					dstdn.current_screen.return_to = return_to;
-					this.SetProfile(null);
-					return true;
-				case KEY.Code.KEY_ENTER:
-					this.SetProfile(null);
-					return true;
-					break;
-				default:
-					switch (char) {
-						case "F":
-							// unfollow
-							if (this.relation && this.relation['following']) {
-								this.netop = new NetworkOperation(function () {
-									dstdn.m.UnFollow(outer.profile['id']);
-									outer.relation['following'] = false;
+							dstdn.dialog = new ListField("Following (locally known) [ENTER=VIEW, DEL=Close]", res,
+								function (e) {
+									return e['dstdn_list_name'];
+								},
+								function (e) {
+									if (e) {
+										outer.SetProfile(e);
+									}
+									dstdn.dialog = null;
 								});
-							}
-							break;
-						case "f":
-							// follow
-							if (this.relation && !this.relation['following']) {
-								this.netop = new NetworkOperation(function () {
-									dstdn.m.Follow(outer.profile['id']);
-									outer.relation['following'] = true;
-								});
-							}
-							break;
-						case "B":
-							// unblock
-							if (this.relation && this.relation['blocking']) {
-								this.netop = new NetworkOperation(function () {
-									dstdn.m.UnBlock(outer.profile['id']);
-									outer.relation['blocking'] = false;
-								});
-							}
-							break;
-						case "b":
-							// block
-							if (this.relation && !this.relation['blocking']) {
-								this.netop = new NetworkOperation(function () {
-									dstdn.m.Block(outer.profile['id']);
-									outer.relation['blocking'] = true;
-								});
-							}
-							break;
-						case "M":
-							// unmute
-							if (this.relation && this.relation['muting']) {
-								this.netop = new NetworkOperation(function () {
-									dstdn.m.UnMute(outer.profile['id']);
-									outer.relation['muting'] = false;
-								});
-							}
-							break;
-						case "m":
-							// mute
-							if (this.relation && !this.relation['muting']) {
-								this.netop = new NetworkOperation(function () {
-									dstdn.m.Mute(outer.profile['id']);
-									outer.relation['muting'] = true;
-								});
-							}
-							break;
-						case "t":
-						case "T":
-							dstdn.all_screens[SCR_TOOT].TootTo(this.profile);
-							this.SetProfile(null);
-							dstdn.current_screen = dstdn.all_screens[SCR_TOOT];
-							return true;
-							break;
-						case "h":
-						case "H":
-						case "?":
-							this.textOverlay = "Profile screen HELP\n\n";
-							this.textOverlay += "- `F1`           : Show followers\n";
-							this.textOverlay += "- `F2`           : Show following\n";
-							this.textOverlay += "- `F3`           : Show timeline\n";
-							this.textOverlay += "- `b`            : block\n";
-							this.textOverlay += "- `B`            : unblock\n";
-							this.textOverlay += "- `f`            : follow\n";
-							this.textOverlay += "- `F`            : unfollow\n";
-							this.textOverlay += "- `m`            : mute\n";
-							this.textOverlay += "- `M`            : unmute\n";
-							this.textOverlay += "- `T`/`t`        : toot to person\n";
-							this.textOverlay += "- `CTRL-P`       : Search user\n";
-							this.textOverlay += "- `CTRL-S`       : Save screenshot\n";
-							this.textOverlay += "- `DEL`          : close/cancel dialog\n";
-							this.textOverlay += "- `ENTER`        : close profile screen\n";
-							break;
-					}
-					break;
+						});
+						return true;
+					case KEY.Code.KEY_F3:
+						var prof = this.profile;
+						var return_to = dstdn.current_screen;
+						dstdn.current_screen = new Home(function (outer, max, id, older) { return dstdn.m.TimelineAccount(prof['id'], max, id, older); }, HOME_ACCOUNT);
+						dstdn.current_screen.profile = prof;
+						dstdn.current_screen.return_to = return_to;
+						this.SetProfile(null);
+						return true;
+					case KEY.Code.KEY_ENTER:
+						this.SetProfile(null);
+						return true;
+						break;
+					default:
+						switch (char) {
+							case "F":
+								// unfollow
+								if (this.relation && this.relation['following']) {
+									this.netop = new NetworkOperation(function () {
+										dstdn.m.UnFollow(outer.profile['id']);
+										outer.relation['following'] = false;
+									});
+								}
+								break;
+							case "f":
+								// follow
+								if (this.relation && !this.relation['following']) {
+									this.netop = new NetworkOperation(function () {
+										dstdn.m.Follow(outer.profile['id']);
+										outer.relation['following'] = true;
+									});
+								}
+								break;
+							case "B":
+								// unblock
+								if (this.relation && this.relation['blocking']) {
+									this.netop = new NetworkOperation(function () {
+										dstdn.m.UnBlock(outer.profile['id']);
+										outer.relation['blocking'] = false;
+									});
+								}
+								break;
+							case "b":
+								// block
+								if (this.relation && !this.relation['blocking']) {
+									this.netop = new NetworkOperation(function () {
+										dstdn.m.Block(outer.profile['id']);
+										outer.relation['blocking'] = true;
+									});
+								}
+								break;
+							case "M":
+								// unmute
+								if (this.relation && this.relation['muting']) {
+									this.netop = new NetworkOperation(function () {
+										dstdn.m.UnMute(outer.profile['id']);
+										outer.relation['muting'] = false;
+									});
+								}
+								break;
+							case "m":
+								// mute
+								if (this.relation && !this.relation['muting']) {
+									this.netop = new NetworkOperation(function () {
+										dstdn.m.Mute(outer.profile['id']);
+										outer.relation['muting'] = true;
+									});
+								}
+								break;
+							case "t":
+							case "T":
+								dstdn.all_screens[SCR_TOOT].TootTo(this.profile);
+								this.SetProfile(null);
+								dstdn.current_screen = dstdn.all_screens[SCR_TOOT];
+								return true;
+								break;
+							case "h":
+							case "H":
+							case "?":
+								this.Help();
+								break;
+						}
+						break;
+				}
 			}
 		}
 		return this.profile != null;

@@ -238,10 +238,11 @@ Mastodon.prototype.Login = function (user, pw) {
  * Upload a media attachment (PNG and JPEG are supported) to the server.
  * 
  * @param {string} filename the name of a PNG or JPEG file.
+ * @param {string} [alt] descriptive alt-text.
  *  
  * @returns a https://docs.joinmastodon.org/entities/MediaAttachment/, an exception is thrown for an error.
  */
-Mastodon.prototype.Media = function (filename) {
+Mastodon.prototype.Media = function (filename, alt) {
 	var mime_type;
 	if (filename.toLowerCase().endsWith(".jpg")) {
 		mime_type = "image/jpeg";
@@ -270,6 +271,10 @@ Mastodon.prototype.Media = function (filename) {
 	var postdata = [
 		['file', data, filename, mime_type]
 	];
+
+	if (alt) {
+		postdata.push(['description', alt]);
+	}
 
 	var resp = this.DoPost(headers, postdata, this.base_url + "/api/v2/media");
 

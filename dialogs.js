@@ -547,17 +547,19 @@ function Settings() {
 	this.active = 0;
 	this.yPos = this.yStart + this.fntSize;
 
-	this.widgets.push(new NumField(this.xStart + this.fntSize, this.yPos, "Auto reload delay [s]  : ", "autoReloadDelay", 5, 600, 5));
+	this.widgets.push(new NumField(this.xStart + this.fntSize, this.yPos, "Auto reload delay [s]   : ", "autoReloadDelay", 5, 600, 5));
 	this.yPos += this.fntSize;
-	this.widgets.push(new NumField(this.xStart + this.fntSize, this.yPos, "Fetch size             : ", "maxPoll", 1, 30, 1));
+	this.widgets.push(new NumField(this.xStart + this.fntSize, this.yPos, "Fetch size              : ", "maxPoll", 1, 30, 1));
 	this.yPos += this.fntSize;
-	this.widgets.push(new NumField(this.xStart + this.fntSize, this.yPos, "Small img cache size   : ", "smallCacheSize", 2, 150, 2));
+	this.widgets.push(new NumField(this.xStart + this.fntSize, this.yPos, "Small img cache size    : ", "smallCacheSize", 2, 150, 2));
 	this.yPos += this.fntSize;
-	this.widgets.push(new NumField(this.xStart + this.fntSize, this.yPos, "Profile img cache size : ", "profileCacheSize", 2, 150, 2));
+	this.widgets.push(new NumField(this.xStart + this.fntSize, this.yPos, "Profile img cache size  : ", "profileCacheSize", 2, 150, 2));
 	this.yPos += this.fntSize;
-	this.widgets.push(new NumField(this.xStart + this.fntSize, this.yPos, "Large img cache size   : ", "largeCacheSize", 2, 150, 2));
+	this.widgets.push(new NumField(this.xStart + this.fntSize, this.yPos, "Large img cache size    : ", "largeCacheSize", 2, 150, 2));
 	this.yPos += this.fntSize;
-	this.widgets.push(new NumField(this.xStart + this.fntSize, this.yPos, "Disk cache max age [d] : ", "diskCacheMaxAge", 2, 150, 2));
+	this.widgets.push(new NumField(this.xStart + this.fntSize, this.yPos, "Disk cache max age [d]  : ", "diskCacheMaxAge", 2, 150, 2));
+	this.yPos += this.fntSize;
+	this.widgets.push(new BoolField(this.xStart + this.fntSize, this.yPos, "Always show posts w/ CW : ", "ignoreCw", 2, 150, 2));
 	this.yPos += this.fntSize * 3;
 
 	this.widgets[this.active].active = true;
@@ -613,7 +615,49 @@ Settings.prototype.Input = function (key, keyCode, char, eventKey) {
 	this.widgets[this.active].active = true;
 }
 
+//////
+// editor for ALT text
+function AltEditor(txt, onEnter) {
+	this.txt = txt || "";
+	this.onEnter = onEnter;
+}
 
+AltEditor.prototype.Draw = function () {
+	var fntSize = dstdn.sfont.height;
+
+	var xStart = fntSize;
+	var yStart = fntSize;
+	var xEnd = Width - 2 * fntSize;
+	var yEnd = Height - 2 * fntSize;
+
+	FilledBox(xStart, yStart, xEnd, yEnd, Color(32));
+	Box(xStart, yStart, xEnd, yEnd, EGA.LIGHT_BLUE);
+
+	DisplayMultilineToot(xStart + fntSize, yStart + fntSize, EGA.GREEN, this.txt, true, 70);
+}
+
+AltEditor.prototype.Input = function (key, keyCode, char, eventKey) {
+	if (keyCode == KEY.Code.KEY_BACKSPACE) {
+		// delete last character
+		this.txt = this.txt.slice(0, this.txt.length - 1);
+	} else if (keyCode == KEY.Code.KEY_DEL) {
+		// cancel
+		this.onEnter(null);
+	} else if (keyCode == KEY.Code.KEY_ENTER) {
+		if (key === 13) {
+			// Println("ENTER");
+			this.txt += '\n';
+		} else if (key === 10) {
+			// take text
+			this.onEnter(this.txt);
+		}
+	} else {
+		if (key >= CharCode(" ") && (this.txt.length < TXT_MAX)) {
+			// add character if not max length and charcode at least a SPACE
+			this.txt += char;
+		}
+	}
+}
 
 // export functions and version
 exports.__VERSION__ = 1;
@@ -622,3 +666,4 @@ exports.EnterText = EnterText;
 exports.ListField = ListField;
 exports.Settings = Settings;
 exports.HashTagDialog = HashTagDialog;
+exports.AltEditor = AltEditor;

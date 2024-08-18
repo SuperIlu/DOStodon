@@ -80,20 +80,22 @@ var HOME_FAV = 6;
 var HOME_CONTEXT = 7;
 var HOME_ACCOUNT = 8;
 
+// extra keycodes
 var KEY_CTRL_1 = 7170;
 var KEY_CTRL_2 = 7426;
 var KEY_CTRL_3 = 7682;
 var KEY_CTRL_4 = 7938;
 
-var KEY_CTRL_S = 4883;
-var KEY_CTRL_P = 4112;
-var KEY_CTRL_W = 5911;
-var KEY_CTRL_L = 3084;
-var KEY_CTRL_C = 771;
-
-var KEY_CTRL_M = 3341;
+var KEY_CTRL_A = 257;
 var KEY_CTRL_B = 514;
+var KEY_CTRL_C = 771;
+var KEY_CTRL_H = 2056;
+var KEY_CTRL_L = 3084;
+var KEY_CTRL_M = 3341;
+var KEY_CTRL_P = 4112;
+var KEY_CTRL_S = 4883;
 var KEY_CTRL_T = 5140;
+var KEY_CTRL_W = 5911;
 
 // contains all instance data
 var dstdn = {

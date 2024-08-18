@@ -76,7 +76,7 @@ Home.prototype.lazyFetchYoutube = function (yt) {
 	}
 }
 
-Home.prototype.drawEntries = function () {
+Home.prototype.drawEntries = function (ignore_cw) {
 	var indent_pixels = 8 * INDENT_CHARS;
 	var indent_pixels_2 = indent_pixels / 2;
 
@@ -169,7 +169,7 @@ Home.prototype.drawEntries = function () {
 			}
 
 			yPos = DisplayMultilineToot(txtPos, yPos, col, e.dostodon.header, false, charLength);
-			if (e.dostodon.sensitive_indicator) {
+			if (e.dostodon.sensitive_indicator && !ignore_cw) {
 				yPos = DisplayMultilineToot(txtPos, yPos, EGA.LIGHT_BLUE, "<CW> " + e.dostodon.sensitive_txt, false, charLength);
 			} else {
 				yPos = DisplayMultilineToot(txtPos, yPos, textColor, e.dostodon.content, false, charLength);
@@ -177,7 +177,7 @@ Home.prototype.drawEntries = function () {
 
 			// render media images
 			var media = e['media_attachments'];
-			if (!e.dostodon.sensitive_indicator) {
+			if (!e.dostodon.sensitive_indicator || ignore_cw) {
 				if (media && media.length > 0) {
 					var media_rendered = false;
 					var imgX = xPos + LIST_IMG_SIZE * 2;
@@ -284,7 +284,7 @@ Home.prototype.drawEntries = function () {
 			DisplayText(xPos, statusY, EGA.YELLOW, fstate, dstdn.tfont);
 
 			if (t.pollId == this.lastPoll) {
-				highlight_color = EGA.LIGHT_RED;
+				highlight_color = EGA.RED;
 			} else {
 				highlight_color = EGA.DARK_GREY;
 			}
@@ -370,7 +370,15 @@ Home.prototype.Draw = function () {
 		this.doPoll = false;
 	}
 
-	this.drawEntries();
+	this.drawEntries(dstdn.c.Get('ignoreCw'));
+
+	if (this.type === HOME_CONTEXT) {
+		DisplaySidebar("CTX");
+	} else if (this.type === HOME_ACCOUNT) {
+		DisplaySidebar("PROF");
+	} else {
+		DisplaySidebar(null);
+	}
 
 	if (this.image_preview) {
 		this.image_preview.img.DrawAdvanced(
@@ -389,14 +397,6 @@ Home.prototype.Draw = function () {
 	if (!this.last_poll || (new Date() - this.last_poll > pollDelay)) {
 		DrawLogo();
 		this.doPoll = true;
-	}
-
-	if (this.type === HOME_CONTEXT) {
-		DisplaySidebar("CTX");
-	} else if (this.type === HOME_ACCOUNT) {
-		DisplaySidebar("PROF");
-	} else {
-		DisplaySidebar(null);
 	}
 
 	// draw list indicators
@@ -507,6 +507,41 @@ Home.prototype.pageUp = function () {
 	}
 }
 
+Home.prototype.Help = function () {
+	this.textOverlay = "Timeline screen HELP\n\n";
+	this.textOverlay += "- `1..4`         : Show media attachment 1 to 4. Any key to close\n";
+	this.textOverlay += "- `5`            : Show YouTube preview image. Any key to close\n";
+	this.textOverlay += "- `CTRL-1..4`    : Image description of media. Any key to close\n";
+	this.textOverlay += "- `b`            : Boost selected toot\n";
+	this.textOverlay += "- `B`            : UN-Boost selected toot\n";
+	this.textOverlay += "- `C`/`c`        : Toggle toots with content warning.\n";
+	this.textOverlay += "- `D`/`d`        : Print JSON of selected toot to logfile\n";
+	this.textOverlay += "- `f`            : Favorite selected toot\n";
+	this.textOverlay += "- `F`            : UN-Favorite selected toot\n";
+	this.textOverlay += "- `m`            : Bookmark selected toot\n";
+	this.textOverlay += "- `M`            : UN-Bookmark selected toot\n";
+	this.textOverlay += "- `p`            : Profile of current entry (the boosters profile)\n";
+	this.textOverlay += "- `P`            : Profile of current entry (the original profile)\n";
+	this.textOverlay += "- `R`/`r`        : Reply to selected toot\n";
+	this.textOverlay += "- `t`            : Select tag from current toot\n";
+	this.textOverlay += "- `v / V`        : Vote\n";
+	this.textOverlay += "- `CTRL-P`       : Search user\n";
+	this.textOverlay += "- `STRL-S`       : Save screenshot\n";
+	this.textOverlay += "- `CTRL-C`       : Show settings dialog\n";
+	this.textOverlay += "- `CTRL-B`       : Toggle toots&boosts, boosts only, toots only\n";
+	this.textOverlay += "- `CTRL-M`       : Toggle showing posts with media only\n";
+	this.textOverlay += "- `UP/DOWN`      : scroll entries\n";
+	this.textOverlay += "- `Page UP/DOWN` : scroll entries page wise\n";
+	this.textOverlay += "- `HOME/END`     : got to first/last entry\n";
+	this.textOverlay += "- `ENTER`        : Thread view of current entry, `ENTER` to exit\n";
+	this.textOverlay += "- `DEL`          : close/cancel dialog\n";
+	if (this.type === HOME_TAG) {
+		this.textOverlay += "- `T`            : change tag dialog\n";
+		this.textOverlay += "- `ENTER`        : confirm tag in tag editor\n";
+		this.textOverlay += "- `BACKSPACE`    : delete character in tag editor\n";
+	}
+}
+
 Home.prototype.Input = function (key, keyCode, char, eventKey) {
 	if (this.textOverlay) {
 		this.textOverlay = null;
@@ -543,8 +578,13 @@ Home.prototype.Input = function (key, keyCode, char, eventKey) {
 					this.showBoosts = true;
 					this.showToots = true;
 				}
+				return false;
 			} else if (eventKey == KEY_CTRL_M) {
 				this.onlyMedia = !this.onlyMedia;
+				return false;
+			} else if (eventKey == KEY_CTRL_H) {
+				this.Help();
+				return false;
 			} else if (eventKey == KEY_CTRL_W) {
 				this.netop = new NetworkOperation(function () {
 					Println(JSON.stringify(dstdn.m.SetMarker(t['id'], true)));
@@ -732,38 +772,7 @@ Home.prototype.Input = function (key, keyCode, char, eventKey) {
 							case "h":
 							case "H":
 							case "?":
-								this.textOverlay = "Timeline screen HELP\n\n";
-								this.textOverlay += "- `1..4`         : Show media attachment 1 to 4. Any key to close\n";
-								this.textOverlay += "- `5`            : Show YouTube preview image. Any key to close\n";
-								this.textOverlay += "- `CTRL-1..4`    : Image description of media. Any key to close\n";
-								this.textOverlay += "- `b`            : Boost selected toot\n";
-								this.textOverlay += "- `B`            : UN-Boost selected toot\n";
-								this.textOverlay += "- `C`/`c`        : Toggle toots with content warning.\n";
-								this.textOverlay += "- `D`/`d`        : Print JSON of selected toot to logfile\n";
-								this.textOverlay += "- `f`            : Favorite selected toot\n";
-								this.textOverlay += "- `F`            : UN-Favorite selected toot\n";
-								this.textOverlay += "- `m`            : Bookmark selected toot\n";
-								this.textOverlay += "- `M`            : UN-Bookmark selected toot\n";
-								this.textOverlay += "- `p`            : Profile of current entry (the boosters profile)\n";
-								this.textOverlay += "- `P`            : Profile of current entry (the original profile)\n";
-								this.textOverlay += "- `R`/`r`        : Reply to selected toot\n";
-								this.textOverlay += "- `t`            : Select tag from current toot\n";
-								this.textOverlay += "- `v / V`        : Vote\n";
-								this.textOverlay += "- `CTRL-P`       : Search user\n";
-								this.textOverlay += "- `STRL-S`       : Save screenshot\n";
-								this.textOverlay += "- `CTRL-C`       : Show settings dialog\n";
-								this.textOverlay += "- `CTRL-B`       : Toggle toots&boosts, boosts only, toots only\n";
-								this.textOverlay += "- `CTRL-M`       : Toggle showing posts with media only\n";
-								this.textOverlay += "- `UP/DOWN`      : scroll entries\n";
-								this.textOverlay += "- `Page UP/DOWN` : scroll entries page wise\n";
-								this.textOverlay += "- `HOME/END`     : got to first/last entry\n";
-								this.textOverlay += "- `ENTER`        : Thread view of current entry, `ENTER` to exit\n";
-								this.textOverlay += "- `DEL`          : close/cancel dialog\n";
-								if (this.type === HOME_TAG) {
-									this.textOverlay += "- `T`            : change tag dialog\n";
-									this.textOverlay += "- `ENTER`        : confirm tag in tag editor\n";
-									this.textOverlay += "- `BACKSPACE`    : delete character in tag editor\n";
-								}
+								this.Help();
 								break;
 							case "B":
 								if (e['reblogged']) {

@@ -21,7 +21,9 @@ SOFTWARE.
 var TEXT_START_OFFSET = 10;
 
 function Toot() {
+	this.textOverlay = null;
 	this.txt = "";
+	this.altEdit = null;
 	this.images = [];
 	this.reply = null;
 	this.visibility = "public"; // public, unlisted, private, direct
@@ -106,7 +108,7 @@ Toot.prototype.Draw = function () {
 
 	if (this.images.length > 0) {
 		for (var i = 0; i < this.images.length; i++) {
-			yPos = DisplayMultilineToot(TEXT_START_OFFSET, yPos, EGA.LIGHT_GREY, this.images[i], false, TXT_LINE_LENGTH);
+			yPos = DisplayMultilineToot(TEXT_START_OFFSET, yPos, EGA.LIGHT_GREY, this.images[i].name + (this.images[i].alt ? " [ALT]" : ""), false, TXT_LINE_LENGTH);
 		}
 		Line(0, yPos, CONTENT_WIDTH, yPos, EGA.BLUE);
 		yPos += TEXT_START_OFFSET;
@@ -114,62 +116,106 @@ Toot.prototype.Draw = function () {
 
 	DisplayMultilineToot(TEXT_START_OFFSET, yPos, EGA.GREEN, this.txt, true, TXT_LINE_LENGTH);
 
+	DisplaySidebar(null);
+
 	if (this.netop && this.netop.Process()) {
 		this.netop = null;
 	}
-	DisplaySidebar(null);
+	if (this.textOverlay) {
+		TextOverlay(this.textOverlay, EGA.WHITE);
+	}
+	if (this.altEdit) {
+		this.altEdit.Draw();
+	}
+}
+
+Toot.prototype.Help = function () {
+	this.textOverlay = "Toot screen HELP\n\n";
+	this.textOverlay += "- `CTRL-ENTER`: Send toot in Toot editor.\n";
+	this.textOverlay += "- `CTRL-A`    : Open ALT-test editor for the last added image.\n";
+	this.textOverlay += "- `CTRL-P`    : Open account search, ENTER puts the selected account\n";
+	this.textOverlay += "                into the toot.\n";
+	this.textOverlay += "- `BACKSPACE` : delete character.\n";
+	this.textOverlay += "- `DEL`       : delete toot composer text and reply-to toot.\n";
+	this.textOverlay += "- `TAB`       : switch toot visibility between `public`, `unlisted`,\n";
+	this.textOverlay += "                `private` and `direct`.\n";
+	this.textOverlay += "- `INSERT`    : Image selector for image attachments to the toot.\n";
+	this.textOverlay += "\n";
+	this.textOverlay += "To add a content warning/spoiler to a toot start the toot with 'cw:'.\n";
+	this.textOverlay += "The first line of the toot will be the content warning, all subsequent\n";
+	this.textOverlay += "lines will be the body text of the toot.\n";
 }
 
 Toot.prototype.Input = function (key, keyCode, char, eventKey) {
-	if (keyCode == KEY.Code.KEY_BACKSPACE) {
-		// delete last character
-		this.txt = this.txt.slice(0, this.txt.length - 1);
-	} else if (keyCode == KEY.Code.KEY_DEL) {
-		// undo 'reply to' and all text
-		this.txt = "";
-		this.reply = null;
-		this.images = [];
-		this.previousScreen();
-	} else if (keyCode == KEY.Code.KEY_TAB) {
-		switch (this.visibility) {
-			case 'public':
-				this.visibility = "unlisted";
-				break;
-			case 'unlisted':
-				this.visibility = "private";
-				break;
-			case 'private':
-				this.visibility = "direct";
-				break;
-			default:
-				this.visibility = "public";
-				break;
-		}
-	} else if (keyCode == KEY.Code.KEY_INSERT) {
-		// open image selector if there are less than 4 images
-		if (this.images.length < 4) {
-			var outer = this;
-			dstdn.file_sel.Activate(function (fname) {
-				if (fname) {
-					outer.images.push(fname);
-				}
-			});
-		}
-	} else if (keyCode == KEY.Code.KEY_ENTER) {
-		if (key === 13) {
-			// Println("ENTER");
-			this.txt += '\n';
-		} else if (key === 10) {
-			//Println("CTRL ENTER");
-			this.toot();
-		}
+	if (this.textOverlay) {
+		this.textOverlay = null;
+	} else if (this.altEdit) {
+		this.altEdit.Input(key, keyCode, char, eventKey);
 	} else {
-		if (key >= CharCode(" ") && (this.txt.length < TXT_MAX)) {
-			// add character if not max length and charcode at least a SPACE
-			this.txt += char;
+		if (eventKey == KEY_CTRL_H) {
+			this.Help();
+			return false;
+		} else if (eventKey == KEY_CTRL_A) {
+			if (this.images.length > 0) {
+				var outer = this;
+				this.altEdit = new AltEditor(this.images[this.images.length - 1].alt, function (res) {
+					outer.images[outer.images.length - 1].alt = res;
+					outer.altEdit = null;
+				});
+			}
+			return false;
+		} else {
+			if (keyCode == KEY.Code.KEY_BACKSPACE) {
+				// delete last character
+				this.txt = this.txt.slice(0, this.txt.length - 1);
+			} else if (keyCode == KEY.Code.KEY_DEL) {
+				// undo 'reply to' and all text
+				this.txt = "";
+				this.reply = null;
+				this.images = [];
+				this.previousScreen();
+			} else if (keyCode == KEY.Code.KEY_TAB) {
+				switch (this.visibility) {
+					case 'public':
+						this.visibility = "unlisted";
+						break;
+					case 'unlisted':
+						this.visibility = "private";
+						break;
+					case 'private':
+						this.visibility = "direct";
+						break;
+					default:
+						this.visibility = "public";
+						break;
+				}
+			} else if (keyCode == KEY.Code.KEY_INSERT) {
+				// open image selector if there are less than 4 images
+				if (this.images.length < 4) {
+					var outer = this;
+					dstdn.file_sel.Activate(function (fname) {
+						if (fname) {
+							outer.images.push({ name: fname, alt: null });
+						}
+					});
+				}
+			} else if (keyCode == KEY.Code.KEY_ENTER) {
+				if (key === 13) {
+					// Println("ENTER");
+					this.txt += '\n';
+				} else if (key === 10) {
+					//Println("CTRL ENTER");
+					this.toot();
+				}
+			} else {
+				if (key >= CharCode(" ") && (this.txt.length < TXT_MAX)) {
+					// add character if not max length and charcode at least a SPACE
+					this.txt += char;
+				}
+			}
 		}
+		return false;
 	}
-	return false;
 }
 
 Toot.prototype.previousScreen = function () {
@@ -199,7 +245,7 @@ Toot.prototype.toot = function () {
 			var mediaIds = [];
 			if (outer.images.length > 0) {
 				for (var i = 0; i < outer.images.length; i++) {
-					var media = dstdn.m.Media(outer.images[i]);	// upload image
+					var media = dstdn.m.Media(outer.images[i].name, outer.images[i].alt);	// upload image
 					mediaIds.push(media.id);
 				}
 			}

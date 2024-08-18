@@ -387,11 +387,32 @@ Notifications.prototype.reFilter = function (changed) {
 	}
 }
 
+Notifications.prototype.Help = function () {
+	this.textOverlay = "Notification screen HELP\n\n";
+	this.textOverlay += "- `p`            : Profile of current entry (the boosters profile)\n";
+	this.textOverlay += "- `P`            : Profile of current entry (the original profile)\n";
+	this.textOverlay += "- `L`/`l`        : Toggle showing of favorites\n";
+	this.textOverlay += "- `B`/`b`        : Toggle showing of boosts\n";
+	this.textOverlay += "- `F`/`f`        : Toggle showing of follows\n";
+	this.textOverlay += "- `M`/`m`        : Toggle showing of mentions\n";
+	this.textOverlay += "- `V`/`v`        : Toggle showing of polls\n";
+	this.textOverlay += "- `O`/`o`        : Toggle showing of other notifications\n";
+	this.textOverlay += "- `SPACE`        : Reset all filters\n";
+	this.textOverlay += "- `CTRL-P`       : Search user\n";
+	this.textOverlay += "- `CTRL-S`       : Save screenshot\n";
+	this.textOverlay += "- `CTRL-C`       : Show settings dialog\n";
+	this.textOverlay += "- `UP/DOWN`      : scroll entries\n";
+	this.textOverlay += "- `Page UP/DOWN` : scroll entries page wise\n";
+	this.textOverlay += "- `HOME/END`     : got to first/last entry\n";
+	this.textOverlay += "- `DEL`          : close/cancel dialog\n";
+	this.textOverlay += "- `ENTER`        : Thread view of current entry, `ENTER` to exit\n";
+}
+
 Notifications.prototype.Input = function (key, keyCode, char, eventKey) {
 	if (this.textOverlay) {
 		this.textOverlay = null;
 	} else if (this.context) {
-		if (keyCode == KEY.Code.KEY_ENTER || keyCode == KEY.Code.KEY_BACKSPACE) {
+		if (keyCode == KEY.Code.KEY_ENTER || keyCode == KEY.Code.KEY_BACKSPACE || keyCode == KEY.Code.KEY_DEL) {
 			this.context = null;
 		} else {
 			return this.context.Input(key, keyCode, char, eventKey);
@@ -402,6 +423,9 @@ Notifications.prototype.Input = function (key, keyCode, char, eventKey) {
 			this.netop = new NetworkOperation(function () {
 				Println(JSON.stringify(dstdn.m.SetMarker(e['id'], false)));
 			});
+			return false;
+		} else if (eventKey == KEY_CTRL_H) {
+			this.Help();
 			return false;
 		} else if (eventKey == KEY_CTRL_L) {
 			this.netop = new NetworkOperation(function () {
@@ -515,24 +539,7 @@ Notifications.prototype.Input = function (key, keyCode, char, eventKey) {
 						case "h":
 						case "H":
 						case "?":
-							this.textOverlay = "Notification screen HELP\n\n";
-							this.textOverlay += "- `p`            : Profile of current entry (the boosters profile)\n";
-							this.textOverlay += "- `P`            : Profile of current entry (the original profile)\n";
-							this.textOverlay += "- `L`/`l`        : Toggle showing of favorites\n";
-							this.textOverlay += "- `B`/`b`        : Toggle showing of boosts\n";
-							this.textOverlay += "- `F`/`f`        : Toggle showing of follows\n";
-							this.textOverlay += "- `M`/`m`        : Toggle showing of mentions\n";
-							this.textOverlay += "- `V`/`v`        : Toggle showing of polls\n";
-							this.textOverlay += "- `O`/`o`        : Toggle showing of other notifications\n";
-							this.textOverlay += "- `SPACE`        : Reset all filters\n";
-							this.textOverlay += "- `CTRL-P`       : Search user\n";
-							this.textOverlay += "- `CTRL-S`       : Save screenshot\n";
-							this.textOverlay += "- `CTRL-C`       : Show settings dialog\n";
-							this.textOverlay += "- `UP/DOWN`      : scroll entries\n";
-							this.textOverlay += "- `Page UP/DOWN` : scroll entries page wise\n";
-							this.textOverlay += "- `HOME/END`     : got to first/last entry\n";
-							this.textOverlay += "- `DEL`          : close/cancel dialog\n";
-							this.textOverlay += "- `ENTER`        : Thread view of current entry, `ENTER` to exit\n";
+							this.Help();
 							break;
 					}
 					break;

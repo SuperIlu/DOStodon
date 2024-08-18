@@ -11,7 +11,9 @@ function Config() {
 		"profileCacheSize": 15,
 		"largeCacheSize": 15,
 
-		"diskCacheMaxAge": 14
+		"diskCacheMaxAge": 14,
+
+		"ignoreCw": false
 	};
 
 	this.DiskConfig = {};
