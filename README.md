@@ -198,6 +198,12 @@ ne2000 0x60 3 0x300
 - Have fun
 
 # Changelog
+## 20. October 2024
+- Updated curl to 8.10.1
+- Updated mbedTLS to 3.6.2
+- Updated jpeg from 9e to 9f
+- Updated SQLite to 3.46.1 (thanks to https://mastodon.social/@BenCollver@tilde.zone)
+
 ## 18. August 2024
 - Fixed a small bug when viewing threads in notification screem.
 - Implemented setting for CW toots (default collapsed or visible)
