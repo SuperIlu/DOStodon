@@ -3,6 +3,8 @@ This is the source of DOStodon, a Mastodon client for MS-DOS.
 
 DOStodon is implemented in Javascript and relies on a yet unreleased version of [DOjS](https://github.com/SuperIlu/DOjS) to run.
 
+Help on this project is very much appreciated, contact me on [Mastodon](https://mastodon.social/@dec_hl) or in the [DOjS Discord](https://discord.gg/J7MUTap9fM) if you want to help or have questions...
+
 # Quick start
 - **You need a VM, real HW or DOSBox-staging with a network card and a matching packet driver to use it.**
 - **A Pentium 133 or faster with at least 32MiB of RAM is recommended.**
@@ -13,7 +15,8 @@ DOStodon is implemented in Javascript and relies on a yet unreleased version of 
 
 Just [download](https://github.com/SuperIlu/DOStodon/archive/refs/heads/main.zip) the whole repository.
 
-Help on this project is very much appreciated, contact me on [Twitter](https://twitter.com/dec_hl), [Mastodon](https://mastodon.social/@dec_hl) or in the [DOjS Discord](https://discord.gg/J7MUTap9fM) if you want to help or have questions...
+## Attention:
+Starting with 4.4.x Mastodon seems to have deactivated the "password" oAuth method. The only way to authenticate now (and get a valid token) seems to be via redirection to an HTML page that does the authentication (see [here](https://mastodon.social/@BenCollver@tilde.zone/113466787872836725)). Naturally DOStodon can not support that. Until there is a solution you will not be able to log into instances that do not support "password" authentication.
 
 ## Linux version
 There is a highly experimental Linux version of DOStodon included. It is based on [DOjS v1.12](https://github.com/SuperIlu/DOjS). You can try it at your own risk. You need to compile DOjS yourself, please look at [this instruction](https://github.com/SuperIlu/DOjS/blob/master/README_Linux.md) how to do that. Fullscreen mode does not get keyboard input on WSL2, you can switch to windowed mode by removing the `-u` option in `dostodon.sh`.
