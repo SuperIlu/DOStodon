@@ -1,11 +1,11 @@
 # DOStodon
 This is the source of DOStodon, a Mastodon client for MS-DOS.
 
-DOStodon is implemented in Javascript and relies on a yet unreleased version of [DOjS](https://github.com/SuperIlu/DOjS) to run.
+DOStodon is implemented in Javascript and relies on [DOjS](https://github.com/SuperIlu/DOjS) to run (included).
 
 Help on this project is very much appreciated, contact me on [Mastodon](https://mastodon.social/@dec_hl) or in the [DOjS Discord](https://discord.gg/J7MUTap9fM) if you want to help or have questions...
 
-# Quick start
+# Quick start for DOS
 - **You need a VM, real HW or DOSBox-staging with a network card and a matching packet driver to use it.**
 - **A Pentium 133 or faster with at least 32MiB of RAM is recommended.**
 - **Packet drivers can e.g. be found on [packetdriversdos.net](http://packetdriversdos.net/) (make sure to download the driver from the "PC/TCP PACKET DRIVERS" section) or on [crynwr.com](http://crynwr.com/drivers/) or [www.georgpotthast.de](http://www.georgpotthast.de/sioux/packet.htm)**
@@ -15,34 +15,45 @@ Help on this project is very much appreciated, contact me on [Mastodon](https://
 
 Just [download](https://github.com/SuperIlu/DOStodon/archive/refs/heads/main.zip) the whole repository.
 
-## Attention:
-Starting with 4.4.x Mastodon seems to have deactivated the "password" oAuth method. The only way to authenticate now (and get a valid token) seems to be via redirection to an HTML page that does the authentication (see [here](https://mastodon.social/@BenCollver@tilde.zone/113466787872836725)). Naturally DOStodon can not support that. Until there is a solution you will not be able to log into instances that do not support "password" authentication.
-
 ## Linux version
-There is a highly experimental Linux version of DOStodon included. It is based on [DOjS v1.12](https://github.com/SuperIlu/DOjS). You can try it at your own risk. You need to compile DOjS yourself, please look at [this instruction](https://github.com/SuperIlu/DOjS/blob/master/README_Linux.md) how to do that. Fullscreen mode does not get keyboard input on WSL2, you can switch to windowed mode by removing the `-u` option in `dostodon.sh`.
+There is an experimental Linux version of DOStodon. It is based on [DOjS v1.12](https://github.com/SuperIlu/DOjS). You can try it at your own risk. You need to compile DOjS yourself, please look at [this instruction](https://github.com/SuperIlu/DOjS/blob/master/README_Linux.md) how to do that. Fullscreen mode does not get keyboard input on WSL2, you can switch to windowed mode by removing the `-u` option in `dostodon.sh`.
 
 <img src="https://github.com/SuperIlu/DOStodon/raw/main/images/timeline.png" alt="DOStodon timeline" width="200">
 <img src="https://github.com/SuperIlu/DOStodon/raw/main/images/profile.png" alt="DOStodon profile" width="200">
 <img src="https://github.com/SuperIlu/DOStodon/raw/main/images/find_user.png" alt="DOStodon find user" width="200">
 <img src="https://github.com/SuperIlu/DOStodon/raw/main/images/hashtag.png" alt="DOStodon hashtag" width="200">
 
+## Win32 version
+I uploaded an experimental Win32 version. It should work from Windows XP onwards. Simply run `wintodon.bat` after following the instructions below
+
 # Usage
-## First start
-Please run `DOStodon <server> <email> <password>`
-
-- `server`: the URL of the server you want to connect to (e.g. `mastodon.social` or `https://bitbang.social`). Can be with or without `https://` prefix.
-- `email`: the email address used for registration (shown on the `Preferences -> Account` page in the web).
-- `password`: Your server password. 2FA is not supported. Your password should not contain any non 7bit ASCII characters.
-
-Example: `DOStodon mastodon.social jon@somwhere.com 123abcABC`
-
-The access tokens are stored in `CREDS.JSN` if the login is successful.
+## Before first start
+**IMPORTANT NOTE:** Mastodon v4.4 disabled the authentication via username/password (see [here](https://mastodon.social/@BenCollver@tilde.zone/113466787872836725)). The following is a workaround using a modern computer:
+- Login to your account on the webinterface of a modern PC
+- Go to the preferences page (cog icon)
+- Click on `<> Development`
+- Click on `New Application`
+- Fill in the Form like this:
+	- Application name: DOStodon
+	- Application website: https://github.com/SuperIlu/DOStodon
+	- Check the scopes: `read`, `profile`, `write`, `follow` and `push`
+- Click on `Submit`
+- Click on the newly created `DOStodon` application in the `Your applications` list
+- Copy the string after `Your access token` and create the file `CREDS.JSON` in the DOStodon directory like this, replacing `YOUR TOKEN` and `YOUR SERVER` with the token and the address of your server. Leave the rest of the file as it is.
+```
+{
+	"client_id": "XXX",
+	"client_secret": "XXX",
+	"token": "YOUR TOKEN",
+	"url": "https://YOUR SERVER"
+}
+```
 
 ## subsequent starts
-Just run `DOStodon`.
+Just run `DOStodon.bat` or `wintodon.bat`.
 
 ## Proxy support
-If you want DOStodon to use a proxy you have to set the following ENV variables:
+If you want DOStodon to use a proxy you have to set the following ENV variables (e.g. in the BAT files):
 - `PROXY_HOST`: HTTP proxy to use. The parameter should be a string holding the host name or dotted IP address. To specify port number in this string, append :[port] to the end of the host name. The proxy string may be prefixed with [protocol]:// since any such prefix will be ignored. The proxy's port number may optionally be specified with the separate function SetProxyPort().
 - `PROXY_PORT`: Pass a port number with this option to set the proxy port to connect to unless it is specified in the proxy string using PROXY_HOST.
 - `PROXY_TYPE`: set this to `SOCKS` to use a SOCKS proxy. If unset or set to anything else a HTTP proxy is asumed.
@@ -201,6 +212,10 @@ ne2000 0x60 3 0x300
 - Have fun
 
 # Changelog
+## 22. February 2025
+- Updated README.md for authentication
+- Added Win32 binaries
+
 ## 20. October 2024
 - Updated curl to 8.10.1
 - Updated mbedTLS to 3.6.2
