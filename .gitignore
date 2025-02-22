@@ -2,6 +2,7 @@ dosbox.conf
 dosbox-x.exe
 JSLOG.TXT
 CREDS.JSN
+CREDS_old.JSN
 TMPIMG.JPG
 TMPIMG.PNG
 W32DHCP.TMP
