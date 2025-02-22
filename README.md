@@ -39,7 +39,7 @@ I uploaded an experimental Win32 version. It should work from Windows XP onwards
 	- Check the scopes: `read`, `profile`, `write`, `follow` and `push`
 - Click on `Submit`
 - Click on the newly created `DOStodon` application in the `Your applications` list
-- Copy the string after `Your access token` and create the file `CREDS.JSON` in the DOStodon directory like this, replacing `YOUR TOKEN` and `YOUR SERVER` with the token and the address of your server. Leave the rest of the file as it is.
+- Copy the string after `Your access token` and create the file `CREDS.JSN` in the DOStodon directory like this, replacing `YOUR TOKEN` and `YOUR SERVER` with the token and the address of your server. Leave the rest of the file as it is.
 ```
 {
 	"client_id": "XXX",
