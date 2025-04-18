@@ -212,6 +212,11 @@ ne2000 0x60 3 0x300
 - Have fun
 
 # Changelog
+## 18. April 2025
+- Added missing Win32 DLLs
+- Updated curl to 8.13.0
+- Updated mbedTLS to 3.6.3
+
 ## 22. February 2025
 - Updated README.md for authentication
 - Added Win32 binaries
