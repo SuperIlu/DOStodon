@@ -35,7 +35,12 @@ function Mastodon(url) {
 	this.failed_requests = 0;
 
 	this.get = new Curl();
+	this.get.SetFollowLocation(1);
+	this.get.SetMaxRedirs(3);
+
 	this.post = new Curl();
+	this.post.SetFollowLocation(1);
+	this.post.SetMaxRedirs(3);
 
 	var proxy_host = GetEnv("PROXY_HOST");
 	var proxy_port = GetEnv("PROXY_PORT");

@@ -212,6 +212,11 @@ ne2000 0x60 3 0x300
 - Have fun
 
 # Changelog
+## 12. July 2025
+- Updated curl to 8.14.1
+- Updated mbedTLS to 3.6.4
+- Enabled follow redirects for HTTP 3xx responses (thanks to @BenCollver@tilde.zone for reporting)
+
 ## 18. April 2025
 - Added missing Win32 DLLs
 - Updated curl to 8.13.0
