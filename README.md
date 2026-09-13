@@ -1,5 +1,6 @@
 # DOStodon
 ![DOStodon logo](/images/Logo_DOStodon400x.png)
+
 This is the source of DOStodon, a Mastodon client for MS-DOS.
 
 DOStodon is implemented in Javascript and relies on [DOjS](https://github.com/SuperIlu/DOjS) to run (included).
