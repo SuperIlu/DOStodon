@@ -116,7 +116,7 @@ function Splash() {
 Splash.prototype.Draw = function () {
 	this.splash.Draw(0, 0);
 	TextXY(LIST_IMG_SIZE, LIST_IMG_SIZE, this.txt, EGA.BLACK, NO_COLOR);
-	TextXY(LIST_IMG_SIZE, Height - LIST_IMG_SIZE, "(c) 2022-2023 by <superilu@yahoo.com>", EGA.BLACK, NO_COLOR);
+	TextXY(LIST_IMG_SIZE, Height - LIST_IMG_SIZE, "(c) 2022-2026 by <superilu@yahoo.com>", EGA.BLACK, NO_COLOR);
 
 	var boxWidth = (this.length - this.chain.Size()) * this.stepSize;
 	FilledBox(LIST_IMG_SIZE, 2 * LIST_IMG_SIZE, 20 + boxWidth, 2 * LIST_IMG_SIZE + PROGRESS_HEIGHT, EGA.RED);

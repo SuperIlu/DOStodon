@@ -1,11 +1,13 @@
 # DOStodon
+![DOStodon logo](/images/Logo_DOStodon400x.png)
 This is the source of DOStodon, a Mastodon client for MS-DOS.
 
 DOStodon is implemented in Javascript and relies on [DOjS](https://github.com/SuperIlu/DOjS) to run (included).
 
 Help on this project is very much appreciated, contact me on [Mastodon](https://mastodon.social/@dec_hl) or in the [DOjS Discord](https://discord.gg/J7MUTap9fM) if you want to help or have questions...
 
-# Quick start for DOS
+# Quick start
+## for DOS
 - **You need a VM, real HW or DOSBox-staging with a network card and a matching packet driver to use it.**
 - **A Pentium 133 or faster with at least 32MiB of RAM is recommended.**
 - **Packet drivers can e.g. be found on [packetdriversdos.net](http://packetdriversdos.net/) (make sure to download the driver from the "PC/TCP PACKET DRIVERS" section) or on [crynwr.com](http://crynwr.com/drivers/) or [www.georgpotthast.de](http://www.georgpotthast.de/sioux/packet.htm)**
@@ -15,16 +17,11 @@ Help on this project is very much appreciated, contact me on [Mastodon](https://
 
 Just [download](https://github.com/SuperIlu/DOStodon/archive/refs/heads/main.zip) the whole repository.
 
-## Linux version
-There is an experimental Linux version of DOStodon. It is based on [DOjS v1.12](https://github.com/SuperIlu/DOjS). You can try it at your own risk. You need to compile DOjS yourself, please look at [this instruction](https://github.com/SuperIlu/DOjS/blob/master/README_Linux.md) how to do that. Fullscreen mode does not get keyboard input on WSL2, you can switch to windowed mode by removing the `-u` option in `dostodon.sh`.
-
-<img src="https://github.com/SuperIlu/DOStodon/raw/main/images/timeline.png" alt="DOStodon timeline" width="200">
-<img src="https://github.com/SuperIlu/DOStodon/raw/main/images/profile.png" alt="DOStodon profile" width="200">
-<img src="https://github.com/SuperIlu/DOStodon/raw/main/images/find_user.png" alt="DOStodon find user" width="200">
-<img src="https://github.com/SuperIlu/DOStodon/raw/main/images/hashtag.png" alt="DOStodon hashtag" width="200">
-
-## Win32 version
-I uploaded an experimental Win32 version. It should work from Windows XP onwards. Simply run `wintodon.bat` after following the instructions below
+## Screenshots
+![DOStodon timeline](/images/timeline.png)
+![DOStodon show profile](/images/profile.png)
+![DOStodon find user](/images/find_user.png)
+![DOStodon hashtag](/images/hashtag.png)
 
 # Usage
 ## Before first start
@@ -212,6 +209,12 @@ ne2000 0x60 3 0x300
 - Have fun
 
 # Changelog
+## 13. September 2026
+- Updated mbedTLS to 3.6.7
+- Updated curl to 8.22.0
+- Updated MuJS to 1.3.10
+- New logo!
+
 ## 22. November 2025
 - Updated to DOjS v1.14.0 release https://github.com/SuperIlu/DOjS/releases/tag/v1.140
 
